@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record model="ir.actions.server" id="asterisk_settings_action">
+      <field name="type">ir.actions.server</field>
+      <field name="name">General Settings</field>
+      <field name="state">code</field>
+      <field name="model_id" ref="model_asterisk_plus_settings"/>
+      <field name="code">action = model.open_settings_form()</field>
+  </record>
+
+  <menuitem id="settings_menu" parent="asterisk_plus.asterisk_settings_menu"
+      groups="asterisk_plus.group_asterisk_settings"
+      action="asterisk_settings_action" name="General" sequence="70"/>
+
+  <record id='asterisk_settings_form' model='ir.ui.view'>
+      <field name='name'>asterisk_plus.settings.form</field>
+      <field name='model'>asterisk_plus.settings</field>
+      <field name='type'>form</field>
+      <field name='arch' type='xml'>
+        <form create="false" delete="false">
+            <sheet>
+              <notebook>
+                <page name="general" string="General">
+                  <group>
+                    <group>
+                      <field name="debug_mode"/>
+                    </group>
+                  </group>
+                </page>                
+                <page name="salt" string="Salt Master">
+                  <group>
+                    <group>
+                      <field name="saltapi_url"/>
+                    </group>
+                    <group>
+                      <field name="saltapi_user"/>
+                      <field name="saltapi_passwd" password="1"/>
+                    </group>
+                  </group>
+                </page>
+              </notebook>
+            </sheet>
+        </form>
+      </field>
+  </record>
+
+</odoo>

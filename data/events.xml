@@ -1,0 +1,18 @@
+<odoo>
+  <data>
+    <record id="fully_booted" model="asterisk_plus.event">
+      <field name="name">FullyBooted</field>
+      <field name="source">AMI</field>
+      <field name="model">asterisk_plus.server</field>
+      <field name="method">on_fully_booted</field>
+    </record>
+
+    <record id="originate_response" model="asterisk_plus.event">
+      <field name="name">OriginateResponse</field>
+      <field name="source">AMI</field>
+      <field name="model">asterisk_plus.server</field>
+      <field name="method">ami_originate_response</field>
+      <field name="condition">event['Response'] == 'Failure'</field>
+    </record>
+  </data>
+</odoo>

@@ -1,0 +1,23 @@
+<odoo>
+
+<record id="asterisk_plus_user_channels_user" model="ir.model.access">
+    <field name="name">asterisk_plus_user_channels</field>
+    <field name="model_id" ref="asterisk_plus.model_asterisk_plus_user_channel"/>
+    <field name="group_id" ref="asterisk_plus.group_asterisk_user"/>
+    <field name="perm_read" eval="1"/>
+    <field name="perm_write" eval="1"/>
+    <field name="perm_create" eval="1"/>
+    <field name="perm_unlink" eval="1"/>
+</record>
+
+<record id="asterisk_plus_user" model="ir.model.access">
+    <field name="name">asterisk_plus_user</field>
+    <field name="model_id" ref="asterisk_plus.model_asterisk_plus_user"/>
+    <field name="group_id" ref="asterisk_plus.group_asterisk_user"/>
+    <field name="perm_read" eval="1"/>
+    <field name="perm_write" eval="1"/>
+    <field name="perm_create" eval="1"/>
+    <field name="perm_unlink" eval="1"/>
+</record>
+
+</odoo>

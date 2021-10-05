@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="asterisk_plus_server_action" model="ir.actions.server">
+      <field name="name">Server</field>
+      <field name="model_id" ref="model_asterisk_plus_server"/>
+      <field name="state">code</field>
+      <field name="code">action = model.open_server_form()</field>
+  </record>
+
+  <menuitem id="asterisk_plus_server_menu" parent="asterisk_plus.asterisk_settings_menu"
+      sequence="190" action="asterisk_plus_server_action" name="Server"/>
+
+  <record model="ir.ui.view" id="asterisk_plus_server_list">
+      <field name="name">asterisk servers</field>
+      <field name="model">asterisk_plus.server</field>
+      <field name="arch" type="xml">
+          <tree>
+              <field name="name"/>
+              <field name="server_id"/>
+              <button type="object" icon="fa-refresh"
+                name="ping"/>
+          </tree>
+      </field>
+  </record>
+
+  <record model="ir.ui.view" id="asterisk_plus_server_form">
+      <field name="name">asterisk_plus_server_form</field>
+      <field name="model">asterisk_plus.server</field>
+      <field name="arch" type="xml">
+          <form create="false">
+              <header>
+                  <button type="object" class="oe_read_only" string="Minion Ping"
+                          icon="fa-bomb" name="ping"/>                  
+                  <button type="object" class="oe_read_only" string="Asterisk Ping"
+                          icon="fa-bomb" name="asterisk_ping"/>                  
+              </header>
+              <sheet>
+                <div class="oe_title" name="title">
+                  <label for="name" class="oe_edit_only"/>
+                  <h1><field name="name"/></h1>
+                  <label for="server_id" class="oe_edit_only"/>
+                  <h2><field name="server_id"/></h2>                
+                </div>
+              </sheet>
+          </form>
+      </field>
+  </record>
+
+</odoo>

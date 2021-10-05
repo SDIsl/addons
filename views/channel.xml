@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="asterisk_plus_channel_action" model="ir.actions.act_window">
+      <field name="name">Channels</field>
+      <field name="res_model">asterisk_plus.channel</field>
+      <field name="view_mode">tree,form</field>
+  </record>
+
+  <menuitem id="asterisk_plus_channel_menu" parent='asterisk_plus.asterisk_settings_menu'
+      name='Channels' action='asterisk_plus_channel_action'/>
+
+  <record id="asterisk_plus_channel_list" model="ir.ui.view">
+      <field name="name">asterisk.plus.channel.list</field>
+      <field name="model">asterisk_plus.channel</field>
+      <field name="arch" type="xml">
+          <tree edit="false" create="false" duplicate="false">
+              <field name="channel"/>
+              <field name="uniqueid"/>
+              <field name="linkedid"/>
+              <field name="owner"/>
+          </tree>
+      </field>
+  </record>
+
+</odoo>

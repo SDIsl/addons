@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- First view for adding asterisk_extension field -->
+    <record id="view_partner_form_1" model="ir.ui.view">
+        <field name="name">asterisk_plus.res.partner.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="priority">51</field>
+        <field name="arch" type="xml">
+            <field name="phone" position="after">
+                <field name="phone_extension" widget="originate_extension"
+                    attrs="{'invisible': [('phone', '=', False)]}"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- The 2-nd form is for overwriting widget after sms form view will apply its changes. -->
+    <record id="view_partner_form_2" model="ir.ui.view">
+        <field name="name">asterisk_plus.res.partner.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="priority">52</field>
+        <field name="arch" type="xml">
+            <field name="phone" position="attributes">
+                <attribute name="widget">originate_call</attribute>
+            </field>
+
+            <field name="mobile" position="attributes">
+                <attribute name="widget">originate_call</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="search_partner_view" model="ir.ui.view">
+        <field name="name">asterisk_plus.res.partner.search</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <field name="phone" position="after">
+                <field name="mobile"/>
+                <field name="phone_normalized"/>
+                <field name="mobile_normalized"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>
