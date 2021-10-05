@@ -40,7 +40,8 @@ class UserChannel(models.Model):
     asterisk_user = fields.Many2one('asterisk_plus.user', required=True,
                                     ondelete='cascade')
     #: Server where the channel is defined.
-    server = fields.Many2one(related='asterisk_user.server', readonly=True)
+    server = fields.Many2one(
+        related='asterisk_user.server', readonly=True, store=True)
     #: Odoo res.user who owns the channel.
     user = fields.Many2one(related='asterisk_user.user', readonly=True)
     #: When user has multiple channels and sequence calling is set this defines the call order.
