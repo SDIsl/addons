@@ -40,10 +40,10 @@ class SaltJob(models.Model):
         if job.res_notify_uid:
             if ret['success']:
                 self.env['res.users'].asterisk_plus_notify(
-                    '{} OK'.format(ret['fun']), uid=job.res_notify_uid)
+                    '{}: OK'.format(ret['fun']), uid=job.res_notify_uid)
             else:
                 self.env.user.asterisk_plus_notify(
-                    '{} OK'.format(ret['fun']), uid=job.res_notify_uid, warning=True)
+                    '{}: FAIL'.format(ret['fun']), uid=job.res_notify_uid, warning=True)
 
         # Check if return is sent to callback method.
         if job.res_model and job.res_method:
