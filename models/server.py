@@ -193,10 +193,10 @@ class Server(models.Model):
         Returns:
             True or False if Salt minion is not connected.
         """
-        return self.salt_job(fun='test.ping',
-                             res_model='asterisk_plus.server',
-                             res_method='ping_reply',
-                             pass_back={'uid': self.env.user.id})
+        self.salt_job(fun='test.ping',
+                      res_model='asterisk_plus.server',
+                      res_method='ping_reply',
+                      pass_back={'uid': self.env.user.id})
 
     @api.model
     def ping_reply(self, data, pass_back):
@@ -206,18 +206,7 @@ class Server(models.Model):
     def asterisk_ping(self):
         """Called from server form to test AMI connectivity.
         """
-        res = self.ami_action({'Action': 'Ping'})
-        # res_notify_uid=self.env.uid,
-        #    res_model='asterisk_plus.server', res_method='asterisk_ping_again')
-        debug(self, 'Sync rec', res)
-        return res
-        # self.env.user.asterisk_plus_notify(str(res))
-        return res
-
-    @api.model
-    def asterisk_ping_again(self, data, pass_back):
-        debug(self, 'Ping again', None)
-        self.env.ref('asterisk_plus.default_server').sudo().asterisk_ping()
+        self.ami_action({'Action': 'Ping'}, res_notify_uid=self.env.uid)
 
     @api.model
     def on_fully_booted(self, event):

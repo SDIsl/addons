@@ -31,7 +31,6 @@ class AsteriskPlusController(http.Controller):
                 logger.exception('Error')
                 return '{}'.format(e)
 
-
     def check_ip(self, db=None):
         if db:
             with registry(db).cursor() as cr:
