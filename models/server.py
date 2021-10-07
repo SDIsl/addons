@@ -81,7 +81,7 @@ class Server(models.Model):
                     'file',
                 )
                 # Update auth data.
-                self.env['ir.config_parameter'].set_param(
+                self.env['ir.config_parameter'].sudo().set_param(
                     'saltapi_auth', json.dumps(saltapi.auth))
             else:
                 # Token not expired, take it.
@@ -123,14 +123,6 @@ class Server(models.Model):
             if not sync:
                 ret = saltapi.local_async(tgt=self.server_id, fun=fun, arg=arg,
                                           kwarg=kwarg, timeout=timeout, ret='odoo')
-            else:
-                ret = saltapi.local(tgt=self.server_id, fun=fun, arg=arg,
-                                    kwarg=kwarg, timeout=timeout)
-            # TODO: Add server:
-            # {'return': [{'jid': '20210928122846179815', 'minions': ['asterisk']}]}
-            debug(self, 'Return', ret)
-            if not sync:
-                # Create a Salt job.
                 self.env['asterisk_plus.salt_job'].sudo().create({
                     'jid': ret['return'][0]['jid'],
                     'res_model': res_model,
@@ -138,6 +130,13 @@ class Server(models.Model):
                     'res_notify_uid': res_notify_uid,
                     'pass_back': json.dumps(pass_back) if pass_back else False,
                 })
+            else:
+                ret = saltapi.local(tgt=self.server_id, fun=fun, arg=arg,
+                                    kwarg=kwarg, timeout=timeout)
+            # TODO: Add server:
+            # {'return': [{'jid': '20210928122846179815', 'minions': ['asterisk']}]}
+            debug(self, 'Return', ret)
+            return ret
             if not self.env.context.get('no_commit'):
                 # Commit ASAP so that returner can find the job.
                 self.env.cr.commit()
