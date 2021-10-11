@@ -39,6 +39,13 @@
                     </group>
                   </group>
                 </page>
+                <page name="common" string="Common">
+                  <group>
+                    <group>
+                      <field name="permit_ip_addresses"/>
+                    </group>
+                  </group>
+                </page>
               </notebook>
             </sheet>
         </form>

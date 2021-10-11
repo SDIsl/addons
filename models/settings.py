@@ -35,6 +35,10 @@ class Settings(models.Model):
                                  default='odoo')
     #: Debug mode
     debug_mode = fields.Boolean()
+    permit_ip_addresses = fields.Char(
+    string=_('Permit IP address(es)'),
+    help=_('Comma separated list of IP addresses permitted to query caller'
+            ' ID number, etc. Leave empty to allow all addresses.'))
 
     @api.model
     def _get_name(self):
