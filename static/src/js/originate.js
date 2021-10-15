@@ -30,9 +30,9 @@ odoo.define('asterisk_plus.originate_widget', function (require) {
                       aria-label="Call" title="Call"></button>')
       this.$el.find('.originate_extension_button').click(function(){
         return self._rpc({
-            'model': 'asterisk_plus.server',
-            'method': 'originate_extension',
-            'args': [self.res_id]
+            'model': 'res.partner',
+            'method': 'originate_call',
+            'args': [self.value, self.model, self.res_id]
         })
       })
     },

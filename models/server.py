@@ -98,7 +98,7 @@ class Server(models.Model):
                 'saltapi_auth', json.dumps(saltapi.auth))
         return saltapi
 
-    def salt_job(self, fun, arg=None, kwarg=None, timeout=None,
+    def local_job(self, fun, arg=None, kwarg=None, timeout=None,
                   res_model=None, res_method=None, res_notify_uid=None,
                   pass_back=None, sync=False):
         """Execute a function on Salt minion.
@@ -123,6 +123,7 @@ class Server(models.Model):
             if not sync:
                 ret = saltapi.local_async(tgt=self.server_id, fun=fun, arg=arg,
                                           kwarg=kwarg, timeout=timeout, ret='odoo')
+                debug(self, 'Return', ret)
                 self.env['asterisk_plus.salt_job'].sudo().create({
                     'jid': ret['return'][0]['jid'],
                     'res_model': res_model,
@@ -133,12 +134,14 @@ class Server(models.Model):
             else:
                 ret = saltapi.local(tgt=self.server_id, fun=fun, arg=arg,
                                     kwarg=kwarg, timeout=timeout)
+                debug(self, 'Return', ret)
             # TODO: Add server:
             # {'return': [{'jid': '20210928122846179815', 'minions': ['asterisk']}]}
+            # TODO: When minion is not accepted it raises error.
             debug(self, 'Return', ret)
-            return ret
             if not self.env.context.get('no_commit'):
                 # Commit ASAP so that returner can find the job.
+                # TODO: Move the above to separate transation not to commit the current one.
                 self.env.cr.commit()
             return ret
         try:
@@ -175,7 +178,7 @@ class Server(models.Model):
             [{'Response': 'Success', 'ActionID': 'action/67cfd99b-8138-4cb5-9473-4e8be6d1cbe9/1/5026', 'Ping': 'Pong', 'Timestamp': '1631707333.341870', 'content': ''}]        
 
         """
-        return self.salt_job(
+        return self.local_job(
             fun='asterisk.manager_action',
             arg=action,
             kwarg={
@@ -192,7 +195,7 @@ class Server(models.Model):
         Returns:
             True or False if Salt minion is not connected.
         """
-        self.salt_job(fun='test.ping',
+        self.local_job(fun='test.ping',
                       res_model='asterisk_plus.server',
                       res_method='ping_reply',
                       pass_back={'uid': self.env.user.id})
@@ -212,7 +215,7 @@ class Server(models.Model):
         return True
 
     @api.model
-    def originate_call(self, number, model=None, res_id=None, user=None):
+    def originate_call(self, number, model=None, res_id=None, user=None, dtmf_variables=None):
         if not user:
             user = self.env.user
         if not user.asterisk_users:
@@ -233,7 +236,7 @@ class Server(models.Model):
                     param = header[:pos]
                     val = header[pos+1:]
                     if 'PJSIP' in ch.name.upper():
-                        ch.append(
+                        channel_vars.append(
                             'PJSIP_HEADER(add,{})={}'.format(
                                 param.lstrip(), val.lstrip()))
                     else:
@@ -243,6 +246,9 @@ class Server(models.Model):
                 except Exception:
                     logger.warning(
                         'Cannot parse auto answer header: %s', header)
+
+            if dtmf_variables:
+                channel_vars.extend(dtmf_variables)
 
             channel_id = uuid.uuid4().hex
             other_channel_id = uuid.uuid4().hex
