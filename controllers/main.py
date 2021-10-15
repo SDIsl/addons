@@ -29,8 +29,9 @@ class AsteriskPlusController(http.Controller):
             if partner.user_id:
                     # We have sales person set lets check if he has extension.
                     if partner.user_id.asterisk_users:
-                        # We have user configured so lets return his exten
-                        result = partner.user_id.asterisk_users[0].exten
+                        # We have user configured so lets return his channel
+                        originate_channels = [k.name for k in partner.user_id.asterisk_users[0].channels if k.originate_enabled]
+                        result = '&'.join(originate_channels)
                         logger.info(
                             "Returning partner %s manager's exten %s",
                             partner.name, result)
@@ -53,18 +54,20 @@ class AsteriskPlusController(http.Controller):
         with registry('odoopbx_14').cursor() as cr:
             env = Environment(cr, SUPERUSER_ID, {})
             try:
-                res = env['asterisk_plus.server'].browse(1).asterisk_ping()
-                return '{}'.format(res)
+                res = env['asterisk_plus.server'].browse(1).salt_job(
+                    fun='test.ping', sync=True)
+                return http.Response('{}'.format(res))
             except Exception as e:
                 logger.exception('Error')
                 return '{}'.format(e)
 
-    @http.route('/asterisk_plus/ping', type='http', auth='none')
+    @http.route('/asterisk_plus/asterisk_ping', type='http', auth='none')
     def ping(self):
         with registry('odoopbx_14').cursor() as cr:
             env = Environment(cr, http.request.env.ref('base.user_admin').id, {})
             try:
-                res = env['asterisk_plus.server'].browse(1).ping()
+                res = env['asterisk_plus.server'].browse(1).ami_action(
+                    {'Action': 'Ping'}, sync=True)
                 return http.Response('{}'.format(res))
             except Exception as e:
                 logger.exception('Error')

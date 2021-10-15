@@ -59,8 +59,23 @@ class TestController(HttpCase):
 
     def test_get_partner_manager(self):
         with self.subTest(test_name='Partner manager found'):
+            self.env['asterisk_plus.user_channel'].create([
+                {
+                'name': 'SIP/100',
+                'asterisk_user': self.ast_user.id,
+                },
+                {
+                'name': 'SIP/101',
+                'asterisk_user': self.ast_user.id,
+                },
+                {
+                'name': 'SIP/1002',
+                'asterisk_user': self.ast_user.id,
+                'originate_enabled': False,
+                },
+                ])
             res = self.send_request(self.partner_manager_url, {'number': '10101'})
-            self.assertEqual(res.text, '101010')
+            self.assertEqual(res.text, 'SIP/100&SIP/101')
 
         with self.subTest(test_name='Partner manager not found'):
             res = self.send_request(self.partner_manager_url, {'number': '10101999'})

@@ -11,8 +11,8 @@ class ServerTest(TransactionCase):
 
     def setUp(self):
         res = super(ServerTest, self).setUp()
-        # Mock salt_job to emulate Salt API success response.
-        Server.salt_job = MagicMock()
+        # Mock local_job to emulate Salt API success response.
+        Server.local_job = MagicMock()
         # Create a test server.
         self.server = self.env['asterisk_plus.server'].create({
             'name': 'Test',
@@ -21,7 +21,7 @@ class ServerTest(TransactionCase):
         return res
 
     def test_ping(self):
-        self.server.salt_job.return_value = True
+        self.server.local_job.return_value = True
         self.assertEqual(self.server.ping(), True)
 
     def test_ping_reply(self):
@@ -32,11 +32,11 @@ class ServerTest(TransactionCase):
         )
 
     def test_asterisk_ping(self):
-        self.server.salt_job.return_value = [{'Response': 'Success'}]
+        self.server.local_job.return_value = [{'Response': 'Success'}]
         self.assertEqual(self.server.asterisk_ping(), [{'Response': 'Success'}])
 
     def test_originate_call(self):
-        self.server.salt_job.reset_mock()
+        self.server.local_job.reset_mock()
         test_res_user = new_test_user(
             self.env, login='asterisk_plus_test',
             groups='asterisk_plus.group_asterisk_user',
@@ -65,9 +65,9 @@ class ServerTest(TransactionCase):
             "originate_enabled": False,
         })
         self.server.with_user(test_res_user).with_context(no_commit=True).originate_call('0000000')
-        self.assertEqual(self.server.salt_job.call_count, 2)
-        call1 = self.server.salt_job.mock_calls[0]
-        call2 = self.server.salt_job.mock_calls[1]
+        self.assertEqual(self.server.local_job.call_count, 2)
+        call1 = self.server.local_job.mock_calls[0]
+        call2 = self.server.local_job.mock_calls[1]
         _, _, kwargs1 = call1
         _, _, kwargs2 = call2
         action1 = kwargs1['arg'][0]

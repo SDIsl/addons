@@ -1,5 +1,6 @@
 # ©️ OdooPBX by Odooist, Odoo Proprietary License v1.0, 2020
 import logging
+import re
 import phonenumbers
 from phonenumbers import phonenumberutil
 from odoo import models, fields, api, tools, _
@@ -39,26 +40,33 @@ class Partner(models.Model):
             self.clear_caches()
         return res
 
-    def originate_call(self, number, exten=None):
+    @api.model
+    def originate_call(self, number, model=None, res_id=None, exten=None):
         """Originate Call to partner.
 
         Args:
             number (str): Number to dial.
             exten (str): Optional extension number to enter in DTMF mode after answer.
         """
-        pass
+        partner = self.browse(res_id)
+        number = partner.phone_normalized
+        extension = partner.phone_extension or ''
+        # Minimum 1 second delay.
+        dtmf_delay = extension.count('#') or 1
+        # Now strip # and have only extension.
+        dtmf_digits = extension.strip('#')
+        self.env.user.asterisk_users[0].server.originate_call(
+            number, model='model', res_id=res_id,
+            dtmf_variables=[f'__dtmf_digits: {dtmf_digits}',
+                            f'__dtmf_delay: {dtmf_delay}'])
 
     @api.depends('phone', 'mobile', 'country_id')
     def _get_phone_normalized(self):
         for rec in self:
-            if rec.phone:
-                rec.phone_normalized = rec._normalize_phone(rec.phone)
-            else:
-                rec.phone_normalized = False
-            if rec.mobile:
-                rec.mobile_normalized = rec._normalize_phone(rec.mobile)
-            else:
-                rec.mobile_normalized = False
+            rec.update({
+                'phone_normalized': rec._normalize_phone(rec.phone) if rec.phone else False,
+                'mobile_normalized': rec._normalize_phone(rec.mobile) if rec.mobile else False
+            })
 
     def _normalize_phone(self, number):
         """Keep normalized phone numbers in normalized fields.
@@ -76,11 +84,7 @@ class Partner(models.Model):
         except Exception as e:
             logger.warning('Normalize phone error: %s', e)
         # Strip the number if parse error.
-        number = number.replace(' ', '')
-        number = number.replace('(', '')
-        number = number.replace(')', '')
-        number = number.replace('-', '')
-        return number
+        return self.strip_number(number)
 
     def search_by_number(self, number):
         """Search partner by number.
@@ -126,20 +130,6 @@ class Partner(models.Model):
         else:
             logger.debug('NO PARTNERS FOUND FOR NUMBER %s', number)
 
-    @api.model
-    def originate_extension(self, partner_id):
-        partner = self.browse(partner_id)
-        number = partner.phone_normalized
-        extension = partner.phone_extension or ''
-        # Minimum 1 second delay.
-        dtmf_delay = extension.count('#') or 1
-        # Now strip # and have only extension.
-        dtmf_digits = extension.strip('#')
-        self.env['res.users'].originate_call(
-            number, model='res.partner', res_id=partner.id,
-            variables={'__dtmf_digits': dtmf_digits,
-                       '__dtmf_delay': dtmf_delay})
-
     def _get_country_code(self):
         partner = self
         if partner and partner.country_id:
@@ -161,10 +151,7 @@ class Partner(models.Model):
         logger.debug('FORMAT_NUMBER %s COUNTRY %s FORMAT %s',
                      number, country_code, format_type)
         # Strip formatting if present
-        number = number.replace(' ', '')
-        number = number.replace('(', '')
-        number = number.replace(')', '')
-        number = number.replace('-', '')
+        number = self.strip_number(number)
         if len(self) == 1 and not country_code:
             # Called from partner object
             country_code = self._get_country_code()
@@ -249,3 +236,9 @@ class Partner(models.Model):
         else:
             logger.debug('NO PARTNER FOUND')
         return partner_info
+
+    @staticmethod
+    def strip_number(number):
+        """Strip number formating"""
+        pattern = r'[\s+()-]'
+        return re.sub(pattern, '', number)

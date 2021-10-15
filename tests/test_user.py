@@ -13,8 +13,8 @@ class TestUser(TransactionCase):
 
     def setUp(self):
         super(TestUser, self).setUp()
-        # Mock salt_job to emulate Salt API success response.
-        Server.salt_job = MagicMock()
+        # Mock local_job to emulate Salt API success response.
+        Server.local_job = MagicMock()
         # Create a test server.
         self.server = self.env['asterisk_plus.server'].create({
             'name': 'Test server',
@@ -86,8 +86,8 @@ class TestUser(TransactionCase):
             "originate_context": "test-context",
         })
         ast_user.with_context(no_commit=True).dial_user()
-        self.assertEqual(self.server.salt_job.call_count, 1)
-        call1 = self.server.salt_job.mock_calls[0]
+        self.assertEqual(self.server.local_job.call_count, 1)
+        call1 = self.server.local_job.mock_calls[0]
         _, _, kwargs1 = call1
         action1 = kwargs1['arg'][0]
         self.assertEqual(action1['Channel'], 'SIP/0001')
