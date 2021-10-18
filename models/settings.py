@@ -90,6 +90,11 @@ class Settings(models.Model):
             logger.debug('Keeping existing value for param: %s', param)
         return True
 
-    def write(self, vals):
-        res = super(Settings, self).write(vals)
+    @api.model
+    def create(self, vals):
         self.clear_caches()
+        return super(Settings, self).create(vals)
+
+    def write(self, vals):
+        self.clear_caches()
+        return super(Settings, self).write(vals)
