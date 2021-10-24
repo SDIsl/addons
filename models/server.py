@@ -41,6 +41,12 @@ class Server(models.Model):
     #: Server's minion ID.
     server_id = fields.Char(required=True, string='Server ID')
 
+    user = fields.Many2one('res.users', ondelete='restrict', required=True)
+    tz = fields.Selection(related='user.tz', readonly=False)
+    country_id = fields.Many2one(related='user.country_id', readonly=False)
+    password = fields.Char(related='user.password', string="Password", readonly=False)
+
+
     def open_server_form(self):
         rec = self.env.ref('asterisk_plus.default_server')
         return {

@@ -2,7 +2,8 @@
     
     <record id="default_server" model="asterisk_plus.server">
         <field name="server_id">asterisk</field>
-        <field name="name">Asterisk</field>
+            <field name="name">Asterisk</field>
+            <field name="user" ref="asterisk_plus.user_asterisk1"/>
     </record>
 
 </data></odoo>

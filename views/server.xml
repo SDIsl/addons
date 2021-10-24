@@ -42,6 +42,11 @@
                   <label for="server_id" class="oe_edit_only"/>
                   <h2><field name="server_id"/></h2>                
                 </div>
+                <group>
+                  <field name="tz"/>
+                  <field name="country_id"/>
+                  <field name="password" widget="password"/>
+                </group>
               </sheet>
           </form>
       </field>
