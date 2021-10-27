@@ -28,7 +28,7 @@
             <br/>
             <div class="alert alert-success">
                 <h4>Subscription successful</h4>
-                <p>Your request to sign up address <t t-esc="email"/> is sent to Asterisk Calls's updates mailing list.</p>
+                <p>Your request to sign up address <t t-esc="email"/> is sent to Asterisk Plus's updates mailing list.</p>
                 <br/>
                 <a class="btn btn-success" href="#" onclick="windowClose();">Close</a>
             </div>
