@@ -256,8 +256,9 @@ class Server(models.Model):
                     'channel': ch.name,
                     'uniqueid': channel_id,
                     'linkedid': other_channel_id,
+                    'model': model,
+                    'res_id': res_id,
                     # TODO: Think about multi server.
-                    'owner': self.env.user.asterisk_users[0].id
             })
             if not self.env.context.get('no_commit'):
                 self.env.cr.commit()
@@ -286,17 +287,3 @@ class Server(models.Model):
         if data[0]['Response'] == 'Error':
             self.env.user.asterisk_plus_notify(
                 data[0]['Message'], uid=pass_back['uid'], warning=True)
-
-    @api.model
-    def ami_originate_response(self, data):
-        # This comes from Asterisk OriginateResponse AMI message when
-        # call originate has been failed.
-        logger.info(data)
-        reason = data.get('Reason')
-        uniqueid = data.get('Uniqueid')
-        channel = self.env['asterisk_plus.channel'].sudo().search([('uniqueid', '=', uniqueid)])
-        if channel:
-            self.env.user.asterisk_plus_notify(
-                _('Call failed, reason {0}').format(reason),
-                uid=channel.create_uid.id, warning=True)
-        return True

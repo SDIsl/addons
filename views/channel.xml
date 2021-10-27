@@ -15,12 +15,34 @@
       <field name="model">asterisk_plus.channel</field>
       <field name="arch" type="xml">
           <tree edit="false" create="false" duplicate="false">
-              <field name="channel"/>
-              <field name="uniqueid"/>
-              <field name="linkedid"/>
-              <field name="owner"/>
-          </tree>
+            <field name="exten"/>
+            <field name="callerid_num"/>
+            <field name="callerid_name"/>
+            <field name="connected_line_num"/>
+            <field name="connected_line_name"/>
+            <field name="cause"/>
+            <field name="cause_txt"/>
+            <field name="create_date"/>
+            <field name="create_uid"/>
+            </tree>
       </field>
+  </record>
+
+  <record id="asterisk_plus_channel_search" model="ir.ui.view">
+    <field name="name">asterisk.plus.channel.search</field>
+    <field name="model">asterisk_plus.channel</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="channel"/>
+        <field name="exten"/>
+        <field name="callerid_num"/>
+        <field name="callerid_name"/>
+        <field name="app"/>
+        <field name="uniqueid"/>
+        <filter name="archived" string="Archived"
+          context="{'active_test': False}" domain="[('active', '=', False)]"/>
+      </search>
+    </field>
   </record>
 
 </odoo>
