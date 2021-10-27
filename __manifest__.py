@@ -19,7 +19,6 @@
         'security/server.xml',
         'security/admin.xml',
         'security/user.xml',
-        'security/channel.xml',
         # Data
         'data/events.xml',
         'data/res_users.xml',

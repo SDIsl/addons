@@ -8,7 +8,7 @@ from odoo.tools import ormcache
 logger = logging.getLogger(__name__)
 
 
-def debug(rec, prefix, message):
+def debug(rec, prefix, message=None):
     caller_module = inspect.stack()[1][3]
     if rec.env['asterisk_plus.settings'].sudo().get_param('debug_mode'):
         print('++++++ {}: {}: {}'.format(
