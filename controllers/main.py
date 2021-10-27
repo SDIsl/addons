@@ -72,3 +72,21 @@ class AsteriskPlusController(http.Controller):
             except Exception as e:
                 logger.exception('Error')
                 return '{}'.format(e)
+
+    @http.route('/asterisk_plus/signup', auth='user')
+    def signup(self):
+        user = http.request.env['res.users'].browse(http.request.uid)
+        email = user.partner_id.email
+        if not email:
+            return http.request.render('asterisk_plus.email_not_set')
+        mail = http.request.env['mail.mail'].create({
+            'subject': 'Asterisk calls subscribe request',
+            'email_from': email,
+            'email_to': 'odooist@gmail.com',
+            'body_html': '<p>Email: {}</p>'.format(email),
+            'body': 'Email: {}'.format(email),
+        })
+        mail.send()
+        return http.request.render('asterisk_plus.email_sent',
+                                   qcontext={'email': email})
+
