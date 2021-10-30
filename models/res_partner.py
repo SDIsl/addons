@@ -4,6 +4,7 @@ import re
 import phonenumbers
 from phonenumbers import phonenumberutil
 from odoo import models, fields, api, tools, _
+from .settings import debug
 
 logger = logging.getLogger(__name__)
 
@@ -98,11 +99,11 @@ class Partner(models.Model):
             '|',
             ('phone_normalized', '=', number),
             ('mobile_normalized', '=', number)])
-        logger.debug('SEARCH_PARTNER_BY_NUMBER %s FOUND: %s', number, found)
+        debug(self, 'search_by_number', 'SEARCH_PARTNER_BY_NUMBER {} FOUND: {}'.format(number, found))
         parents = found.mapped('parent_id')
         # 1-st case: just one partner, perfect!
         if len(found) == 1:
-            logger.debug('FOUND PARTNER BY NUMBER {}'.format(number))
+            debug(self, 'search_by_number', 'FOUND PARTNER BY NUMBER {}'.format(number))
             return found[0]
         # 2-nd case: Many partners, no parent company / many companies
         elif len(parents) == 0 and len(found) > 1:
@@ -117,18 +118,17 @@ class Partner(models.Model):
         elif len(parents) == 1 and len(found) == 2 and len(
                 found.filtered(
                     lambda r: r.parent_id.id in [k.id for k in parents])) == 1:
-            logger.debug('ONE PARTNER FROM ONE PARENT FOUND')
+            debug(self, 'search_by_number', 'ONE PARTNER FROM ONE PARENT FOUND')
             return found.filtered(
                 lambda r: r.parent_id.id in [k.id for k in parents])[0]
         # 5-rd case: many partners same parent company
         elif len(parents) == 1 and len(found) > 1 and len(found.filtered(
                 lambda r: r.parent_id.id in [k.id for k in parents])) > 1:
-            logger.debug(
-                'MANY PARTNERS SAME PARENT COMPANY %s', number)
+            debug(self, 'search_by_number', 'MANY PARTNERS SAME PARENT COMPANY {}'.format(number))
             return parents[0]
         # 6-rd case: Nothing found
         else:
-            logger.debug('NO PARTNERS FOUND FOR NUMBER %s', number)
+            debug(self, 'search_by_number', 'NO PARTNERS FOUND FOR NUMBER {}'.format(number))
 
     def _get_country_code(self):
         partner = self
@@ -148,30 +148,28 @@ class Partner(models.Model):
     @api.model
     def _format_number(self, number, country_code=None,
                        format_type='e164'):
-        logger.debug('FORMAT_NUMBER %s COUNTRY %s FORMAT %s',
-                     number, country_code, format_type)
+        debug(self, '_format_number', 'FORMAT_NUMBER {} COUNTRY {} FORMAT {}'.format(number, country_code, format_type))
         # Strip formatting if present
         number = self.strip_number(number)
         if len(self) == 1 and not country_code:
             # Called from partner object
             country_code = self._get_country_code()
-            logger.debug(
-                'GOT COUNTRY FOR PARTNER %s CODE %s', self, country_code)
+            debug(self, '_format_number', 'GOT COUNTRY FOR PARTNER {} CODE {}'.format(self, country_code))
         elif not country_code:
             # Get country code for requesting account
             country_code = self.env.user.partner_id._get_country_code()
-            logger.debug('GOT COUNTRY CODE %s FROM ENV USER', country_code)
+            debug(self, '_format_number', 'GOT COUNTRY CODE {} FROM ENV USER'.format(country_code))
         elif not country_code:
-            logger.debug('COULD NOT GET COUNTRY CODE')
+            debug(self, '_format_number', 'COULD NOT GET COUNTRY CODE')
         if country_code is False:
             # False -> None
             country_code = None
         try:
             phone_nbr = phonenumbers.parse(number, country_code)
             if not phonenumbers.is_possible_number(phone_nbr):
-                logger.debug('PHONE NUMBER {} NOT POSSIBLE'.format(number))
+                debug(self, '_format_number', 'PHONE NUMBER {} NOT POSSIBLE'.format(number))
             elif not phonenumbers.is_valid_number(phone_nbr):
-                logger.debug('PHONE NUMBER {} NOT VALID'.format(number))
+                debug(self, '_format_number', 'PHONE NUMBER {} NOT VALID'.format(number))
             # We have a parsed number, let check what format to return.
             elif format_type == 'out_of_country':
                 # For out of country format we must get the Asterisk
@@ -179,20 +177,19 @@ class Partner(models.Model):
                 country_code = self.env.user.partner_id._get_country_code()
                 number = phonenumbers.format_out_of_country_calling_number(
                     phone_nbr, country_code)
-                logger.debug(
-                    'OUT OF COUNTRY FORMATTED NUMBER: %s', number)
+                debug(self, '_format_number', 'OUT OF COUNTRY FORMATTED NUMBER: {}'.format(number))
             elif format_type == 'e164':
                 number = phonenumbers.format_number(
                     phone_nbr, phonenumbers.PhoneNumberFormat.E164)
-                logger.debug('E164 FORMATTED NUMBER: {}'.format(number))
+                debug(self, '_format_number', 'E164 FORMATTED NUMBER: {}'.format(number))
             elif format_type == 'international':
                 number = phonenumbers.format_number(
                     phone_nbr, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
-                logger.debug('INTERN FORMATTED NUMBER: {}'.format(number))
+                debug(self, '_format_number', 'INTERN FORMATTED NUMBER: {}'.format(number))
             else:
                 logger.error('WRONG FORMATTING PASSED: %s', format_type)
         except phonenumberutil.NumberParseException:
-            logger.debug('PHONE NUMBER {} PARSE ERROR'.format(number))
+            debug(self, '_format_number', 'PHONE NUMBER {} PARSE ERROR'.format(number))
         except Exception:
             logger.exception('FORMAT NUMBER ERROR:')
         finally:
@@ -203,13 +200,12 @@ class Partner(models.Model):
     def get_partner_by_number(self, number, country_code=None):
         # Default values
         partner_info = {'name': _('Unknown'), 'id': False}
-        logger.debug(
-            'GET_PARTNER_BY_NUMBER {} COUNTRY {}'.format(number, country_code))
+        debug(self, 'get_partner_by_number', 'GET_PARTNER_BY_NUMBER {} COUNTRY {}'.format(number, country_code))
         if not number:
-            logger.debug('NO NUMBER PASSED')
+            debug(self, 'get_partner_by_number', 'NO NUMBER PASSED')
             return partner_info
         if 'unknown' in number or number == 's':
-            logger.debug('<UNKNOWN>/s NUMBER PASSED')
+            debug(self, 'get_partner_by_number', '<UNKNOWN>/s NUMBER PASSED')
             return partner_info
         partner = None
         # 1. Convert to E.164 and make a search
@@ -232,9 +228,9 @@ class Partner(models.Model):
             else:
                 partner_info['name'] = partner.name
                 # On Odoo 10 we have to use unicode formatting!
-                logger.debug(u'FOUND PARTNER {}'.format(partner_info['name']))
+                debug(self, 'get_partner_by_number', u'FOUND PARTNER {}'.format(partner_info['name']))
         else:
-            logger.debug('NO PARTNER FOUND')
+            debug(self, 'get_partner_by_number', 'NO PARTNER FOUND')
         return partner_info
 
     @staticmethod
