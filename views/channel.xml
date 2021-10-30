@@ -2,13 +2,30 @@
 <odoo>
 
   <record id="asterisk_plus_channel_action" model="ir.actions.act_window">
-      <field name="name">Channels</field>
+      <field name="name">Active Calls</field>
       <field name="res_model">asterisk_plus.channel</field>
       <field name="view_mode">tree,form</field>
+      <field name="domain">[('active', '=', True)]</field>
   </record>
 
-  <menuitem id="asterisk_plus_channel_menu" parent='asterisk_plus.asterisk_settings_menu'
-      name='Channels' action='asterisk_plus_channel_action'/>
+  <record id="asterisk_plus_channel_archived_action" model="ir.actions.act_window">
+      <field name="name">Calls History</field>
+      <field name="res_model">asterisk_plus.channel</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[('active', '=', False)]</field>
+  </record>
+
+  <menuitem id="asterisk_plus_channel_menu"
+            sequence="100"
+            parent="asterisk_plus.asterisk_apps_menu"
+            name="Active Calls"
+            action="asterisk_plus_channel_action"/>
+
+  <menuitem id="asterisk_plus_channel_archived_menu"
+            sequence="200"
+            parent="asterisk_plus.asterisk_apps_menu"
+            name="Calls History"
+            action="asterisk_plus_channel_archived_action"/>
 
   <record id="asterisk_plus_channel_list" model="ir.ui.view">
       <field name="name">asterisk.plus.channel.list</field>

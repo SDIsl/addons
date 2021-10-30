@@ -9,9 +9,11 @@
     <field name="code">action = model.open_user_form()</field>
   </record>
 
-  <menuitem action="asterisk_plus_user_action" id="asterisk_plus_user_menu"
-    name="Users" sequence="310"
-    parent="asterisk_plus.asterisk_settings_menu"/>
+  <menuitem id="asterisk_plus_user_menu"
+            sequence="400"
+            parent="asterisk_plus.asterisk_apps_menu"
+            name="Users"
+            action="asterisk_plus_user_action"/>
 
   <record id="asterisk_plus_user_list" model="ir.ui.view">
     <field name="name">asterisk_plus.user.list</field>
