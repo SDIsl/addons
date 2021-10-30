@@ -87,7 +87,7 @@ class Settings(models.Model):
             # TODO: How to handle Boolean fields!?
             setattr(data, param, value)
         else:
-            logger.debug('Keeping existing value for param: %s', param)
+            debug(self, 'set_param', "Keeping existing value for param: {}".format(param))
         return True
 
     @api.model
