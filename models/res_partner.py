@@ -21,6 +21,7 @@ class Partner(models.Model):
     phone_extension = fields.Char(help=_(
         'Prefix with # to add 1 second pause before entering. '
         'Every # adds 1 second pause. Example: ###1001'))
+    call_count = fields.Integer(compute='_get_call_count', string='Calls')
 
     @api.model
     def create(self, vals):
@@ -238,3 +239,16 @@ class Partner(models.Model):
         """Strip number formating"""
         pattern = r'[\s+()-]'
         return re.sub(pattern, '', number)
+
+    def _get_call_count(self):
+        for rec in self:
+            if rec.is_company:
+                rec.call_count = self.env[
+                    'asterisk_plus.channel'].sudo().search_count(
+                    ['|', ('partner', '=', rec.id),
+                          ('partner.parent_id', '=', rec.id),
+                          ('active', 'in', [True, False])])
+            else:
+                rec.call_count = self.env[
+                    'asterisk_plus.channel'].sudo().search_count(
+                    [('partner', '=', rec.id), ('active', 'in', [True, False])])

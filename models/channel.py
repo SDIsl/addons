@@ -80,7 +80,10 @@ class Channel(models.Model):
         """AMI NewChannel event is processed to create a new channel in Odoo.
         """
         debug(self, 'NewChannel', event)
+        # Find partner
+        partner = self.env['res.partner'].sudo().search_by_number(event['CallerIDNum'])
         vals = {
+            'partner': partner.id if partner else None,
             'channel': event['Channel'],
             'callerid_num': event['CallerIDNum'],
             'callerid_name': event['CallerIDName'],

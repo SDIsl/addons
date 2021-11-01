@@ -58,6 +58,7 @@
         <field name="uniqueid"/>
         <filter name="archived" string="Archived"
           context="{'active_test': False}" domain="[('active', '=', False)]"/>
+        <filter name="group_partner" string="Partner" context="{'group_by':'partner'}"/>
       </search>
     </field>
   </record>

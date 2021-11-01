@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <record id='partner_calls_action' model='ir.actions.act_window'>
+        <field name='name'>Calls</field>
+        <field name='res_model'>asterisk_plus.channel</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">['|', ('partner','=', active_id), ('partner.parent_id','=', active_id)]</field>
+    </record>
+
     <!-- First view for adding asterisk_extension field -->
     <record id="view_partner_form_1" model="ir.ui.view">
         <field name="name">asterisk_plus.res.partner.form</field>
@@ -8,6 +15,13 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="priority">51</field>
         <field name="arch" type="xml">
+            <xpath expr="//div[@class='oe_button_box']" position="inside">
+                <button class="oe_stat_button" icon="fa-phone"
+                        context="{'active_test': False, 'search_default_group_partner': True}"
+                        name="%(partner_calls_action)d" type="action">
+                    <field name="call_count" widget="statinfo"/>
+                </button>
+            </xpath>
             <field name="phone" position="after">
                 <field name="phone_extension" widget="originate_extension"
                     attrs="{'invisible': [('phone', '=', False)]}"/>
