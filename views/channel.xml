@@ -2,25 +2,64 @@
 <odoo>
 
   <record id="asterisk_plus_channel_action" model="ir.actions.act_window">
-      <field name="name">Channels</field>
+      <field name="name">Active Calls</field>
       <field name="res_model">asterisk_plus.channel</field>
       <field name="view_mode">tree,form</field>
+      <field name="domain">[('active', '=', True)]</field>
   </record>
 
-  <menuitem id="asterisk_plus_channel_menu" parent='asterisk_plus.asterisk_settings_menu'
-      name='Channels' action='asterisk_plus_channel_action'/>
+  <record id="asterisk_plus_channel_archived_action" model="ir.actions.act_window">
+      <field name="name">Calls History</field>
+      <field name="res_model">asterisk_plus.channel</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[('active', '=', False)]</field>
+  </record>
+
+  <menuitem id="asterisk_plus_channel_menu"
+            sequence="100"
+            parent="asterisk_plus.asterisk_apps_menu"
+            name="Active Calls"
+            action="asterisk_plus_channel_action"/>
+
+  <menuitem id="asterisk_plus_channel_archived_menu"
+            sequence="200"
+            parent="asterisk_plus.asterisk_apps_menu"
+            name="Calls History"
+            action="asterisk_plus_channel_archived_action"/>
 
   <record id="asterisk_plus_channel_list" model="ir.ui.view">
       <field name="name">asterisk.plus.channel.list</field>
       <field name="model">asterisk_plus.channel</field>
       <field name="arch" type="xml">
           <tree edit="false" create="false" duplicate="false">
-              <field name="channel"/>
-              <field name="uniqueid"/>
-              <field name="linkedid"/>
-              <field name="owner"/>
-          </tree>
+            <field name="exten"/>
+            <field name="callerid_num"/>
+            <field name="callerid_name"/>
+            <field name="connected_line_num"/>
+            <field name="connected_line_name"/>
+            <field name="cause"/>
+            <field name="cause_txt"/>
+            <field name="create_date"/>
+            <field name="create_uid"/>
+            </tree>
       </field>
+  </record>
+
+  <record id="asterisk_plus_channel_search" model="ir.ui.view">
+    <field name="name">asterisk.plus.channel.search</field>
+    <field name="model">asterisk_plus.channel</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="channel"/>
+        <field name="exten"/>
+        <field name="callerid_num"/>
+        <field name="callerid_name"/>
+        <field name="app"/>
+        <field name="uniqueid"/>
+        <filter name="archived" string="Archived"
+          context="{'active_test': False}" domain="[('active', '=', False)]"/>
+      </search>
+    </field>
   </record>
 
 </odoo>

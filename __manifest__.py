@@ -19,7 +19,6 @@
         'security/server.xml',
         'security/admin.xml',
         'security/user.xml',
-        'security/channel.xml',
         # Data
         'data/events.xml',
         'data/res_users.xml',
@@ -29,11 +28,13 @@
         'views/menu.xml',
         'views/server.xml',
         'views/settings.xml',
+        'views/about.xml',
         'views/event.xml',
         'views/res_users.xml',
         'views/user.xml',
         'views/res_partner.xml',
         'views/channel.xml',
+        'views/templates.xml',
         # Cron
         'views/ir_cron.xml',
     ],

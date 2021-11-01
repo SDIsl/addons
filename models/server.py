@@ -39,7 +39,7 @@ class Server(models.Model):
     #: Server's name for humans.
     name = fields.Char(required=True)
     #: Server's minion ID.
-    server_id = fields.Char(required=True, string='Server ID')
+    server_id = fields.Char(string="Minion ID", required=True)
 
     user = fields.Many2one('res.users', ondelete='restrict', required=True)
     tz = fields.Selection(related='user.tz', readonly=False)
@@ -66,7 +66,7 @@ class Server(models.Model):
         Returns:
             A connected pepper instance. See `libpepper.py <https://github.com/saltstack/pepper/blob/develop/pepper/libpepper.py>`__ for details.
         """
-        get_param = self.env['asterisk_plus.settings'].get_param
+        get_param = self.env['asterisk_plus.settings'].sudo().get_param
         saltapi = pepper.Pepper(get_param('saltapi_url'))
         # Get saltapi auth params
         auth = self.env[
@@ -76,7 +76,8 @@ class Server(models.Model):
             # Convert into dictionary.
             try:
                 auth = json.loads(auth)
-            except json.decoder.JSONDecodeError:
+            except json.decoder.JSONDecodeError as e:
+                logger.error('Auth token error: %s: %s', auth, e)
                 auth = {'expire': 0}
             if auth['expire'] - time.time() < 0:
                 # Token is no longer valid so need to login.
@@ -152,11 +153,18 @@ class Server(models.Model):
             return ret
         try:
             return call_fun()
+        except urllib.error.URLError:
+            raise ValidationError('Salt API connection error!')
+        #except pepper.ServerError ?? TODO: catch when master is donw.
+        #    raise ValidationError('Salt Master connection error!')
         except KeyError as e:
             if 'jid' in str(e):
-                raise ValidationError('No job ID was returned. Check Salt connectivity.')
+                raise ValidationError('No job ID was returned. Check Minion ID!')
+            else:
+                logger.exception('Key Error:')
         except pepper.exceptions.PepperException as e:
             if 'Authentication denied' in str(e):
+                logger.warning('Salt Authentication denied.')
                 saltapi = self.sudo()._get_saltapi(force_login=True)
                 return call_fun()
             else:
@@ -262,8 +270,9 @@ class Server(models.Model):
                     'channel': ch.name,
                     'uniqueid': channel_id,
                     'linkedid': other_channel_id,
+                    'model': model,
+                    'res_id': res_id,
                     # TODO: Think about multi server.
-                    'owner': self.env.user.asterisk_users[0].id
             })
             if not self.env.context.get('no_commit'):
                 self.env.cr.commit()
@@ -292,17 +301,3 @@ class Server(models.Model):
         if data[0]['Response'] == 'Error':
             self.env.user.asterisk_plus_notify(
                 data[0]['Message'], uid=pass_back['uid'], warning=True)
-
-    @api.model
-    def ami_originate_response(self, data):
-        # This comes from Asterisk OriginateResponse AMI message when
-        # call originate has been failed.
-        logger.info(data)
-        reason = data.get('Reason')
-        uniqueid = data.get('Uniqueid')
-        channel = self.env['asterisk_plus.channel'].sudo().search([('uniqueid', '=', uniqueid)])
-        if channel:
-            self.env.user.asterisk_plus_notify(
-                _('Call failed, reason {0}').format(reason),
-                uid=channel.create_uid.id, warning=True)
-        return True
