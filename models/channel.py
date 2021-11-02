@@ -17,10 +17,18 @@ class Channel(models.Model):
 
     #: Partner related to this channel.
     partner = fields.Many2one('res.partner', ondelete='set null')
+    #: User who owns the channel
+    user = fields.Many2one('res.users', ondelete='set null')
     #: Server of the channel. When server is removed all channels are deleted.
     server = fields.Many2one('asterisk_plus.server', ondelete='cascade')
     #: Channel name. E.g. SIP/1001-000000bd.
     channel = fields.Char(index=True)
+    #: Shorted channel to compare with user's channel as it is defined. E.g. SIP/1001
+    channel_short = fields.Char(compute='_get_channel_short',
+                                string=_('Channel'))
+    #: Linked channel by linked ID
+    linked_channel = fields.Many2one('asterisk_plus.channel',
+                                     compute='_get_linked_channel')
     #: Channel unique ID. E.g. asterisk-1631528870.0
     uniqueid = fields.Char(size=150, index=True)
     #: Linked channel unique ID. E.g. asterisk-1631528870.1
@@ -53,10 +61,6 @@ class Channel(models.Model):
     app_data = fields.Char(size=512, string='Application Data')
     #: Channel's language.
     language = fields.Char(size=2)
-
-    #: Channel's short name. E.g. SIP/101
-    channel_short = fields.Char(compute='_get_channel_short',
-                                string=_('Channel'))
     # Hangup event fields
     active = fields.Boolean(default=True, index=True)
     cause = fields.Char(index=True)
@@ -72,18 +76,49 @@ class Channel(models.Model):
         for rec in self:
             rec.channel_short = '-'.join(rec.channel.split('-')[:-1])
 
+    @api.depends('uniqueid', 'linkedid')
+    def _get_linked_channel(self):
+        for rec in self:
+            if rec.uniqueid != rec.linkedid:
+                linked_channel = self.with_context(active_test=False).search(
+                    [('uniqueid', '=', rec.linkedid)], limit=1)
+                debug(self, 'Linked channel', linked_channel)
+                if linked_channel:
+                    rec.linked_channel = linked_channel.id
+                else:
+                    rec.linked_channel = False
+            else:
+                rec.linked_channel = False
+
+    @api.model
+    def update_channel_values(self, original_values):
+        vals = {}
+        # Decide the direction of the call: in or out
+        # First check the user.
+        user = self.env['asterisk_plus.user'].get_res_user_id_by_channel(
+            original_values['channel'], original_values['system_name'])
+        debug(self, 'Channel: {} User: {}'.format(original_values['channel'], user))
+        if user:
+            # User originated call. Partner number in extension.
+            vals['user'] = user
+            partner = self.env['res.partner'].sudo().search_by_number(original_values['exten'])
+            if partner:
+                vals['partner'] = partner.id
+            debug(self, 'USER ORIGINATED CALL', vals)
+        else:
+            partner = self.env['res.partner'].sudo().search_by_number(original_values['callerid_num'])
+            if partner:
+                vals['partner'] = partner.id
+            debug(self, 'NO USER MATCHED', vals)
+        return vals
 
     ########################### AMI Event handlers ############################
-
     @api.model
     def on_ami_new_channel(self, event):
         """AMI NewChannel event is processed to create a new channel in Odoo.
         """
-        debug(self, 'NewChannel', event)
-        # Find partner
-        partner = self.env['res.partner'].sudo().search_by_number(event['CallerIDNum'])
+        debug(self, 'NewChannel', event)        
         vals = {
-            'partner': partner.id if partner else None,
             'channel': event['Channel'],
             'callerid_num': event['CallerIDNum'],
             'callerid_name': event['CallerIDName'],
@@ -93,7 +128,10 @@ class Channel(models.Model):
             'exten': event['Exten'],
             'uniqueid': event['Uniqueid'],
             'linkedid': event['Linkedid'],
+            'system_name': event['SystemName'],
         }
+        # Update channel values.
+        vals.update(self.update_channel_values(vals))
         channel = self.env['asterisk_plus.channel'].search([('uniqueid', '=', event['Uniqueid'])])
         if not channel:
             channel = self.create(vals)

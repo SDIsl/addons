@@ -42,6 +42,8 @@ class UserChannel(models.Model):
     #: Server where the channel is defined.
     server = fields.Many2one(
         related='asterisk_user.server', readonly=True, store=True)
+    #: Minion ID that is coming in system_name in events
+    system_name = fields.Char(related='server.server_id', readonly=True)
     #: Odoo res.user who owns the channel.
     user = fields.Many2one(related='asterisk_user.user', readonly=True)
     #: When user has multiple channels and sequence calling is set this defines the call order.

@@ -35,12 +35,13 @@
             <field name="exten"/>
             <field name="callerid_num"/>
             <field name="callerid_name"/>
-            <field name="connected_line_num"/>
-            <field name="connected_line_name"/>
+            <field name="partner"/>
+            <field name="user"/>
             <field name="cause"/>
             <field name="cause_txt"/>
             <field name="create_date"/>
             <field name="create_uid"/>
+            <field name="linked_channel"/>
             </tree>
       </field>
   </record>

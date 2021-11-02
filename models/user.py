@@ -2,11 +2,12 @@ import logging
 from odoo import models, fields, api, tools, release, _
 from odoo.exceptions import ValidationError, UserError
 from .server import get_default_server
+from .settings import debug
 
 logger = logging.getLogger(__name__)
 
 
-class User(models.Model):
+class PbxUser(models.Model):
     _name = 'asterisk_plus.user'
     _description = _('Asterisk User')
 
@@ -29,6 +30,19 @@ class User(models.Model):
         ('user_uniq', 'unique ("user",server)',
          _('This user is already defined!')),
     ]
+
+    @api.model
+    def create(self, vals):
+        user = super(PbxUser, self).create(vals)
+        if user and not self.env.context.get('no_clear_cache'):
+            self.pool.clear_caches()
+        return user
+
+    def write(self, vals):
+        user = super(PbxUser, self).write(vals)
+        if user and not self.env.context.get('no_clear_cache'):
+            self.pool.clear_caches()
+        return user
 
     @api.model
     def has_asterisk_plus_group(self):
@@ -79,3 +93,24 @@ class User(models.Model):
                 'view_type': 'form',
                 'target': 'current',
             }
+
+    @api.model
+    @tools.ormcache('exten', 'system_name')
+    def get_res_user_id_by_exten(self, exten, system_name):
+        astuser = self.search([
+            ('exten', '=', exten), ('system_name', '=', system_name)], limit=1)
+        debug(self, 'GET RES USER BY EXTEN {} at {}: {}'.format(
+            exten, system_name, astuser))
+        return astuser.user.id
+
+    @api.model
+    @tools.ormcache('channel', 'system_name')
+    def get_res_user_id_by_channel(self, channel, system_name):
+        if '-' in channel:
+            channel = '-'.join(channel.split('-')[:-1])
+        user_channel = self.env['asterisk_plus.user_channel'].search([
+            ('name', '=', channel),
+            ('system_name', '=', system_name)], limit=1)
+        debug(self, 'GET RES USER BY CHANNEL {} at {}: {}'.format(
+              channel, system_name, user_channel.asterisk_user))
+        return user_channel.asterisk_user.user.id
