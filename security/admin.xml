@@ -1,5 +1,6 @@
 <odoo>
 
+  <!-- Event -->
   <record id="asterisk_event_settings" model="ir.model.access">
     <field name="name">asterisk_event_settings</field>
     <field name="model_id" ref="asterisk_plus.model_asterisk_plus_event"/>
@@ -10,6 +11,7 @@
     <field name="perm_unlink" eval="1"/>
   </record>
 
+  <!-- Settings -->
   <record id="asterisk_settings" model="ir.model.access">
     <field name="name">asterisk_settings</field>
     <field name="model_id" ref="asterisk_plus.model_asterisk_plus_settings"/>
@@ -20,6 +22,18 @@
     <field name="perm_unlink" eval="1"/>
   </record>
 
+  <!-- Channel -->
+  <record id="asterisk_plus_channel_admin" model="ir.model.access">
+    <field name="name">asterisk_plus_channel_admin</field>
+    <field name="model_id" ref="asterisk_plus.model_asterisk_plus_channel"/>
+    <field name="group_id" ref="asterisk_plus.group_asterisk_admin"/>
+    <field name="perm_read" eval="1"/>
+    <field name="perm_write" eval="1"/>
+    <field name="perm_create" eval="1"/>
+    <field name="perm_unlink" eval="1"/>
+  </record>
+
+  <!-- Server -->
   <record id="asterisk_server_settings" model="ir.model.access">
     <field name="name">asterisk_server_settings</field>
     <field name="model_id" ref="asterisk_plus.model_asterisk_plus_server"/>
@@ -29,5 +43,27 @@
     <field name="perm_create" eval="1"/>
     <field name="perm_unlink" eval="1"/>
   </record>
+
+  <!-- PbxUser Channel -->
+  <record id="asterisk_plus_user_channel_admin" model="ir.model.access">
+    <field name="name">asterisk_plus_user_channel_admin</field>
+    <field name="model_id" ref="asterisk_plus.model_asterisk_plus_user_channel"/>
+    <field name="group_id" ref="asterisk_plus.group_asterisk_admin"/>
+    <field name="perm_read" eval="1"/>
+    <field name="perm_write" eval="1"/>
+    <field name="perm_create" eval="1"/>
+    <field name="perm_unlink" eval="1"/>
+  </record>
+
+<!-- PbxUser -->
+<record id="asterisk_plus_user_admin" model="ir.model.access">
+    <field name="name">asterisk_plus_user_admin</field>
+    <field name="model_id" ref="asterisk_plus.model_asterisk_plus_user"/>
+    <field name="group_id" ref="asterisk_plus.group_asterisk_admin"/>
+    <field name="perm_read" eval="1"/>
+    <field name="perm_write" eval="1"/>
+    <field name="perm_create" eval="1"/>
+    <field name="perm_unlink" eval="1"/>
+</record>
 
 </odoo>

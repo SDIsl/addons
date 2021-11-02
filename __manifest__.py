@@ -18,7 +18,9 @@
         'security/groups.xml',
         'security/server.xml',
         'security/admin.xml',
+        'security/admin_record_rules.xml',
         'security/user.xml',
+        'security/user_record_rules.xml',
         # Data
         'data/events.xml',
         'data/res_users.xml',
