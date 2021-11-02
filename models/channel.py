@@ -69,6 +69,8 @@ class Channel(models.Model):
     # Related object
     model = fields.Char()
     res_id = fields.Integer()
+    timestamp = fields.Char(size=20)
+    event = fields.Char(size=64)
 
     ########################### COMPUTED FIELDS ###############################
     def _get_channel_short(self):
@@ -112,7 +114,104 @@ class Channel(models.Model):
             debug(self, 'NO USER MATCHED', vals)
         return vals
 
+    @api.model
+    def new_channel(self, event, skip_check=False):
+        values = event
+        if not skip_check:
+            channel = self.env['asterisk_plus.channel'].search(
+                [('uniqueid', '=', values.get('Uniqueid'))])
+            if channel:
+                debug(self, 'New Channel', 'CHANNEL {} UPDATE BEFORE new_channel'.format(
+                             values.get('Channel')))
+                return False
+        data = {
+            'channel': values.pop('Channel', ''),
+            'uniqueid': values.pop('Uniqueid', ''),
+            'linkedid': values.pop('Linkedid', ''),
+            'context': values.pop('Context', ''),
+            'connected_line_num': values.pop('ConnectedLineNum', ''),
+            'connected_line_name': values.pop('ConnectedLineName', ''),
+            'state': values.pop('ChannelState', ''),
+            'state_desc': values.pop('ChannelStateDesc', ''),
+            'exten': values.pop('Exten', ''),
+            'callerid_num': values.pop('CallerIDNum', ''),
+            'callerid_name': values.pop('CallerIDName', ''),
+            'accountcode': values.pop('AccountCode', ''),
+            'priority': values.pop('Priority', ''),
+            'timestamp': values.pop('Timestamp', ''),
+            'system_name': values.pop('SystemName', 'asterisk'),
+            'language': values.pop('Language', ''),
+            'event': values.pop('Event', ''),
+        }
+        # Update channel
+        updated_data = self.update_channel_values(data)
+        data.update(updated_data)
+        debug(self, 'New Channel', 'CREATING CHANNEL {}.'.format(
+            data['channel']))
+        channel = self.env['asterisk_plus.channel'].create(data)
+        debug(self, 'New Channel', 'NEW CHANNEL {} UPDATED DATA: {}'.format(
+            channel.channel_short, updated_data
+        ))
+        self.env.cr.commit()
+        # TODO channel reload, notify user?
+        return True
+
     ########################### AMI Event handlers ############################
+    @api.model
+    def update_channel_state(self, event):
+        debug(self, 'Newstate', event)
+        get = event.get
+        # Find the channel
+        channel = self.env['asterisk_plus.channel'].search([
+            ('uniqueid', '=', get('Uniqueid'))], limit=1)
+        if not channel:
+            debug(self, 'Newstate', 'CREATE CHANNEL {} FOR STATE UPDATE.'.format(
+                get('Channel')))
+            return self.new_channel(event, skip_check=True)
+        # data = {
+        #     'channel': get('Channel'),
+        #     'uniqueid': get('Uniqueid'),
+        #     'linkedid': get('Linkedid'),
+        #     'context': get('Context'),
+        #     'connected_line_num': get('ConnectedLineNum'),
+        #     'connected_line_name': get('ConnectedLineName'),
+        #     'state': get('ChannelState'),
+        #     'state_desc': get('ChannelStateDesc'),
+        #     'exten': get('Exten'),
+        #     'callerid_num': get('CallerIDNum'),
+        #     'callerid_name': get('CallerIDName'),
+        #     'accountcode': get('AccountCode'),
+        #     'priority': get('Priority'),
+        #     'timestamp': get('Timestamp'),
+        #     'system_name': get('SystemName', 'asterisk'),
+        #     'language': get('Language'),
+        #     'event': get('Event'),
+        # }
+        # # Update channel dst / src users, partner
+        # new_data = self.update_channel_values(data)
+        # logger.debug('UPDATE CHANNEL %s UPDATED DATA: %s',
+        #              channel.channel_short, new_data)
+        # data.update(new_data)
+        # logger.debug('UPDATE CHANNEL %s.', data['channel'])
+        # # Check if partner is updated from new data
+        # if not channel.partner and new_data.get('partner'):
+        #     notify = True
+        # else:
+        #     notify = False
+        # # Update channel
+        # channel.write(data)
+        # self.env.cr.commit()
+        # if notify:
+        #     caller = channel.partner.name or channel.src_user.name or \
+        #         channel.callerid or channel.connected_line
+        #     if channel.dst_user:
+        #         asterisk_user = channel.dst_user.asterisk_users.filtered(
+        #             lambda x: x.system_name == channel.system_name)
+        #         channel.notify_user(asterisk_user,
+        #                             'Incoming call from {}'.format(caller))
+        # channel.reload_channels()
+        return True
+
     @api.model
     def on_ami_new_channel(self, event):
         """AMI NewChannel event is processed to create a new channel in Odoo.

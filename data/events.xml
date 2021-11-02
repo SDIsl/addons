@@ -30,5 +30,14 @@
       <field name="method">on_ami_new_channel</field>
       <field name="condition">not event['Channel'].startswith('Local/')</field>
     </record>
+
+    <record id="new_state" model="asterisk_plus.event">
+      <field name="name">Newstate</field>
+      <field name="source">AMI</field>
+      <field name="model">asterisk_plus.channel</field>
+      <field name="method">update_channel_state</field>
+      <field name="delay">0.5</field>
+      <field name="condition">not (event['Channel'].startswith('Local/') or event['ChannelStateDesc'] not in ['Up'])</field>
+    </record>
   </data>
 </odoo>
