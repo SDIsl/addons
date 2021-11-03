@@ -26,13 +26,13 @@ class Channel(models.Model):
     #: Shorted channel to compare with user's channel as it is defined. E.g. SIP/1001
     channel_short = fields.Char(compute='_get_channel_short',
                                 string=_('Channel'))
-    #: Linked channel by linked ID
-    linked_channel = fields.Many2one('asterisk_plus.channel',
-                                     compute='_get_linked_channel')
+    #: Linked channel, we don't store it because both channels must already be present in
+    #: order to compute correctly.
+    linked_channel = fields.Many2one('asterisk_plus.channel', compute='_get_linked_channel')
     #: Channel unique ID. E.g. asterisk-1631528870.0
     uniqueid = fields.Char(size=150, index=True)
     #: Linked channel unique ID. E.g. asterisk-1631528870.1
-    linkedid = fields.Char(size=150, index=True)
+    linkedid = fields.Char(size=150, index=True, string='Linked ID')
     #: Channel context.
     context = fields.Char(size=80)
     # Connected line number.
@@ -46,9 +46,9 @@ class Channel(models.Model):
     #: Channel extension.
     exten = fields.Char(size=32)
     #: Caller ID number.
-    callerid_num = fields.Char(size=32)
+    callerid_num = fields.Char(size=32, string='CallerID number')
     #: Caller ID name.
-    callerid_name = fields.Char(size=32)
+    callerid_name = fields.Char(size=32, string='CallerID name')
     #: System name.
     system_name = fields.Char(size=32)
     #: Channel's account code.
@@ -82,15 +82,14 @@ class Channel(models.Model):
     def _get_linked_channel(self):
         for rec in self:
             if rec.uniqueid != rec.linkedid:
+                # Asterisk bound channels
                 linked_channel = self.with_context(active_test=False).search(
                     [('uniqueid', '=', rec.linkedid)], limit=1)
-                debug(self, 'Linked channel', linked_channel)
-                if linked_channel:
-                    rec.linked_channel = linked_channel.id
-                else:
-                    rec.linked_channel = False
             else:
-                rec.linked_channel = False
+                # Find linked channel by searching for it as linked excluding this.
+                linked_channel = self.with_context(active_test=False).search(
+                    [('linkedid', '=', rec.uniqueid), ('id', '!=', rec.id)], limit=1)
+            rec.linked_channel = linked_channel.id
 
     @api.model
     def update_channel_values(self, original_values):
@@ -106,7 +105,7 @@ class Channel(models.Model):
             partner = self.env['res.partner'].sudo().search_by_number(original_values['exten'])
             if partner:
                 vals['partner'] = partner.id
-            debug(self, 'USER ORIGINATED CALL', vals)
+            debug(self, 'USER CALL', vals)
         else:
             partner = self.env['res.partner'].sudo().search_by_number(original_values['callerid_num'])
             if partner:
@@ -168,49 +167,29 @@ class Channel(models.Model):
             debug(self, 'Newstate', 'CREATE CHANNEL {} FOR STATE UPDATE.'.format(
                 get('Channel')))
             return self.new_channel(event, skip_check=True)
-        # data = {
-        #     'channel': get('Channel'),
-        #     'uniqueid': get('Uniqueid'),
-        #     'linkedid': get('Linkedid'),
-        #     'context': get('Context'),
-        #     'connected_line_num': get('ConnectedLineNum'),
-        #     'connected_line_name': get('ConnectedLineName'),
-        #     'state': get('ChannelState'),
-        #     'state_desc': get('ChannelStateDesc'),
-        #     'exten': get('Exten'),
-        #     'callerid_num': get('CallerIDNum'),
-        #     'callerid_name': get('CallerIDName'),
-        #     'accountcode': get('AccountCode'),
-        #     'priority': get('Priority'),
-        #     'timestamp': get('Timestamp'),
-        #     'system_name': get('SystemName', 'asterisk'),
-        #     'language': get('Language'),
-        #     'event': get('Event'),
-        # }
-        # # Update channel dst / src users, partner
-        # new_data = self.update_channel_values(data)
-        # logger.debug('UPDATE CHANNEL %s UPDATED DATA: %s',
-        #              channel.channel_short, new_data)
-        # data.update(new_data)
-        # logger.debug('UPDATE CHANNEL %s.', data['channel'])
-        # # Check if partner is updated from new data
-        # if not channel.partner and new_data.get('partner'):
-        #     notify = True
-        # else:
-        #     notify = False
-        # # Update channel
-        # channel.write(data)
-        # self.env.cr.commit()
-        # if notify:
-        #     caller = channel.partner.name or channel.src_user.name or \
-        #         channel.callerid or channel.connected_line
-        #     if channel.dst_user:
-        #         asterisk_user = channel.dst_user.asterisk_users.filtered(
-        #             lambda x: x.system_name == channel.system_name)
-        #         channel.notify_user(asterisk_user,
-        #                             'Incoming call from {}'.format(caller))
-        # channel.reload_channels()
-        return True
+        data = {
+            'channel': get('Channel'),
+            'uniqueid': get('Uniqueid'),
+            'linkedid': get('Linkedid'),
+            'context': get('Context'),
+            'connected_line_num': get('ConnectedLineNum'),
+            'connected_line_name': get('ConnectedLineName'),
+            'state': get('ChannelState'),
+            'state_desc': get('ChannelStateDesc'),
+            'exten': get('Exten'),
+            'callerid_num': get('CallerIDNum'),
+            'callerid_name': get('CallerIDName'),
+            'accountcode': get('AccountCode'),
+            'priority': get('Priority'),
+            'timestamp': get('Timestamp'),
+            'system_name': get('SystemName', 'asterisk'),
+            'language': get('Language'),
+            'event': get('Event'),
+        }
+        # Update channel user, partner
+        data.update(self.update_channel_values(data))
+        res = channel.write(data)
+        return res
 
     @api.model
     def on_ami_new_channel(self, event):
@@ -254,7 +233,9 @@ class Channel(models.Model):
         """
         uniqueid = event.get('Uniqueid')
         channel = event.get('Channel')
-        found = self.env['asterisk_plus.channel'].search([('uniqueid', '=', uniqueid)])
+        # TODO: Limit search domain by create_date less then one day.
+        found = self.env['asterisk_plus.channel'].with_context(
+            active_test=False).search([('uniqueid', '=', uniqueid)])
         if not found:
             debug(self, 'Hangup', 'Channel {} not found for hangup.'.format(uniqueid))
             return False

@@ -41,6 +41,7 @@
             <field name="cause_txt"/>
             <field name="create_date"/>
             <field name="create_uid"/>
+            <field name="channel"/>
             <field name="linked_channel"/>
             </tree>
       </field>
