@@ -155,6 +155,20 @@ class Channel(models.Model):
         # TODO channel reload, notify user?
         return True
 
+    def reload_channels(self, data={}):
+        self.ensure_one()
+        msg = {
+            'event': 'update_channel',
+            'dst': self.exten,
+            'system_name': self.system_name,
+            'channel': self.channel_short,
+            'auto_reload': True
+        }
+        if self.partner:
+            msg.update(res_id=self.partner.id, model='res.partner')
+        msg.update(data)
+        self.env['bus.bus'].sendone('asterisk_plus_channels', json.dumps(msg))
+
     ########################### AMI Event handlers ############################
     @api.model
     def update_channel_state(self, event):
@@ -215,6 +229,7 @@ class Channel(models.Model):
             channel = self.create(vals)
         else:
             channel.write(vals)
+        channel.reload_channels()
         return channel.id
 
     @api.model
@@ -246,6 +261,7 @@ class Channel(models.Model):
             'cause': event['Cause'],
             'cause_txt': event['Cause-txt'],
         })
+        found.reload_channels({'event': 'hangup_channel'})
         return found.id
 
     @api.model

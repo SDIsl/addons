@@ -11,6 +11,8 @@ class ResUser(models.Model):
 
     asterisk_users = fields.One2many(
         'asterisk_plus.user', inverse_name='user')
+    # Used from channels.js
+    calls_open_partner_form = fields.Boolean(default=True)
 
     @api.model
     def asterisk_plus_notify(self, message, title='PBX', uid=None,
@@ -38,3 +40,14 @@ class ResUser(models.Model):
                 'warning': warning
             })
         return True
+
+    @api.model
+    def get_asterisk_channels(self, uid):
+        # Used from channels.js
+        res = {}
+        user_channels = self.env['asterisk_plus.user_channel'].search(
+            [('user', '=', uid)])
+        for user_channel in user_channels:
+            res.setdefault(
+                user_channel.system_name, []).append(user_channel.name)
+        return res
