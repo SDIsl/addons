@@ -50,7 +50,7 @@ class Channel(models.Model):
     #: Caller ID name.
     callerid_name = fields.Char(size=32, string='CallerID name')
     #: System name.
-    system_name = fields.Char(size=32)
+    system_name = fields.Char(size=128)
     #: Channel's account code.
     accountcode = fields.Char(size=80)
     #: Channel's current priority.

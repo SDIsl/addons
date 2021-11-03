@@ -36,7 +36,7 @@ odoo.define("asterisk_plus.channel", function (require) {
                       "kwargs": {}
               }).then(function (channels) {
                 self.asterisk_channels = channels
-                // console.log(self.asterisk_channels)
+                console.log(self.asterisk_channels)
               })
               // Start polling
               self.call('bus_service', 'addChannel', channel);
@@ -79,6 +79,7 @@ odoo.define("asterisk_plus.channel", function (require) {
           }
           // Check if it's a call from partner to "me".
           console.log(message);
+          console.log(this.asterisk_channels);
           if ((this.asterisk_channels[message.system_name].includes(message.channel)) &&
                 this.open_partner_form &&
                 message.event != "hangup_channel") {
