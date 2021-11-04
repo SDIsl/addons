@@ -25,6 +25,12 @@
                   <group>
                     <group>
                       <field name="debug_mode"/>
+                      <field placeholder="IP addresses by comma..."
+                        name="permit_ip_addresses"/>
+                    </group>
+                    <group name="originate" string="Originate Parameters">
+                      <field name="originate_context"/>
+                      <field name="originate_timeout"/>
                     </group>
                   </group>
                 </page>                
@@ -36,18 +42,6 @@
                     <group>
                       <field name="saltapi_user"/>
                       <field name="saltapi_passwd" password="1"/>
-                    </group>
-                  </group>
-                </page>
-                <page name="common" string="Common">
-                  <group>
-                    <group name="originate" string="Originate Parameters">
-                      <field name="originate_context"/>
-                      <field name="originate_timeout"/>
-                    </group>
-                    <group>
-                      <field placeholder="IP addresses by comma..."
-                        name="permit_ip_addresses"/>
                     </group>
                   </group>
                 </page>

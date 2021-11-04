@@ -42,8 +42,9 @@ class Settings(models.Model):
         help=_('Comma separated list of IP addresses permitted to query caller'
                ' ID number, etc. Leave empty to allow all addresses.'))
     originate_context = fields.Char(
+        string='Default context',
         default='from-internal', required=True,
-        help='Default context to set when creating user mapping.')
+        help='Default context to set when creating PBX / Odoo user mapping.')
     originate_timeout = fields.Integer(default=60, required=True)
 
     @api.model
