@@ -10,7 +10,7 @@
 
   <menuitem id="asterisk_plus_server_menu"
             sequence="300"
-            parent="asterisk_plus.asterisk_apps_menu"
+            parent="asterisk_plus.asterisk_settings_menu"
             name="Server"
             action="asterisk_plus_server_action"/>
 
