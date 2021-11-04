@@ -7,6 +7,8 @@ from odoo.tools import ormcache
 
 logger = logging.getLogger(__name__)
 
+FORMAT_TYPE = 'e164'
+
 
 def debug(rec, prefix, message=None):
     caller_module = inspect.stack()[1][3]
@@ -36,9 +38,13 @@ class Settings(models.Model):
     #: Debug mode
     debug_mode = fields.Boolean()
     permit_ip_addresses = fields.Char(
-    string=_('Permit IP address(es)'),
-    help=_('Comma separated list of IP addresses permitted to query caller'
-            ' ID number, etc. Leave empty to allow all addresses.'))
+        string=_('Permit IP address(es)'),
+        help=_('Comma separated list of IP addresses permitted to query caller'
+               ' ID number, etc. Leave empty to allow all addresses.'))
+    originate_context = fields.Char(
+        default='from-internal', required=True,
+        help='Default context to set when creating user mapping.')
+    originate_timeout = fields.Integer(default=60, required=True)
 
     @api.model
     def _get_name(self):
