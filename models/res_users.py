@@ -11,8 +11,8 @@ class ResUser(models.Model):
 
     asterisk_users = fields.One2many(
         'asterisk_plus.user', inverse_name='user')
-    # Used from channels.js
-    calls_open_partner_form = fields.Boolean(default=True)
+    calls_open_partner_form = fields.Boolean(
+        related='asterisk_users.open_partner_form')
     # Server of Agent account, One2one simulation.
     asterisk_server = fields.Many2one('asterisk_plus.server', compute='_get_asterisk_server')
 
@@ -51,7 +51,7 @@ class ResUser(models.Model):
 
     @api.model
     def get_asterisk_channels(self, uid):
-        # Used from channels.js
+        # Used from notification.js
         res = {}
         user_channels = self.env['asterisk_plus.user_channel'].search(
             [('user', '=', uid)])

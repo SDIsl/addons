@@ -89,6 +89,7 @@
               <group>
                 <group>
                   <field name="originate_vars"/>
+                  <field name="open_partner_form"/>
                 </group>
               </group>
             </page>

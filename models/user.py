@@ -23,6 +23,9 @@ class PbxUser(models.Model):
     channels = fields.One2many('asterisk_plus.user_channel',
                                inverse_name='asterisk_user')
     originate_vars = fields.Text(string='Channel Variables')
+    open_partner_form = fields.Boolean(
+        default=True,
+        help=_('Open partner form on incoming calls from partner'))
 
     _sql_constraints = [
         ('exten_uniq', 'unique (exten,server)',
