@@ -15,7 +15,8 @@ try:
 except ImportError:
     HUMANIZE = False
 import pepper
-from .settings import debug
+from .settings import debug, FORMAT_TYPE
+from .res_partner import strip_number
 
 logger = logging.getLogger(__name__)
 
@@ -240,6 +241,36 @@ class Server(models.Model):
             raise ValidationError('PBX User is not defined!') # sdd sd sd sd sdsd sdsd s
         asterisk_user = self.env.user.asterisk_users[0]
         variables = asterisk_user._get_originate_vars()
+        # Set callerid to dialed partner
+        # Save original callerid
+        variables.append('OUTBOUND_CALLERID="{}" <{}>'.format(
+            self.env.user.name, self.env.user.asterisk_users[0].exten))
+        if model and res_id:
+            obj = self.env[model].browse(res_id)
+            if hasattr(obj, 'name'):
+                name = obj.name
+            else:
+                name = number
+            callerid = 'To: {} <{}>'.format(name, number)
+        else:
+            callerid = 'To: {} <{}>'.format(number, number)
+        # Get originate timeout
+        originate_timeout = float(self.env[
+            'asterisk_plus.settings'].get_param('originate_timeout'))
+        # Format number if required
+        if model and res_id:
+            debug(self, 'FORMAT NUMBER FOR MODEL {}'.format(model))
+            obj = self.env[model].browse(res_id)
+            if getattr(obj, '_format_number', False):
+                number = obj._format_number(number, format_type=FORMAT_TYPE)
+                debug(self, 'MODEL FORMATTED NUMBER: {}'.format(number))
+        else:
+            debug(self, 'FORMAT NOT ENABLED')
+        # Strip formatting and + if present
+        number = strip_number(number)
+        if number[0] == '+':
+            debug(self, 'REMOVING +')
+            number = number[1:]
         if not asterisk_user.channels:
             raise ValidationError('SIP channels not defined for user!')
         originate_channels = [k for k in asterisk_user.channels if k.originate_enabled]
@@ -284,12 +315,12 @@ class Server(models.Model):
                 'Action': 'Originate',
                 'Context': ch.originate_context,
                 'Priority': '1',
-                'Timeout': 60000,
+                'Timeout': 1000 * originate_timeout,
                 'Channel': ch.name,
                 'Exten': number,
                 'Async': 'true',
                 'EarlyMedia': 'true',
-                # 'CallerID': callerid,
+                'CallerID': callerid,
                 'ChannelId': channel_id,
                 'OtherChannelId': other_channel_id,
                 'Variable': channel_vars,

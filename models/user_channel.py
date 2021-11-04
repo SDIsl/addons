@@ -50,8 +50,13 @@ class UserChannel(models.Model):
     sequence = fields.Integer(default=100, index=True)
     #: Dial this channel when click to call is used.
     originate_enabled = fields.Boolean(default=True, string="Originate")
+    # Store originate_context here.
+    context = fields.Char()
     #: O
-    originate_context = fields.Char(string='Context')
+    originate_context = fields.Char(
+        default=lambda self: self._get_default_context(),
+        string='Context',
+        compute='_get_originate_context', inverse='_set_originate_context')
     auto_answer_header = fields.Selection(AUTO_ANSWER_HEADERS)
 
     _sql_constraints = [
@@ -85,3 +90,15 @@ class UserChannel(models.Model):
                     _('Bad channel format. Example: SIP/101.'))
             if ' ' in rec.name:
                 raise ValidationError()
+
+    def _get_default_context(self):
+        return self.env['asterisk_plus.settings'].get_param(
+            'originate_context', 'from-internal')
+
+    def _get_originate_context(self):
+        for rec in self:
+            rec.originate_context = rec.context
+
+    def _set_originate_context(self):
+        for rec in self:
+            rec.context = rec.originate_context

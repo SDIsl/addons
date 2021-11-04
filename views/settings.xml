@@ -41,8 +41,13 @@
                 </page>
                 <page name="common" string="Common">
                   <group>
+                    <group name="originate" string="Originate Parameters">
+                      <field name="originate_context"/>
+                      <field name="originate_timeout"/>
+                    </group>
                     <group>
-                      <field name="permit_ip_addresses"/>
+                      <field placeholder="IP addresses by comma..."
+                        name="permit_ip_addresses"/>
                     </group>
                   </group>
                 </page>
