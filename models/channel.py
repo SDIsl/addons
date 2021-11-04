@@ -65,7 +65,7 @@ class Channel(models.Model):
     active = fields.Boolean(default=True, index=True)
     cause = fields.Char(index=True)
     cause_txt = fields.Char(index=True)
-    end_time = fields.Datetime(index=True)
+    hangup_date = fields.Datetime(index=True)
     # Related object
     model = fields.Char()
     res_id = fields.Integer()
@@ -258,7 +258,7 @@ class Channel(models.Model):
         debug(self, 'Hangup', 'Found {} channel(s) {}'.format(len(found), channel))
         found.write({
             'active': False,
-            'end_time': fields.Datetime.now(),
+            'hangup_date': fields.Datetime.now(),
             'cause': event['Cause'],
             'cause_txt': event['Cause-txt'],
         })
