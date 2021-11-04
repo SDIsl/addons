@@ -124,6 +124,7 @@ class Channel(models.Model):
                              values.get('Channel')))
                 return False
         data = {
+            'server': self.env.user.asterisk_server.id,
             'channel': values.pop('Channel', ''),
             'uniqueid': values.pop('Uniqueid', ''),
             'linkedid': values.pop('Linkedid', ''),
@@ -182,6 +183,7 @@ class Channel(models.Model):
                 get('Channel')))
             return self.new_channel(event, skip_check=True)
         data = {
+            'server': self.env.user.asterisk_server.id,
             'channel': get('Channel'),
             'uniqueid': get('Uniqueid'),
             'linkedid': get('Linkedid'),
@@ -211,6 +213,7 @@ class Channel(models.Model):
         """
         debug(self, 'NewChannel', event)
         vals = {
+            'server': self.env.user.asterisk_server.id,
             'channel': event['Channel'],
             'callerid_num': event['CallerIDNum'],
             'callerid_name': event['CallerIDName'],
@@ -221,7 +224,6 @@ class Channel(models.Model):
             'uniqueid': event['Uniqueid'],
             'linkedid': event['Linkedid'],
             'system_name': event['SystemName'],
-            'server': self.env.user.asterisk_server.id,
         }
         # Update channel values.
         vals.update(self.update_channel_values(vals))
