@@ -6,7 +6,6 @@
       <script type="text/javascript" src="/asterisk_plus/static/src/js/support.js"/>
       <script type="text/javascript" src="/asterisk_plus/static/src/js/notification.js"/>
       <script type="text/javascript" src="/asterisk_plus/static/src/js/originate.js"/>
-      <script type="text/javascript" src="/asterisk_plus/static/src/js/channels.js"/>
     </xpath>
   </template>
 
