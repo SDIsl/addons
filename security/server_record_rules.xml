@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="asterisk_plus_server_server_rule" model="ir.rule">
+        <field name="name">asterisk_plus_server_server_rule</field>
+        <field name="model_id" ref="asterisk_plus.model_asterisk_plus_server"/>
+        <field name="groups" eval="[(6, 0, [ref('group_asterisk_server')])]"/>
+        <field name="domain_force">[('user', '=', user.id)]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+</odoo>
