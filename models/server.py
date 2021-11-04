@@ -41,10 +41,14 @@ class Server(models.Model):
     #: Server's minion ID.
     server_id = fields.Char(string="Minion ID", required=True)
 
-    user = fields.Many2one('res.users', ondelete='restrict', required=True)
+    user = fields.Many2one('res.users', ondelete='restrict', required=True, readonly=True)
     tz = fields.Selection(related='user.tz', readonly=False)
     country_id = fields.Many2one(related='user.country_id', readonly=False)
     password = fields.Char(related='user.password', string="Password", readonly=False)
+
+    _sql_constraints = [
+        ('user_unique', 'UNIQUE(user)', 'This user is already used for another server!'),
+    ]
 
 
     def open_server_form(self):

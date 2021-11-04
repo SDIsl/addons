@@ -13,6 +13,14 @@ class ResUser(models.Model):
         'asterisk_plus.user', inverse_name='user')
     # Used from channels.js
     calls_open_partner_form = fields.Boolean(default=True)
+    # Server of Agent account, One2one simulation.
+    asterisk_server = fields.Many2one('asterisk_plus.server', compute='_get_asterisk_server')
+
+    def _get_asterisk_server(self):
+        for rec in self:
+            # There is an unique constraint to limit 1 user per server.
+            rec.asterisk_server = self.env['asterisk_plus.server'].search(
+                [('user', '=', self.env.uid)], limit=1).id
 
     @api.model
     def asterisk_plus_notify(self, message, title='PBX', uid=None,

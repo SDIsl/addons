@@ -46,9 +46,14 @@
                   <h2><field name="server_id"/></h2>                
                 </div>
                 <group>
-                  <field name="tz"/>
-                  <field name="country_id"/>
-                  <field name="password" widget="password"/>
+                  <group>
+                    <field name="tz"/>
+                    <field name="country_id"/>
+                  </group>
+                  <group>
+                    <field name="user"/>
+                    <field name="password" widget="password"/>
+                  </group>
                 </group>
               </sheet>
           </form>

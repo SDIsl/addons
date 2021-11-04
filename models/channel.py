@@ -209,7 +209,7 @@ class Channel(models.Model):
     def on_ami_new_channel(self, event):
         """AMI NewChannel event is processed to create a new channel in Odoo.
         """
-        debug(self, 'NewChannel', event)        
+        debug(self, 'NewChannel', event)
         vals = {
             'channel': event['Channel'],
             'callerid_num': event['CallerIDNum'],
@@ -221,6 +221,7 @@ class Channel(models.Model):
             'uniqueid': event['Uniqueid'],
             'linkedid': event['Linkedid'],
             'system_name': event['SystemName'],
+            'server': self.env.user.asterisk_server.id,
         }
         # Update channel values.
         vals.update(self.update_channel_values(vals))

@@ -17,6 +17,7 @@
         # Security rules
         'security/groups.xml',
         'security/server.xml',
+        'security/server_record_rules.xml',
         'security/admin.xml',
         'security/admin_record_rules.xml',
         'security/user.xml',
