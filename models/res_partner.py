@@ -9,6 +9,12 @@ from .settings import debug
 logger = logging.getLogger(__name__)
 
 
+def strip_number(number):
+    """Strip number formating"""
+    pattern = r'[\s+()-]'
+    return re.sub(pattern, '', number)
+
+
 class Partner(models.Model):
     _inherit = ['res.partner']
 
@@ -86,7 +92,7 @@ class Partner(models.Model):
         except Exception as e:
             logger.warning('Normalize phone error: %s', e)
         # Strip the number if parse error.
-        return self.strip_number(number)
+        return strip_number(number)
 
     def search_by_number(self, number):
         """Search partner by number.
@@ -151,7 +157,7 @@ class Partner(models.Model):
                        format_type='e164'):
         debug(self, '_format_number', 'FORMAT_NUMBER {} COUNTRY {} FORMAT {}'.format(number, country_code, format_type))
         # Strip formatting if present
-        number = self.strip_number(number)
+        number = strip_number(number)
         if len(self) == 1 and not country_code:
             # Called from partner object
             country_code = self._get_country_code()
@@ -233,12 +239,6 @@ class Partner(models.Model):
         else:
             debug(self, 'get_partner_by_number', 'NO PARTNER FOUND')
         return partner_info
-
-    @staticmethod
-    def strip_number(number):
-        """Strip number formating"""
-        pattern = r'[\s+()-]'
-        return re.sub(pattern, '', number)
 
     def _get_call_count(self):
         for rec in self:
