@@ -11,8 +11,6 @@ class ResUser(models.Model):
 
     asterisk_users = fields.One2many(
         'asterisk_plus.user', inverse_name='user')
-    calls_open_partner_form = fields.Boolean(
-        related='asterisk_users.open_partner_form')
     # Server of Agent account, One2one simulation.
     asterisk_server = fields.Many2one('asterisk_plus.server', compute='_get_asterisk_server')
 
@@ -58,4 +56,16 @@ class ResUser(models.Model):
         for user_channel in user_channels:
             res.setdefault(
                 user_channel.system_name, []).append(user_channel.name)
+        return res
+
+    @api.model
+    def get_pbx_user_settings(self, uid):
+        res = {}
+        user_channels = self.env['asterisk_plus.user_channel'].search(
+            [('user', '=', uid)])
+        for user_channel in user_channels:
+            res.setdefault(user_channel.system_name, {})
+            res[user_channel.system_name].setdefault(
+                'channels', []).append(user_channel.name)
+            res.setdefault('open_partner_form', user_channel.asterisk_user.open_partner_form)
         return res
