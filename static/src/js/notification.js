@@ -23,9 +23,9 @@ odoo.define("asterisk_plus.notification", function (require) {
                         "model": "res.users",
                         "method": "read",
                         "args": [session.uid],
-                        "kwargs": {'fields': ['name', 'calls_open_partner_form']},
+                        "kwargs": {'fields': ['name']},
                 }).then(function (user) {
-                  self.open_partner_form = user[0].calls_open_partner_form
+                  // self.open_partner_form = user[0].calls_open_partner_form
                   //console.log('Open partner form')
                 })
                 // Get channels
