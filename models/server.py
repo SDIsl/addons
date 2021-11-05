@@ -135,7 +135,6 @@ class Server(models.Model):
             if not sync:
                 ret = saltapi.local_async(tgt=self.server_id, fun=fun, arg=arg,
                                           kwarg=kwarg, timeout=timeout, ret='odoo')
-                debug(self, 'Return', ret)
                 self.env['asterisk_plus.salt_job'].sudo().create({
                     'jid': ret['return'][0]['jid'],
                     'res_model': res_model,
@@ -146,7 +145,6 @@ class Server(models.Model):
             else:
                 ret = saltapi.local(tgt=self.server_id, fun=fun, arg=arg,
                                     kwarg=kwarg, timeout=timeout)
-                debug(self, 'Return', ret)
             # TODO: Add server:
             # {'return': [{'jid': '20210928122846179815', 'minions': ['asterisk']}]}
             # TODO: When minion is not accepted it raises error.
@@ -302,6 +300,7 @@ class Server(models.Model):
             channel_id = uuid.uuid4().hex
             other_channel_id = uuid.uuid4().hex
             self.env['asterisk_plus.channel'].create({
+                    'server': ch.server.id,
                     'channel': ch.name,
                     'uniqueid': channel_id,
                     'linkedid': other_channel_id,
