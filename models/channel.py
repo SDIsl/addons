@@ -72,6 +72,20 @@ class Channel(models.Model):
     timestamp = fields.Char(size=20)
     event = fields.Char(size=64)
 
+    obj = fields.Reference(string='Reference',
+                           selection=[('res.partner', _('Partners')),
+                                      ('asterisk_plus.user', _('Users'))],
+                           compute='_compute_obj',
+                           readonly=True)
+
+    @api.depends('model', 'res_id')
+    def _compute_obj(self):
+        for rec in self:
+            if rec.model and rec.model in self.env:
+                rec.obj = '%s,%s' % (rec.model, rec.res_id or 0)
+            else:
+                rec.obj = None
+
     ########################### COMPUTED FIELDS ###############################
     def _get_channel_short(self):
         # Makes SIP/1001-000000bd to be SIP/1001.
