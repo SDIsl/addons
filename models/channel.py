@@ -127,49 +127,6 @@ class Channel(models.Model):
             debug(self, 'NO USER MATCHED', vals)
         return vals
 
-    @api.model
-    def new_channel(self, event, skip_check=False):
-        values = event
-        if not skip_check:
-            channel = self.env['asterisk_plus.channel'].search(
-                [('uniqueid', '=', values.get('Uniqueid'))])
-            if channel:
-                debug(self, 'New Channel', 'CHANNEL {} UPDATE BEFORE new_channel'.format(
-                             values.get('Channel')))
-                return False
-        data = {
-            'server': self.env.user.asterisk_server.id,
-            'channel': values.pop('Channel', ''),
-            'uniqueid': values.pop('Uniqueid', ''),
-            'linkedid': values.pop('Linkedid', ''),
-            'context': values.pop('Context', ''),
-            'connected_line_num': values.pop('ConnectedLineNum', ''),
-            'connected_line_name': values.pop('ConnectedLineName', ''),
-            'state': values.pop('ChannelState', ''),
-            'state_desc': values.pop('ChannelStateDesc', ''),
-            'exten': values.pop('Exten', ''),
-            'callerid_num': values.pop('CallerIDNum', ''),
-            'callerid_name': values.pop('CallerIDName', ''),
-            'accountcode': values.pop('AccountCode', ''),
-            'priority': values.pop('Priority', ''),
-            'timestamp': values.pop('Timestamp', ''),
-            'system_name': values.pop('SystemName', 'asterisk'),
-            'language': values.pop('Language', ''),
-            'event': values.pop('Event', ''),
-        }
-        # Update channel
-        updated_data = self.update_channel_values(data)
-        data.update(updated_data)
-        debug(self, 'New Channel', 'CREATING CHANNEL {}.'.format(
-            data['channel']))
-        channel = self.env['asterisk_plus.channel'].create(data)
-        debug(self, 'New Channel', 'NEW CHANNEL {} UPDATED DATA: {}'.format(
-            channel.channel_short, updated_data
-        ))
-        self.env.cr.commit()
-        # TODO channel reload, notify user?
-        return True
-
     def reload_channels(self, data={}):
         self.ensure_one()
         msg = {
@@ -189,13 +146,6 @@ class Channel(models.Model):
     def update_channel_state(self, event):
         debug(self, 'Newstate', event)
         get = event.get
-        # Find the channel
-        channel = self.env['asterisk_plus.channel'].search([
-            ('uniqueid', '=', get('Uniqueid'))], limit=1)
-        if not channel:
-            debug(self, 'Newstate', 'CREATE CHANNEL {} FOR STATE UPDATE.'.format(
-                get('Channel')))
-            return self.new_channel(event, skip_check=True)
         data = {
             'server': self.env.user.asterisk_server.id,
             'channel': get('Channel'),
@@ -218,8 +168,12 @@ class Channel(models.Model):
         }
         # Update channel user, partner
         data.update(self.update_channel_values(data))
-        res = channel.write(data)
-        return res
+        channel = self.env['asterisk_plus.channel'].search([('uniqueid', '=', get('Uniqueid'))], limit=1)
+        if not channel:
+            channel = self.create(data)
+        else:
+            channel.write(data)
+        return channel
 
     @api.model
     def on_ami_new_channel(self, event):
@@ -238,7 +192,7 @@ class Channel(models.Model):
             'connected_line_name': event['ConnectedLineName'],
             'language': event['Language'],
             'accountcode': event['AccountCode'],
-            'priority':event['Priority'],
+            'priority': event['Priority'],
             'context': event['Context'],
             'exten': event['Exten'],
             'uniqueid': event['Uniqueid'],
@@ -291,7 +245,7 @@ class Channel(models.Model):
             'accountcode': event['AccountCode'],
             'context': event['Context'],
             'exten': event['Exten'],
-            'priority':event['Priority'],
+            'priority': event['Priority'],
             'uniqueid': event['Uniqueid'],
             'linkedid': event['Linkedid'],
             'active': False,
