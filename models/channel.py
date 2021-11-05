@@ -227,6 +227,7 @@ class Channel(models.Model):
         }
         # Update channel values.
         vals.update(self.update_channel_values(vals))
+        debug(self, json.dumps(vals, indent=2))
         channel = self.env['asterisk_plus.channel'].search([('uniqueid', '=', event['Uniqueid'])])
         if not channel:
             channel = self.create(vals)
@@ -255,7 +256,7 @@ class Channel(models.Model):
         found = self.env['asterisk_plus.channel'].with_context(
             active_test=False).search([('uniqueid', '=', uniqueid)])
         if not found:
-            debug(self, 'Hangup', 'Channel {} not found for hangup.'.format(uniqueid))
+            debug(self, 'Hangup', 'Channel {} not found for hangup.'.format(channel))
             return False
         debug(self, 'Hangup', 'Found {} channel(s) {}'.format(len(found), channel))
         found.write({
