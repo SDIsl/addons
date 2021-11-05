@@ -227,12 +227,18 @@ class Channel(models.Model):
         """
         debug(self, 'NewChannel', event)
         vals = {
+            'event': event['Event'],
             'server': self.env.user.asterisk_server.id,
             'channel': event['Channel'],
+            'state': event['ChannelState'],
+            'state_desc': event['ChannelStateDesc'],
             'callerid_num': event['CallerIDNum'],
             'callerid_name': event['CallerIDName'],
             'connected_line_num': event['ConnectedLineNum'],
             'connected_line_name': event['ConnectedLineName'],
+            'language': event['Language'],
+            'accountcode': event['AccountCode'],
+            'priority':event['Priority'],
             'context': event['Context'],
             'exten': event['Exten'],
             'uniqueid': event['Uniqueid'],
@@ -273,6 +279,21 @@ class Channel(models.Model):
             return False
         debug(self, 'Hangup', 'Found {} channel(s) {}'.format(len(found), channel))
         found.write({
+            'event': event['Event'],
+            'channel': event['Channel'],
+            'state': event['ChannelState'],
+            'state_desc': event['ChannelStateDesc'],
+            'callerid_num': event['CallerIDNum'],
+            'callerid_name': event['CallerIDName'],
+            'connected_line_num': event['ConnectedLineNum'],
+            'connected_line_name': event['ConnectedLineName'],
+            'language': event['Language'],
+            'accountcode': event['AccountCode'],
+            'context': event['Context'],
+            'exten': event['Exten'],
+            'priority':event['Priority'],
+            'uniqueid': event['Uniqueid'],
+            'linkedid': event['Linkedid'],
             'active': False,
             'hangup_date': fields.Datetime.now(),
             'cause': event['Cause'],
