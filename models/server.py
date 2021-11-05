@@ -233,102 +233,105 @@ class Server(models.Model):
     def on_fully_booted(self, event):
         return True
 
-    @api.model
-    def originate_call(self, number, model=None, res_id=None, user=None, dtmf_variables=None):
-        if not user:
-            user = self.env.user
-        if not user.asterisk_users:
-            raise ValidationError('PBX User is not defined!') # sdd sd sd sd sdsd sdsd s
-        asterisk_user = self.env.user.asterisk_users[0]
-        variables = asterisk_user._get_originate_vars()
-        # Set callerid to dialed partner
-        # Save original callerid
-        variables.append('OUTBOUND_CALLERID="{}" <{}>'.format(
-            self.env.user.name, self.env.user.asterisk_users[0].exten))
+    def set_callerid(self, number, model=None, res_id=None):
         if model and res_id:
             obj = self.env[model].browse(res_id)
             if hasattr(obj, 'name'):
                 name = obj.name
             else:
                 name = number
-            callerid = 'To: {} <{}>'.format(name, number)
+            return 'To: {} <{}>'.format(name, number)
         else:
-            callerid = 'To: {} <{}>'.format(number, number)
-        # Get originate timeout
-        originate_timeout = float(self.env[
-            'asterisk_plus.settings'].get_param('originate_timeout'))
-        # Format number if required
+            return 'To: {} <{}>'.format(number, number)
+
+    def format_number(self, number, model=None, res_id=None):
         if model and res_id:
             debug(self, 'FORMAT NUMBER FOR MODEL {}'.format(model))
             obj = self.env[model].browse(res_id)
             if getattr(obj, '_format_number', False):
                 number = obj._format_number(number, format_type=FORMAT_TYPE)
                 debug(self, 'MODEL FORMATTED NUMBER: {}'.format(number))
-        else:
-            debug(self, 'FORMAT NOT ENABLED')
-        # Strip formatting and + if present
-        number = strip_number(number)
-        if number[0] == '+':
-            debug(self, 'REMOVING +')
-            number = number[1:]
-        if not asterisk_user.channels:
-            raise ValidationError('SIP channels not defined for user!')
-        originate_channels = [k for k in asterisk_user.channels if k.originate_enabled]
-        if not originate_channels:
-            raise ValidationError('No channels with originate enabled!')
-        for ch in originate_channels:            
-            channel_vars = variables.copy()
-            if ch.auto_answer_header:
-                header = ch.auto_answer_header
-                try:
-                    pos = header.find(':')
-                    param = header[:pos]
-                    val = header[pos+1:]
-                    if 'PJSIP' in ch.name.upper():
-                        channel_vars.append(
-                            'PJSIP_HEADER(add,{})={}'.format(
-                                param.lstrip(), val.lstrip()))
-                    else:
-                        channel_vars.append(
-                            'SIPADDHEADER={}: {}'.format(
-                                param.lstrip(), val.lstrip()))
-                except Exception:
-                    logger.warning(
-                        'Cannot parse auto answer header: %s', header)
+                return number
+        return strip_number(number)
 
-            if dtmf_variables:
-                channel_vars.extend(dtmf_variables)
+    @api.model
+    def originate_call(self, number, model=None, res_id=None, user=None, dtmf_variables=None):
+        if not user:
+            user = self.env.user
+        if not user.asterisk_users:
+            raise ValidationError('PBX User is not defined!') # sdd sd sd sd sdsd sdsd s
+        # Format number
+        number = self.format_number(number, model, res_id)
+        # Set CallerID
+        callerid = self.set_callerid(number, model, res_id)
+        # Get originate timeout
+        originate_timeout = float(self.env[
+            'asterisk_plus.settings'].sudo().get_param('originate_timeout'))
 
-            channel_id = uuid.uuid4().hex
-            other_channel_id = uuid.uuid4().hex
-            self.env['asterisk_plus.channel'].create({
-                    'channel': ch.name,
-                    'uniqueid': channel_id,
-                    'linkedid': other_channel_id,
-                    'model': model,
-                    'res_id': res_id,
-                    # TODO: Think about multi server.
-            })
-            if not self.env.context.get('no_commit'):
-                self.env.cr.commit()
-            action = {
-                'Action': 'Originate',
-                'Context': ch.originate_context,
-                'Priority': '1',
-                'Timeout': 1000 * originate_timeout,
-                'Channel': ch.name,
-                'Exten': number,
-                'Async': 'true',
-                'EarlyMedia': 'true',
-                'CallerID': callerid,
-                'ChannelId': channel_id,
-                'OtherChannelId': other_channel_id,
-                'Variable': channel_vars,
-            },
+        for asterisk_user in self.env.user.asterisk_users:
+            if not asterisk_user.channels:
+                raise ValidationError('SIP channels not defined for user!')
+            originate_channels = [k for k in asterisk_user.channels if k.originate_enabled]
+            if not originate_channels:
+                raise ValidationError('No channels with originate enabled!')
+            variables = asterisk_user._get_originate_vars()
+            # Save original callerid
+            variables.append('OUTBOUND_CALLERID="{}" <{}>'.format(
+                self.env.user.name, self.env.user.asterisk_users.exten))
 
-            ch.server.ami_action(action, res_model='asterisk_plus.server',
-                                 res_method='originate_call_response',
-                                 pass_back={'uid': self.env.user.id})
+            for ch in originate_channels:
+                channel_vars = variables.copy()
+                if ch.auto_answer_header:
+                    header = ch.auto_answer_header
+                    try:
+                        pos = header.find(':')
+                        param = header[:pos]
+                        val = header[pos+1:]
+                        if 'PJSIP' in ch.name.upper():
+                            channel_vars.append(
+                                'PJSIP_HEADER(add,{})={}'.format(
+                                    param.lstrip(), val.lstrip()))
+                        else:
+                            channel_vars.append(
+                                'SIPADDHEADER={}: {}'.format(
+                                    param.lstrip(), val.lstrip()))
+                    except Exception:
+                        logger.warning(
+                            'Cannot parse auto answer header: %s', header)
+
+                if dtmf_variables:
+                    channel_vars.extend(dtmf_variables)
+
+                channel_id = uuid.uuid4().hex
+                other_channel_id = uuid.uuid4().hex
+                self.env['asterisk_plus.channel'].create({
+                        'channel': ch.name,
+                        'uniqueid': channel_id,
+                        'linkedid': other_channel_id,
+                        'model': model,
+                        'res_id': res_id,
+                        # TODO: Think about multi server.
+                })
+                if not self.env.context.get('no_commit'):
+                    self.env.cr.commit()
+                action = {
+                    'Action': 'Originate',
+                    'Context': ch.originate_context,
+                    'Priority': '1',
+                    'Timeout': 1000 * originate_timeout,
+                    'Channel': ch.name,
+                    'Exten': number,
+                    'Async': 'true',
+                    'EarlyMedia': 'true',
+                    'CallerID': callerid,
+                    'ChannelId': channel_id,
+                    'OtherChannelId': other_channel_id,
+                    'Variable': channel_vars,
+                },
+
+                ch.server.ami_action(action, res_model='asterisk_plus.server',
+                                     res_method='originate_call_response',
+                                     pass_back={'uid': self.env.user.id})
 
     @api.model
     def originate_call_response(self, data, pass_back):
