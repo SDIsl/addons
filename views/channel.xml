@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-  <record id="asterisk_plus_channel_action" model="ir.actions.act_window">
+    <record id="asterisk_plus_channel_action" model="ir.actions.act_window">
       <field name="name">Active Calls</field>
       <field name="res_model">asterisk_plus.channel</field>
       <field name="view_mode">tree,form</field>
       <field name="domain">[('active', '=', True)]</field>
-  </record>
+    </record>
 
-  <record id="asterisk_plus_channel_archived_action" model="ir.actions.act_window">
+    <record id="asterisk_plus_channel_archived_action" model="ir.actions.act_window">
       <field name="name">Calls History</field>
       <field name="res_model">asterisk_plus.channel</field>
       <field name="view_mode">tree,form</field>
       <field name="domain">[('active', '=', False)]</field>
-  </record>
+    </record>
 
-  <menuitem id="asterisk_plus_channel_menu"
+    <menuitem id="asterisk_plus_channel_menu"
             sequence="100"
             parent="asterisk_plus.asterisk_apps_menu"
             name="Active Calls"
             action="asterisk_plus_channel_action"/>
 
-  <menuitem id="asterisk_plus_channel_archived_menu"
+    <menuitem id="asterisk_plus_channel_archived_menu"
             sequence="200"
             parent="asterisk_plus.asterisk_apps_menu"
             name="Calls History"
             action="asterisk_plus_channel_archived_action"/>
 
-  <record id="asterisk_plus_channel_list" model="ir.ui.view">
+    <record id="asterisk_plus_channel_list" model="ir.ui.view">
       <field name="name">asterisk.plus.channel.list</field>
       <field name="model">asterisk_plus.channel</field>
       <field name="arch" type="xml">
@@ -42,12 +42,12 @@
             <field name="create_date"/>
             <field name="create_uid"/>
             <field name="channel"/>
-            <field name="linked_channel"/>
+            <field name="parent_channel"/>
             </tree>
       </field>
-  </record>
+    </record>
 
-  <record id="asterisk_plus_channel_search" model="ir.ui.view">
+    <record id="asterisk_plus_channel_search" model="ir.ui.view">
     <field name="name">asterisk.plus.channel.search</field>
     <field name="model">asterisk_plus.channel</field>
     <field name="arch" type="xml">
@@ -63,6 +63,66 @@
         <filter name="group_partner" string="Partner" context="{'group_by':'partner'}"/>
       </search>
     </field>
-  </record>
+    </record>
+
+    <record id="asterisk_plus_channel_form" model="ir.ui.view">
+        <field name="name">asterisk_plus.channel.form</field>
+        <field name="model">asterisk_plus.channel</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form create='0' edit='0' duplicate='0'>
+                <sheet>
+                    <group name="channel_main_group" col="2">
+                        <group name="channel_group_1" col="1">
+                            <field name="partner" />
+                            <field name="user" />
+                            <field name="obj" />
+                            <field name="server" />
+                            <field name="create_date" />
+                            <field name="hangup_date" />
+                            <field name="cause_txt" />
+                            <field name="cause_txt" />
+                            <field name="timestamp"/>
+                            <field name="exten"/>
+                            <field name="callerid_num"/>
+                            <field name="callerid_name"/>
+                            <field name="connected_line_num"/>
+                            <field name="connected_line_name"/>
+                        </group>
+                        <group name="channel_group_2" col="2">
+                            <field name="channel"/>
+                            <field name="channel_short"/>
+                            <field name="parent_channel"/>
+                            <field name="uniqueid"/>
+                            <field name="linkedid"/>
+                            <field name="context"/>
+                            <field name="state"/>
+                            <field name="state_desc"/>
+                            <field name="system_name"/>
+                            <field name="accountcode"/>
+                            <field name="priority"/>
+                            <field name="app_data"/>
+                            <field name="language"/>
+                            <field name="model" invisible="1"/>
+                            <field name="res_id" invisible="1"/>
+                            <field name="event"/>
+                        </group>
+                    </group>
+                    <group>
+                      <field name="linked_channels"
+                          attrs="{'invisible': [('linked_channels', '=', [])]}">
+                        <tree>
+                          <field name="channel"/>
+                          <field name="create_date"/>
+                          <field name="cause_txt"/>
+                          <field name="exten"/>
+                          <field name="callerid_num"/>
+                        </tree>
+                      </field>
+                    </group> 
+                </sheet>
+            </form>
+        </field>
+    </record>
 
 </odoo>

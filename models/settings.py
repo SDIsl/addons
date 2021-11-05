@@ -14,7 +14,7 @@ def debug(rec, prefix, message=None):
     caller_module = inspect.stack()[1][3]
     if rec.env['asterisk_plus.settings'].sudo().get_param('debug_mode'):
         print('++++++ {}: {}: {}'.format(
-            caller_module, prefix.upper(), message))
+            caller_module, prefix, message))
 
 
 class Settings(models.Model):

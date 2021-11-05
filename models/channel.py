@@ -26,9 +26,11 @@ class Channel(models.Model):
     #: Shorted channel to compare with user's channel as it is defined. E.g. SIP/1001
     channel_short = fields.Char(compute='_get_channel_short',
                                 string=_('Channel'))
-    #: Linked channel, we don't store it because both channels must already be present in
-    #: order to compute correctly.
-    linked_channel = fields.Many2one('asterisk_plus.channel', compute='_get_linked_channel')
+    #: Channels that were created from this channel.
+    linked_channels = fields.One2many('asterisk_plus.channel',
+        inverse_name='parent_channel', context={'active_test': False})
+    #: Parent channel
+    parent_channel = fields.Many2one('asterisk_plus.channel', compute='_get_parent_channel')
     #: Channel unique ID. E.g. asterisk-1631528870.0
     uniqueid = fields.Char(size=150, index=True)
     #: Linked channel unique ID. E.g. asterisk-1631528870.1
@@ -72,24 +74,42 @@ class Channel(models.Model):
     timestamp = fields.Char(size=20)
     event = fields.Char(size=64)
 
+    obj = fields.Reference(string='Reference',
+                           selection=[('res.partner', _('Partners')),
+                                      ('asterisk_plus.user', _('Users'))],
+                           compute='_compute_obj',
+                           readonly=True)
+
+    @api.depends('model', 'res_id')
+    def _compute_obj(self):
+        for rec in self:
+            if rec.model and rec.model in self.env:
+                rec.obj = '%s,%s' % (rec.model, rec.res_id or 0)
+            else:
+                rec.obj = None
+
     ########################### COMPUTED FIELDS ###############################
     def _get_channel_short(self):
         # Makes SIP/1001-000000bd to be SIP/1001.
         for rec in self:
             rec.channel_short = '-'.join(rec.channel.split('-')[:-1])
 
-    @api.depends('uniqueid', 'linkedid')
-    def _get_linked_channel(self):
+    def _get_parent_channel(self):
         for rec in self:
             if rec.uniqueid != rec.linkedid:
                 # Asterisk bound channels
-                linked_channel = self.with_context(active_test=False).search(
+                rec.parent_channel = self.with_context(active_test=False).search(
                     [('uniqueid', '=', rec.linkedid)], limit=1)
             else:
-                # Find linked channel by searching for it as linked excluding this.
-                linked_channel = self.with_context(active_test=False).search(
-                    [('linkedid', '=', rec.uniqueid), ('id', '!=', rec.id)], limit=1)
-            rec.linked_channel = linked_channel.id
+                rec.parent_channel = False
+
+    def _get_linked_channels(self):
+        for rec in self:
+            print(rec)
+            print(self.with_context(active_test=False).search(
+                [('linkedid', '=', rec.uniqueid)]))
+            rec.linked_channels = self.with_context(active_test=False).search(
+                [('linkedid', '=', rec.uniqueid), ('id', '!=', rec.id)])
 
     @api.model
     def update_channel_values(self, original_values):
@@ -113,49 +133,6 @@ class Channel(models.Model):
             debug(self, 'NO USER MATCHED', vals)
         return vals
 
-    @api.model
-    def new_channel(self, event, skip_check=False):
-        values = event
-        if not skip_check:
-            channel = self.env['asterisk_plus.channel'].search(
-                [('uniqueid', '=', values.get('Uniqueid'))])
-            if channel:
-                debug(self, 'New Channel', 'CHANNEL {} UPDATE BEFORE new_channel'.format(
-                             values.get('Channel')))
-                return False
-        data = {
-            'server': self.env.user.asterisk_server.id,
-            'channel': values.pop('Channel', ''),
-            'uniqueid': values.pop('Uniqueid', ''),
-            'linkedid': values.pop('Linkedid', ''),
-            'context': values.pop('Context', ''),
-            'connected_line_num': values.pop('ConnectedLineNum', ''),
-            'connected_line_name': values.pop('ConnectedLineName', ''),
-            'state': values.pop('ChannelState', ''),
-            'state_desc': values.pop('ChannelStateDesc', ''),
-            'exten': values.pop('Exten', ''),
-            'callerid_num': values.pop('CallerIDNum', ''),
-            'callerid_name': values.pop('CallerIDName', ''),
-            'accountcode': values.pop('AccountCode', ''),
-            'priority': values.pop('Priority', ''),
-            'timestamp': values.pop('Timestamp', ''),
-            'system_name': values.pop('SystemName', 'asterisk'),
-            'language': values.pop('Language', ''),
-            'event': values.pop('Event', ''),
-        }
-        # Update channel
-        updated_data = self.update_channel_values(data)
-        data.update(updated_data)
-        debug(self, 'New Channel', 'CREATING CHANNEL {}.'.format(
-            data['channel']))
-        channel = self.env['asterisk_plus.channel'].create(data)
-        debug(self, 'New Channel', 'NEW CHANNEL {} UPDATED DATA: {}'.format(
-            channel.channel_short, updated_data
-        ))
-        self.env.cr.commit()
-        # TODO channel reload, notify user?
-        return True
-
     def reload_channels(self, data={}):
         self.ensure_one()
         msg = {
@@ -175,13 +152,6 @@ class Channel(models.Model):
     def update_channel_state(self, event):
         debug(self, 'Newstate', event)
         get = event.get
-        # Find the channel
-        channel = self.env['asterisk_plus.channel'].search([
-            ('uniqueid', '=', get('Uniqueid'))], limit=1)
-        if not channel:
-            debug(self, 'Newstate', 'CREATE CHANNEL {} FOR STATE UPDATE.'.format(
-                get('Channel')))
-            return self.new_channel(event, skip_check=True)
         data = {
             'server': self.env.user.asterisk_server.id,
             'channel': get('Channel'),
@@ -204,8 +174,12 @@ class Channel(models.Model):
         }
         # Update channel user, partner
         data.update(self.update_channel_values(data))
-        res = channel.write(data)
-        return res
+        channel = self.env['asterisk_plus.channel'].search([('uniqueid', '=', get('Uniqueid'))], limit=1)
+        if not channel:
+            channel = self.create(data)
+        else:
+            channel.write(data)
+        return channel
 
     @api.model
     def on_ami_new_channel(self, event):
@@ -213,12 +187,18 @@ class Channel(models.Model):
         """
         debug(self, 'NewChannel', event)
         vals = {
+            'event': event['Event'],
             'server': self.env.user.asterisk_server.id,
             'channel': event['Channel'],
+            'state': event['ChannelState'],
+            'state_desc': event['ChannelStateDesc'],
             'callerid_num': event['CallerIDNum'],
             'callerid_name': event['CallerIDName'],
             'connected_line_num': event['ConnectedLineNum'],
             'connected_line_name': event['ConnectedLineName'],
+            'language': event['Language'],
+            'accountcode': event['AccountCode'],
+            'priority': event['Priority'],
             'context': event['Context'],
             'exten': event['Exten'],
             'uniqueid': event['Uniqueid'],
@@ -260,6 +240,21 @@ class Channel(models.Model):
             return False
         debug(self, 'Hangup', 'Found {} channel(s) {}'.format(len(found), channel))
         found.write({
+            'event': event['Event'],
+            'channel': event['Channel'],
+            'state': event['ChannelState'],
+            'state_desc': event['ChannelStateDesc'],
+            'callerid_num': event['CallerIDNum'],
+            'callerid_name': event['CallerIDName'],
+            'connected_line_num': event['ConnectedLineNum'],
+            'connected_line_name': event['ConnectedLineName'],
+            'language': event['Language'],
+            'accountcode': event['AccountCode'],
+            'context': event['Context'],
+            'exten': event['Exten'],
+            'priority': event['Priority'],
+            'uniqueid': event['Uniqueid'],
+            'linkedid': event['Linkedid'],
             'active': False,
             'hangup_date': fields.Datetime.now(),
             'cause': event['Cause'],
