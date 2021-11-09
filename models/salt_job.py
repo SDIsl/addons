@@ -31,7 +31,7 @@ class SaltJob(models.Model):
             'fun_args': [],
             'success': True}
         """
-        debug(self, 'Receive', ret)
+        debug(self, json.dumps(ret, indent=2))
         job = self.sudo().search([('jid', '=', ret['jid'])])
         if not job:
             logger.error('NO JOB FOUND FOR JID: %s', ret['jid'])

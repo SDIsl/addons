@@ -125,12 +125,12 @@ class Channel(models.Model):
             partner = self.env['res.partner'].sudo().search_by_number(original_values['exten'])
             if partner:
                 vals['partner'] = partner.id
-            debug(self, 'USER CALL', vals)
+            debug(self, json.dumps(vals, indent=2))
         else:
             partner = self.env['res.partner'].sudo().search_by_number(original_values['callerid_num'])
             if partner:
                 vals['partner'] = partner.id
-            debug(self, 'NO USER MATCHED', vals)
+            debug(self, json.dumps(vals, indent=2))
         return vals
 
     def reload_channels(self, data={}):
@@ -150,7 +150,7 @@ class Channel(models.Model):
     ########################### AMI Event handlers ############################
     @api.model
     def update_channel_state(self, event):
-        debug(self, 'Newstate', event)
+        debug(self, json.dumps(event, indent=2))
         get = event.get
         data = {
             'server': self.env.user.asterisk_server.id,
@@ -185,7 +185,7 @@ class Channel(models.Model):
     def on_ami_new_channel(self, event):
         """AMI NewChannel event is processed to create a new channel in Odoo.
         """
-        debug(self, 'NewChannel', event)
+        debug(self, json.dumps(event, indent=2))
         vals = {
             'event': event['Event'],
             'server': self.env.user.asterisk_server.id,
@@ -236,9 +236,9 @@ class Channel(models.Model):
         found = self.env['asterisk_plus.channel'].with_context(
             active_test=False).search([('uniqueid', '=', uniqueid)])
         if not found:
-            debug(self, 'Hangup', 'Channel {} not found for hangup.'.format(channel))
+            debug(self, 'Channel {} not found for hangup.'.format(channel))
             return False
-        debug(self, 'Hangup', 'Found {} channel(s) {}'.format(len(found), channel))
+        debug(self, 'Found {} channel(s) {}'.format(len(found), channel))
         found.write({
             'event': event['Event'],
             'channel': event['Channel'],
@@ -272,7 +272,7 @@ class Channel(models.Model):
             return False
         channel = self.env['asterisk_plus.channel'].search([('uniqueid', '=', event['Uniqueid'])])
         if not channel:
-            debug(self, 'Response', 'CHANNEL NOT FOUND FOR ORIGINATE RESPONSE!')
+            debug(self, 'CHANNEL NOT FOUND FOR ORIGINATE RESPONSE!')
             return False
         if channel.cause:
             # This is a response after Hangup so no need for it.
