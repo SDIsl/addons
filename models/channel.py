@@ -125,12 +125,12 @@ class Channel(models.Model):
             partner = self.env['res.partner'].sudo().search_by_number(original_values['exten'])
             if partner:
                 vals['partner'] = partner.id
-            debug(self, json.dumps(vals, indent=2))
+            debug(self, 'USER CALL: {}'.format(json.dumps(vals, indent=2)))
         else:
             partner = self.env['res.partner'].sudo().search_by_number(original_values['callerid_num'])
             if partner:
                 vals['partner'] = partner.id
-            debug(self, json.dumps(vals, indent=2))
+            debug(self, 'NO USER MATCHED: {}'.format(json.dumps(vals, indent=2)))
         return vals
 
     def reload_channels(self, data={}):
