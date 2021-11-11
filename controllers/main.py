@@ -54,13 +54,12 @@ class AsteriskPlusController(http.Controller):
             checked = self.check_ip(db=db)
             if checked is not None:
                 return checked
-            number = kw.get('number').replace(' ', '')  # Strip spaces
+            number = kw.get('number', '').replace(' ', '')  # Strip spaces
             country_code = kw.get('country') or False
             if not number:
                 return BadRequest('Number not specified in request')
-            debug(
-                http.request, 'get_caller_name',
-                'CALLER NAME REQUEST FOR NUMBER {} country {}'.format(number, country_code))
+            debug(http.request, 'CALLER NAME REQUEST FOR NUMBER {} country {}'.format(
+                number, country_code))
             dst_partner_info = self._get_partner_by_number(
                 db, number, country_code)
             if dst_partner_info['id']:
@@ -82,7 +81,7 @@ class AsteriskPlusController(http.Controller):
             checked = self.check_ip(db=db)
             if checked is not None:
                 return checked
-            number = kw.get('number').replace(' ', '')  # Strip spaces
+            number = kw.get('number', '').replace(' ', '')  # Strip spaces
             country_code = kw.get('country') or False
             if not number:
                 return BadRequest('Number not specified in request')
@@ -122,7 +121,7 @@ class AsteriskPlusController(http.Controller):
             checked = self.check_ip(db=db)
             if checked is not None:
                 return checked
-            number = kw.get('number').replace(' ', '')  # Strip spaces
+            number = kw.get('number', '').replace(' ', '')  # Strip spaces
             country_code = kw.get('country') or False
             if not number:
                 return BadRequest('Number not specified in request')

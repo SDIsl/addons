@@ -148,7 +148,7 @@ class Server(models.Model):
             # TODO: Add server:
             # {'return': [{'jid': '20210928122846179815', 'minions': ['asterisk']}]}
             # TODO: When minion is not accepted it raises error.
-            debug(self, 'Return', ret)
+            debug(self, json.dumps(ret, indent=2))
             if not self.env.context.get('no_commit'):
                 # Commit ASAP so that returner can find the job.
                 # TODO: Move the above to separate transation not to commit the current one.
@@ -333,7 +333,7 @@ class Server(models.Model):
 
     @api.model
     def originate_call_response(self, data, pass_back):
-        debug(self, 'Originate', data)
+        debug(self, json.dumps(data, indent=2))
         if data[0]['Response'] == 'Error':
             self.env.user.asterisk_plus_notify(
                 data[0]['Message'], uid=pass_back['uid'], warning=True)

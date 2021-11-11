@@ -10,11 +10,10 @@ logger = logging.getLogger(__name__)
 FORMAT_TYPE = 'e164'
 
 
-def debug(rec, prefix, message=None):
+def debug(rec, message):
     caller_module = inspect.stack()[1][3]
     if rec.env['asterisk_plus.settings'].sudo().get_param('debug_mode'):
-        print('++++++ {}: {}: {}'.format(
-            caller_module, prefix, message))
+        print('++++++ {}: {}'.format(caller_module, message))
 
 
 class Settings(models.Model):
@@ -94,7 +93,7 @@ class Settings(models.Model):
             # TODO: How to handle Boolean fields!?
             setattr(data, param, value)
         else:
-            debug(self, 'set_param', "Keeping existing value for param: {}".format(param))
+            debug(self, "Keeping existing value for param: {}".format(param))
         return True
 
     @api.model
