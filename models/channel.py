@@ -1,10 +1,20 @@
 # ©️ OdooPBX by Odooist, Odoo Proprietary License v1.0, 2020
+import base64
 from datetime import datetime, timedelta
+import io
+import time
+import wave
 import json
 import logging
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 from .server import debug
+
+try:
+    import lameenc
+    LAMEENC = True
+except ImportError:
+    LAMEENC = False
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +83,14 @@ class Channel(models.Model):
     res_id = fields.Integer()
     timestamp = fields.Char(size=20)
     event = fields.Char(size=64)
+    #: Path to recorded call file
+    file_path = fields.Char()
+    # Reording data
+    recording_widget = fields.Char(compute='_get_recording_widget',
+                                   string='Recording')
+    recording_icon = fields.Char(compute='_get_recording_icon', string='R')
+    recording_filename = fields.Char(readonly=True, index=True)
+    recording_data = fields.Binary(readonly=True, string=_('Download'))
 
     obj = fields.Reference(string='Reference',
                            selection=[('res.partner', _('Partners')),
@@ -110,6 +128,25 @@ class Channel(models.Model):
                 [('linkedid', '=', rec.uniqueid)]))
             rec.linked_channels = self.with_context(active_test=False).search(
                 [('linkedid', '=', rec.uniqueid), ('id', '!=', rec.id)])
+
+    def _get_recording_icon(self):
+        for rec in self:
+            if rec.recording_filename:
+                rec.recording_icon = '<span class="fa fa-file-sound-o"/>'
+            else:
+                rec.recording_icon = ''
+
+    def _get_recording_widget(self):
+        for rec in self:
+            rec.recording_widget = '<audio id="sound_file" preload="auto" ' \
+                'controls="controls"> ' \
+                '<source src="/web/content?model=asterisk_plus.channel&' \
+                'id={recording_id}&filename={filename}&field={source}&' \
+                'filename_field=recording_filename&download=True" />' \
+                '</audio>'.format(
+                    recording_id=rec.id,
+                    filename=rec.recording_filename,
+                    source='recording_data')
 
     @api.model
     def update_channel_values(self, original_values):
@@ -261,6 +298,7 @@ class Channel(models.Model):
             'cause_txt': event['Cause-txt'],
         })
         found.reload_channels({'event': 'hangup_channel'})
+        self.save_call_recording(event)
         return found.id
 
     @api.model
@@ -288,6 +326,127 @@ class Channel(models.Model):
                 _('Call failed, reason {0}').format(reason),
                 uid=channel.create_uid.id, warning=True)
         return channel.id
+
+    @api.model
+    def update_monitor_filename(self, event):
+        debug(self, json.dumps(event, indent=2))
+        if event.get('Variable') == 'MIXMONITOR_FILENAME':
+            file_path = event['Value']
+            uniqueid = event['Uniqueid']
+            channel = self.search([
+                ('uniqueid', '=', uniqueid),
+            ], limit=1)
+            channel.file_path = file_path
+            return True
+        return False
+
+    @api.model
+    def save_call_recording(self, event):
+        channels = self.env['asterisk_plus.channel'].with_context(
+            active_test=False)
+        uniqueid = event.get('Uniqueid')
+        # Check if we have MIXMONITOR event.
+        found = channels.search([
+            ('uniqueid', '=', uniqueid)
+        ], limit=1)
+        if not found:
+            logger.info('Recording was not activated for channel %s',
+                        uniqueid)
+            return False
+        if not found.file_path:
+            logger.info('File path not specified for channel %s',
+                        uniqueid)
+            return False
+        debug(self, 'Save call recording for channel {}.'.format(uniqueid))
+        file_path = found.file_path
+        # This is called a few seconds after call Hangup, so filter calls
+        # by time first.
+        recently = datetime.utcnow() - timedelta(seconds=60)
+        channel = channels.search([
+            ('create_date', '>=', recently.strftime('%Y-%m-%d %H:%M:%S')),
+            ('uniqueid', '=', uniqueid)],
+            limit=1)
+        if not channel:
+            logger.info('CDR not found for channel {}.'.format(uniqueid))
+            return False
+        if channel.cause != '16':
+            logger.info(
+                'Call Recording was activated but call was not answered.')
+            return False
+        debug(self, 'Found CDR for channel {}.'.format(uniqueid))
+        channel.server.local_job(
+            fun='asterisk.get_file',
+            arg=file_path,
+            res_model='asterisk_plus.channel',
+            res_method='call_recording_data',
+            pass_back={'file_path': file_path, 'channel_id': channel.id}
+        )
+        return True
+
+    @api.model
+    def call_recording_data(self, data, pass_back):
+        channels = self.env['asterisk_plus.channel'].with_context(
+            active_test=False)
+        channel_id = pass_back.get('channel_id')
+        file_path = pass_back.get('file_path')
+        input_data = data.get('file_data')
+        if data.get('error'):
+            msg = data['error'].get('message', data['error'])
+            logger.error('Call recording data error: %s', msg)
+            return False
+        channel = channels.browse(channel_id)
+        debug(self, 'Call recording data for channel {}'.format(
+            channel.channel))
+        mp3_encode = self.env['asterisk_plus.settings'].get_param(
+            'use_mp3_encoder')
+        # Convert to mp3
+        if LAMEENC and mp3_encode:
+            bit_rate = int(self.env['asterisk_plus.settings'].get_param(
+                'mp3_encoder_bitrate', default=96))
+            quality = int(self.env['asterisk_plus.settings'].get_param(
+                'mp3_encoder_quality', default=4))
+            decoded_input = base64.b64decode(input_data)
+            output_data = base64.b64encode(
+                self._wav_to_mp3(io.BytesIO(decoded_input), bit_rate, quality))
+            extension = 'mp3'
+        else:
+            output_data = input_data
+            extension = 'wav'
+        channel.write({
+            'recording_data': output_data,
+            'recording_filename': '{}.{}'.format(channel.uniqueid, extension)})
+        # Delete recording from the Asterisk server
+        if self.env['asterisk_plus.settings'].get_param('delete_recordings'):
+            debug(self, 'DELETE RECORDING {}'.format(file_path))
+            channel.server.local_job(
+                fun='asterisk.delete_file',
+                arg=file_path,
+                timeout=10)
+        return True
+
+    def _wav_to_mp3(self, file_data, bit_rate, quality):
+        started = time.time()
+        wav_data = wave.open(file_data)
+        num_channels = wav_data.getnchannels()
+        sample_rate = wav_data.getframerate()
+        num_frames = wav_data.getnframes()
+        pcm_data = wav_data.readframes(num_frames)
+        debug(self,
+              'Encoding Wave file. Number of channels: '
+              '{}. Sample rate: {}, Number of frames: {}'.format(
+                num_channels, sample_rate, num_frames))
+        wav_data.close()
+
+        encoder = lameenc.Encoder()
+        encoder.set_bit_rate(bit_rate)
+        encoder.set_in_sample_rate(sample_rate)
+        encoder.set_channels(num_channels)
+        encoder.set_quality(quality)  # 2-highest, 7-fastest
+        mp3_data = encoder.encode(pcm_data)
+        mp3_data += encoder.flush()
+        logger.info('Recording convert .wav -> .mp3 took %.2f seconds.',
+                    time.time() - started)
+        return mp3_data
 
     @api.model
     def vacuum(self):

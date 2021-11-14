@@ -45,6 +45,30 @@ class Settings(models.Model):
         default='from-internal', required=True,
         help='Default context to set when creating PBX / Odoo user mapping.')
     originate_timeout = fields.Integer(default=60, required=True)
+    # Recording settings
+    delete_recordings = fields.Boolean(
+        default=True,
+        help='Keep recordings on Asterisk after upload to Odoo.')
+    use_mp3_encoder = fields.Boolean(
+        default=False, string=_("Encode to MP3"),
+        help=_("If checked, call recordings will be encoded using MP3"
+               "Requires lameenc Python package installed to work."))
+    mp3_encoder_bitrate = fields.Selection(
+        selection=[('16', '16kbps'),
+                   ('32', '32kbps'),
+                   ('48', '48kbps'),
+                   ('64', '64kbps'),
+                   ('96', '96kbps'),
+                   ('128', '128 kbps')],
+        required=False)
+    mp3_encoder_quality = fields.Selection(
+        selection=[('2', '2-Highest'),
+                   ('3', '3'),
+                   ('4', '4'),
+                   ('5', '5'),
+                   ('6', '6'),
+                   ('7', '7-Fastest')],
+        required=False)
 
     @api.model
     def _get_name(self):

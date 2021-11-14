@@ -33,6 +33,14 @@
                       <field name="originate_timeout"/>
                     </group>
                   </group>
+                  <group>
+                    <group string="Call Recording">
+                      <field name="use_mp3_encoder"/>
+                      <field name="mp3_encoder_quality" attrs="{'invisible': [('use_mp3_encoder', '=', False)]}"/>
+                      <field name="mp3_encoder_bitrate" attrs="{'invisible': [('use_mp3_encoder', '=', False)]}"/>
+                      <field name="delete_recordings"/>
+                    </group>
+                  </group>
                 </page>                
                 <page name="salt" string="Salt Master">
                   <group>
