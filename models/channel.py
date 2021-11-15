@@ -317,7 +317,7 @@ class Channel(models.Model):
         # Set call status by the originated channel
         if event['Uniqueid'] == event['Linkedid']:
             channel.call.write({
-                'status': 'answered',
+                'status': 'answered', # TODO
                 'is_active': False,
                 'ended': datetime.now(),
             })
@@ -332,7 +332,7 @@ class Channel(models.Model):
     @api.model
     def ami_originate_response_failure(self, event):
         # This comes from Asterisk OriginateResponse AMI message when
-        # call originate has been failed.
+        # call originate has been failed.           
         if event['Response'] != 'Failure':
             logger.error(self, 'Response', 'UNEXPECTED ORIGINATE RESPONSE FROM ASTERISK!')
             return False
@@ -340,6 +340,9 @@ class Channel(models.Model):
         if not channel:
             debug(self, 'CHANNEL NOT FOUND FOR ORIGINATE RESPONSE!')
             return False
+        if self.env['asterisk_plus.settings'].sudo().get_param('trace_ami'):
+            event['channel_id'] = channel.id
+            self.env['asterisk_plus.channel_message'].create_from_event(channel, event)
         if channel.cause:
             # This is a response after Hangup so no need for it.
             return channel.id

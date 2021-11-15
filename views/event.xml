@@ -21,8 +21,8 @@
         <field name="name"/>
         <field name="model"/>
         <field name="method"/>
-        <field name="is_enabled"/>
         <field name="delay"/>
+        <field name="is_enabled"/>        
         <field name="condition"/>
         <field name="icon" widget="html"/>
       </tree>
