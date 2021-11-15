@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="asterisk_plus_channel_message_action" model="ir.actions.act_window">
+      <field name="name">Channel Messages</field>
+      <field name="res_model">asterisk_plus.channel_message</field>
+      <field name="view_mode">tree,form</field>
+      <field name="context">{'active_test': False}</field>
+    </record>
+
+    <record id="asterisk_plus_channel_message_list" model="ir.ui.view">
+      <field name="name">asterisk.plus.channel.message.list</field>
+      <field name="model">asterisk_plus.channel_message</field>
+      <field name="arch" type="xml">
+          <tree edit="false" create="false" duplicate="false">
+            <field name="event"/>
+            <field name="exten"/>
+            <field name="context"/>
+            <field name="priority"/>
+            <field name="callerid_num"/>
+            <field name="channel"/>
+            <field name="connected_line_num"/>
+            <field name="state_desc"/>
+            </tree>
+      </field>
+    </record>
+
+    <record id="asterisk_plus_channel_message_search" model="ir.ui.view">
+    <field name="name">asterisk.plus.channel.message.message.search</field>
+    <field name="model">asterisk_plus.channel_message</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="channel_id"/>
+        <field name="channel"/>
+        <field name="exten"/>
+        <field name="callerid_num"/>
+        <field name="callerid_name"/>
+        <field name="app"/>
+      </search>
+    </field>
+    </record>
+
+</odoo>
