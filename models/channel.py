@@ -167,19 +167,26 @@ class Channel(models.Model):
         if user_channel:
             if len(self.call.channels) == 1: # This is the primary channel.
                 # We use sudo() as server does not have access to res.users.
-                self.call.write({
+                data = {
                     'direction': 'out',
-                    'calling_user': user_channel.sudo().asterisk_user.user.id,
-                    'partner': self.env['res.partner'].search_by_number(self.exten)
-                })
+                    'calling_user': user_channel.sudo().asterisk_user.user.id
+                }
+                if not self.call.partner:
+                    # Match the partner
+                    data.update({
+                        'partner': self.env[
+                            'res.partner'].search_by_number(self.exten)
+                    })
+                self.call.write(data)
             else: # Secondady channel that means user is called
                 self.call.called_user = user_channel.sudo().asterisk_user.user.id
         else: # No user channel is found. Try to match the partner.
             # No user channel try to match the partner by caller ID number
-            self.call.write({
-                'partner': self.env['res.partner'].search_by_number(self.callerid_num),
-                'direction': 'in'
-            })
+            data = {'direction': 'in'}
+            if not self.call.partner:
+                data['partner'] = self.env[
+                    'res.partner'].search_by_number(self.callerid_num)
+            self.call.write(data)
 
     ########################### AMI Event handlers ############################
     @api.model
@@ -189,14 +196,18 @@ class Channel(models.Model):
         debug(self, json.dumps(event, indent=2))
         # Create a call for the primary channel.
         if event['Uniqueid'] == event['Linkedid']:
-            call = self.env['asterisk_plus.call'].create({
-                'uniqueid': event['Uniqueid'],
-                'calling_number': event['CallerIDNum'],
-                'called_number': event['Exten'],
-                'started': datetime.now(),
-                'is_active': True,
-                'status': 'progress',
-            })
+            # Check if call already exists
+            call = self.env['asterisk_plus.call'].search(
+                [('uniqueid', '=', event['Uniqueid'])], limit=1)
+            if not call:                
+                call = self.env['asterisk_plus.call'].create({
+                    'uniqueid': event['Uniqueid'],
+                    'calling_number': event['CallerIDNum'],
+                    'called_number': event['Exten'],
+                    'started': datetime.now(),
+                    'is_active': True,
+                    'status': 'progress',
+                })
         else:
             # There is already a parent channel and the call
             call = self.env['asterisk_plus.call'].search(

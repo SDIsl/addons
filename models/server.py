@@ -302,13 +302,29 @@ class Server(models.Model):
 
                 channel_id = uuid.uuid4().hex
                 other_channel_id = uuid.uuid4().hex
+                # Create a call.
+                call_data = {
+                    'server': asterisk_user.server.id,
+                    'uniqueid': channel_id,
+                    'calling_number': asterisk_user.exten,
+                    'called_number': number,
+                    'started': datetime.now(),
+                    'direction': 'out',
+                    'is_active': True,
+                    'status': 'progress',
+                }
+                if model == 'res.partner':
+                    # Set call partner
+                    call_data['partner'] = res_id
+                call = self.env['asterisk_plus.call'].create(call_data)
                 self.env['asterisk_plus.channel'].create({
+                        'server': asterisk_user.server.id,
+                        'call': call.id,
                         'channel': ch.name,
                         'uniqueid': channel_id,
                         'linkedid': other_channel_id,
                         'model': model,
-                        'res_id': res_id,
-                        # TODO: Think about multi server.
+                        'res_id': res_id,                        
                 })
                 if not self.env.context.get('no_commit'):
                     self.env.cr.commit()
