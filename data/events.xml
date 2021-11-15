@@ -39,5 +39,14 @@
       <field name="delay">0.5</field>
       <field name="condition">not (event['Channel'].startswith('Local/') or event['ChannelStateDesc'] not in ['Up'])</field>
     </record>
+
+    <record id="var_set_mixmon" model="asterisk_plus.event">
+      <field name="name">VarSet</field>
+      <field name="source">AMI</field>
+      <field name="model">asterisk_plus.channel</field>
+      <field name="method">update_monitor_filename</field>
+      <field name="delay">1.5</field>
+      <field name="condition">event['Variable'] == 'MIXMONITOR_FILENAME'</field>
+    </record>
   </data>
 </odoo>
