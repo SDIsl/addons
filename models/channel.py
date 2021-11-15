@@ -270,6 +270,10 @@ class Channel(models.Model):
         if self.env['asterisk_plus.settings'].sudo().get_param('trace_ami'):
             data['channel_id'] = channel.id
             self.env['asterisk_plus.channel_message'].create_from_event(channel, event)
+        if get('ChannelStateDesc') == 'Up':
+            channel.call.write({
+                'answered': datetime.now(),
+            })
         return channel
 
     @api.model

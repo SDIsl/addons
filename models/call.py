@@ -79,3 +79,6 @@ class Call(models.Model):
             msg.update(res_id=self.partner.id, model='res.partner')
         msg.update(data)
         self.env['bus.bus'].sendone('asterisk_plus_channels', json.dumps(msg))
+
+    def move_to_history(self):
+        self.is_active = False

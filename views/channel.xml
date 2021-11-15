@@ -9,7 +9,8 @@
     </record>
 
     <menuitem id="asterisk_plus_channel_menu"
-            sequence="100"
+            groups="asterisk_plus.group_asterisk_admin"
+            sequence="300"
             parent="asterisk_plus.asterisk_apps_menu"
             name="Channels"
             action="asterisk_plus_channel_action"/>
