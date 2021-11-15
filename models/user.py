@@ -100,20 +100,9 @@ class PbxUser(models.Model):
     @api.model
     @tools.ormcache('exten', 'system_name')
     def get_res_user_id_by_exten(self, exten, system_name):
+        # TODO: Is it required?
         astuser = self.search([
             ('exten', '=', exten), ('system_name', '=', system_name)], limit=1)
         debug(self, 'GET RES USER BY EXTEN {} at {}: {}'.format(
             exten, system_name, astuser))
         return astuser.user.id
-
-    @api.model
-    @tools.ormcache('channel', 'system_name')
-    def get_res_user_id_by_channel(self, channel, system_name):
-        if '-' in channel:
-            channel = '-'.join(channel.split('-')[:-1])
-        user_channel = self.env['asterisk_plus.user_channel'].search([
-            ('name', '=', channel),
-            ('system_name', '=', system_name)], limit=1)
-        debug(self, 'GET RES USER BY CHANNEL {} at {}: {}'.format(
-              channel, system_name, user_channel.asterisk_user))
-        return user_channel.asterisk_user.user.id

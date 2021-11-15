@@ -2,8 +2,9 @@
 from datetime import datetime, timedelta
 import json
 import logging
-from odoo import models, fields, api, _, SUPERUSER_ID
+from odoo import models, fields, api, tools, _, SUPERUSER_ID
 from odoo.exceptions import ValidationError
+from .server import debug
 
 logger = logging.getLogger(__name__)
 
@@ -91,3 +92,13 @@ class UserChannel(models.Model):
     def _get_default_context(self):
         return self.env['asterisk_plus.settings'].sudo().get_param(
             'originate_context', 'from-internal')
+
+    @api.model
+    def get_user_channel(self, channel, system_name):
+        # Take channel from an AMI event, parse it and return Odoo user. 
+        if '-' in channel:
+            channel = '-'.join(channel.split('-')[:-1])
+        user_channel = self.search([
+            ('name', '=', channel),
+            ('system_name', '=', system_name)], limit=1)
+        return user_channel

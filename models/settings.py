@@ -36,6 +36,9 @@ class Settings(models.Model):
                                  default='odoo')
     #: Debug mode
     debug_mode = fields.Boolean()
+    #: Save all AMI messages on channels
+    trace_ami = fields.Boolean(string='Trace AMI',
+        help='Save all AMI messages on channels')
     permit_ip_addresses = fields.Char(
         string=_('Permit IP address(es)'),
         help=_('Comma separated list of IP addresses permitted to query caller'

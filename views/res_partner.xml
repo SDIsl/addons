@@ -3,7 +3,7 @@
 
     <record id='partner_calls_action' model='ir.actions.act_window'>
         <field name='name'>Calls</field>
-        <field name='res_model'>asterisk_plus.channel</field>
+        <field name='res_model'>asterisk_plus.call</field>
         <field name="view_mode">tree,form</field>
         <field name="domain">['|', ('partner','=', active_id), ('partner.parent_id','=', active_id)]</field>
     </record>

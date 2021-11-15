@@ -244,11 +244,10 @@ class Partner(models.Model):
         for rec in self:
             if rec.is_company:
                 rec.call_count = self.env[
-                    'asterisk_plus.channel'].sudo().search_count(
+                    'asterisk_plus.call'].sudo().search_count(
                     ['|', ('partner', '=', rec.id),
-                          ('partner.parent_id', '=', rec.id),
-                          ('active', 'in', [True, False])])
+                          ('partner.parent_id', '=', rec.id)])
             else:
                 rec.call_count = self.env[
-                    'asterisk_plus.channel'].sudo().search_count(
-                    [('partner', '=', rec.id), ('active', 'in', [True, False])])
+                    'asterisk_plus.call'].sudo().search_count(
+                    [('partner', '=', rec.id)])

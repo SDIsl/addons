@@ -24,14 +24,36 @@
 
   <!-- Channel -->
   <record id="asterisk_plus_channel_server" model="ir.model.access">
-    <field name="name">asterisk_plus_channel</field>
+    <field name="name">asterisk_plus_channel_server</field>
     <field name="model_id" ref="asterisk_plus.model_asterisk_plus_channel"/>
     <field name="group_id" ref="asterisk_plus.group_asterisk_server"/>
     <field name="perm_read" eval="1"/>
     <field name="perm_write" eval="1"/>
     <field name="perm_create" eval="1"/>
-    <field name="perm_unlink" eval="1"/>
+    <field name="perm_unlink" eval="0"/>
   </record>
+
+  <!-- Call -->
+  <record id="asterisk_plus_call_server" model="ir.model.access">
+    <field name="name">asterisk_plus_call_server</field>
+    <field name="model_id" ref="asterisk_plus.model_asterisk_plus_call"/>
+    <field name="group_id" ref="asterisk_plus.group_asterisk_server"/>
+    <field name="perm_read" eval="1"/>
+    <field name="perm_write" eval="1"/>
+    <field name="perm_create" eval="1"/>
+    <field name="perm_unlink" eval="0"/>
+  </record>
+
+<!-- Channel Message  -->
+<record id="asterisk_plus_channel_message_server" model="ir.model.access">
+  <field name="name">asterisk_plus_channel_message_server</field>
+  <field name="model_id" ref="asterisk_plus.model_asterisk_plus_channel_message"/>
+  <field name="group_id" ref="asterisk_plus.group_asterisk_server"/>
+  <field name="perm_read" eval="0"/>
+  <field name="perm_write" eval="0"/>
+  <field name="perm_create" eval="1"/>
+  <field name="perm_unlink" eval="0"/>
+</record>
 
   <!-- Settings -->
   <record id="asterisk_settings_server" model="ir.model.access">

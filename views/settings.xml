@@ -25,6 +25,7 @@
                   <group>
                     <group>
                       <field name="debug_mode"/>
+                      <field name="trace_ami"/>
                       <field placeholder="IP addresses by comma..."
                         name="permit_ip_addresses"/>
                     </group>

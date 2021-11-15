@@ -36,7 +36,9 @@
         'views/res_users.xml',
         'views/user.xml',
         'views/res_partner.xml',
+        'views/call.xml',
         'views/channel.xml',
+        'views/channel_message.xml',
         'views/templates.xml',
         # Cron
         'views/ir_cron.xml',
