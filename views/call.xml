@@ -16,7 +16,7 @@
     </record>
 
     <menuitem id="asterisk_plus_active_calls_menu"
-            sequence="300"
+            sequence="100"
             parent="asterisk_plus.asterisk_apps_menu"
             name="Active Calls"
             action="asterisk_plus_active_calls_action"/>
