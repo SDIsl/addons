@@ -127,4 +127,17 @@
         </field>
     </record>
 
+    <!-- 'Move to History' in action dropdown -->
+    <record id="call_move_to_history_action" model="ir.actions.server">
+        <field name="name">Move to History</field>
+        <field name="model_id" ref="model_asterisk_plus_call"/>
+        <field name="binding_model_id" ref="asterisk_plus.model_asterisk_plus_call"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">
+            for record in records:
+                record.move_to_history()
+        </field>
+    </record>
+
 </odoo>
