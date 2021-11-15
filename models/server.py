@@ -317,7 +317,7 @@ class Server(models.Model):
                     'Context': ch.originate_context,
                     'Priority': '1',
                     'Timeout': 1000 * originate_timeout,
-                    'Channel': ch.name,
+                    'Channel': '{}/{}'.format(ch.name, number),
                     'Exten': number,
                     'Async': 'true',
                     'EarlyMedia': 'true',

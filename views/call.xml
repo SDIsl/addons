@@ -83,7 +83,9 @@
         <field name="type">form</field>
         <field name="arch" type="xml">
             <form create='0' edit='0' duplicate='0'>
-                <header></header>
+                <header>
+                  <field name="status" widget="statusbar"/>
+                </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                       <button class="oe_stat_button"                              
@@ -93,15 +95,19 @@
                     </div>
                     <group>
                         <group>
-                            <field name="partner"/>
-                            <field name="calling_user"/>
-                            <field name="called_user"/>
+                            <field name="calling_number"/>
+                            <field name="calling_user" attrs="{'invisible': [('calling_user', '=', False)]}"/>
+                            <field name="partner" attrs="{'invisible': [('partner', '=', False)]}"/>
+                            <field name="direction"/>
                         </group>
                         <group>
-                          <field name="status"/>
-                          <field name="ended"/>
-                          <field name="calling_number"/>                            
                           <field name="called_number"/>
+                          <field name="called_user" attrs="{'invisible': [('called_user', '=', False)]}"/>
+                          <field name="started"/>
+                          <field name="answered"/>                          
+                          <field name="ended"/>
+                          
+                          
                         </group>
                     </group>
                     <group>
@@ -112,6 +118,7 @@
                           <field name="cause_txt"/>
                           <field name="exten"/>
                           <field name="callerid_num"/>
+                          <field name="user"/>
                         </tree>
                       </field>
                     </group> 

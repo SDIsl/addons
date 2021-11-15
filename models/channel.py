@@ -29,6 +29,8 @@ class Channel(models.Model):
     call = fields.Many2one('asterisk_plus.call', ondelete='cascade')
     #: Server of the channel. When server is removed all channels are deleted.
     server = fields.Many2one('asterisk_plus.server', ondelete='cascade')
+    #: User who owns the channel
+    user = fields.Many2one('res.users', ondelete='set null')
     #: Channel name. E.g. SIP/1001-000000bd.
     channel = fields.Char(index=True)
     #: Shorted channel to compare with user's channel as it is defined. E.g. SIP/1001
@@ -154,7 +156,7 @@ class Channel(models.Model):
             'channel': self.channel_short,
             'auto_reload': True
         }
-        self.env['bus.bus'].sendone('asterisk_plus_channels', json.dumps(msg))
+        self.env['bus.bus'].sendone('asterisk_plus_channels', json.dumps(msg))    
 
     def update_call_data(self):
         self.ensure_one()
@@ -166,6 +168,7 @@ class Channel(models.Model):
             if len(self.call.channels) == 1: # This is the primary channel.
                 # We use sudo() as server does not have access to res.users.
                 self.call.write({
+                    'direction': 'out',
                     'calling_user': user_channel.sudo().asterisk_user.user.id,
                     'partner': self.env['res.partner'].search_by_number(self.exten)
                 })
@@ -173,9 +176,68 @@ class Channel(models.Model):
                 self.call.called_user = user_channel.sudo().asterisk_user.user.id
         else: # No user channel is found. Try to match the partner.
             # No user channel try to match the partner by caller ID number
-            self.call.partner = self.env['res.partner'].search_by_number(self.callerid_num)
+            self.call.write({
+                'partner': self.env['res.partner'].search_by_number(self.callerid_num),
+                'direction': 'in'
+            })
 
     ########################### AMI Event handlers ############################
+    @api.model
+    def on_ami_new_channel(self, event):
+        """AMI NewChannel event is processed to create a new channel in Odoo.
+        """
+        debug(self, json.dumps(event, indent=2))
+        # Create a call for the primary channel.
+        if event['Uniqueid'] == event['Linkedid']:
+            call = self.env['asterisk_plus.call'].create({
+                'uniqueid': event['Uniqueid'],
+                'calling_number': event['CallerIDNum'],
+                'called_number': event['Exten'],
+                'started': datetime.now(),
+                'is_active': True,
+                'status': 'progress',
+            })
+        else:
+            # There is already a parent channel and the call
+            call = self.env['asterisk_plus.call'].search(
+                [('uniqueid', '=', event['Linkedid'])], limit=1)
+        # Match channel owner
+        user_channel = self.env['asterisk_plus.user_channel'].get_user_channel(
+            event['Channel'], event['SystemName'])            
+        data = {
+            'call': call.id,
+            'user': user_channel.user.id,
+            'event': event['Event'],
+            'server': self.env.user.asterisk_server.id,
+            'channel': event['Channel'],
+            'state': event['ChannelState'],
+            'state_desc': event['ChannelStateDesc'],
+            'callerid_num': event['CallerIDNum'],
+            'callerid_name': event['CallerIDName'],
+            'connected_line_num': event['ConnectedLineNum'],
+            'connected_line_name': event['ConnectedLineName'],
+            'language': event['Language'],
+            'accountcode': event['AccountCode'],
+            'priority': event['Priority'],
+            'context': event['Context'],
+            'exten': event['Exten'],
+            'uniqueid': event['Uniqueid'],
+            'linkedid': event['Linkedid'],
+            'system_name': event['SystemName'],
+        }
+        channel = self.env['asterisk_plus.channel'].search([('uniqueid', '=', event['Uniqueid'])])
+        if not channel:
+            channel = self.create(data)
+        else:
+            channel.write(data)
+        # Update call based on channel.
+        channel.update_call_data()
+        channel.reload_channels()
+        if self.env['asterisk_plus.settings'].sudo().get_param('trace_ami'):
+            data['channel_id'] = channel.id
+            self.env['asterisk_plus.channel_message'].create_from_event(channel, event)
+        return channel.id
+
     @api.model
     def update_channel_state(self, event):
         debug(self, json.dumps(event, indent=2))
@@ -209,58 +271,6 @@ class Channel(models.Model):
             data['channel_id'] = channel.id
             self.env['asterisk_plus.channel_message'].create_from_event(channel, event)
         return channel
-
-    @api.model
-    def on_ami_new_channel(self, event):
-        """AMI NewChannel event is processed to create a new channel in Odoo.
-        """
-        debug(self, json.dumps(event, indent=2))
-        # Create a call for the primary channel.
-        if event['Uniqueid'] == event['Linkedid']:
-            call = self.env['asterisk_plus.call'].create({
-                'uniqueid': event['Uniqueid'],
-                'calling_number': event['CallerIDNum'],
-                'called_number': event['Exten'],
-                'started': datetime.now(),
-                'is_active': True,
-                'status': 'progress',
-            })
-        else:
-            # There is already a parent channel and the call
-            call = self.env['asterisk_plus.call'].search(
-                [('uniqueid', '=', event['Linkedid'])], limit=1)
-        data = {
-            'call': call.id,
-            'event': event['Event'],
-            'server': self.env.user.asterisk_server.id,
-            'channel': event['Channel'],
-            'state': event['ChannelState'],
-            'state_desc': event['ChannelStateDesc'],
-            'callerid_num': event['CallerIDNum'],
-            'callerid_name': event['CallerIDName'],
-            'connected_line_num': event['ConnectedLineNum'],
-            'connected_line_name': event['ConnectedLineName'],
-            'language': event['Language'],
-            'accountcode': event['AccountCode'],
-            'priority': event['Priority'],
-            'context': event['Context'],
-            'exten': event['Exten'],
-            'uniqueid': event['Uniqueid'],
-            'linkedid': event['Linkedid'],
-            'system_name': event['SystemName'],
-        }
-        channel = self.env['asterisk_plus.channel'].search([('uniqueid', '=', event['Uniqueid'])])
-        if not channel:
-            channel = self.create(data)
-        else:
-            channel.write(data)
-        # Update call based on channel.
-        channel.update_call_data()
-        channel.reload_channels()
-        if self.env['asterisk_plus.settings'].sudo().get_param('trace_ami'):
-            data['channel_id'] = channel.id
-            self.env['asterisk_plus.channel_message'].create_from_event(channel, event)
-        return channel.id
 
     @api.model
     def on_ami_hangup(self, event):
@@ -316,7 +326,7 @@ class Channel(models.Model):
             # Remove and add fields according to the message
             data['channel_id'] = channel.id
             self.env['asterisk_plus.channel_message'].create_from_event(channel, event)
-        self.save_call_recording(event)                    
+        self.save_call_recording(event)
         return channel.id
 
     @api.model

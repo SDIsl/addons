@@ -22,13 +22,14 @@ class Call(models.Model):
     started = fields.Datetime(index=True)
     answered = fields.Datetime(index=True)
     ended = fields.Datetime(index=True)
-    direction = fields.Selection((('in', 'Incoming'), ('out', 'Outgoing')),
-        index=True)
+    direction = fields.Selection(selection=[('in', 'Incoming'), ('out', 'Outgoing')],
+        index=True, size=3)
     direction_icon = fields.Html(string='<->', compute='_get_direction_icon')
-    status = fields.Selection(
-        (('noanswer', 'No Answer'), ('answered', 'Answered'),
+    status = fields.Selection(selection=[
+         ('noanswer', 'No Answer'), ('answered', 'Answered'),
          ('busy', 'Busy'), ('failed', 'Failed'),
-         ('progress', 'In Progress')), index=True, default='progress')
+         ('progress', 'In Progress')], index=True, default='progress',
+         size=8)
     # Boolean index for split all calls on this flag.
     is_active = fields.Boolean(index=True)
     channels = fields.One2many('asterisk_plus.channel', inverse_name='call')
