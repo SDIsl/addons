@@ -88,8 +88,21 @@
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
+                      <button attrs="{'invisible': [('direction', '=', 'in')]}"
+                              class="oe_stat_button"
+                              style="text-align: center; color: #7C7BAD">
+                        <span class="fa fa-phone fa-2x"/>
+                        <span class="fa fa-arrow-right"/>
+                      </button>
+                      <button attrs="{'invisible': [('direction', '=', 'out')]}"
+                              class="oe_stat_button"
+                              style="text-align: center; color: #7C7BAD">
+                        <span class="fa fa-phone fa-2x"/>
+                        <span class="fa fa-arrow-left"/>
+                      </button>
                       <button class="oe_stat_button"                              
                               string="Channels"
+                              icon="fa-list"
                               name="%(call_channels_action)d"
                               type="action"/>
                     </div>

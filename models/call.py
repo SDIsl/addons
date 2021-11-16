@@ -38,8 +38,8 @@ class Call(models.Model):
 
     def _get_direction_icon(self):
         for rec in self:
-            rec.direction_icon = '<span class="arrow-left"/>' if rec.direction == 'in' else \
-                '<span class="arrow-right"/>'
+            rec.direction_icon = '<span class="fa fa-arrow-left"/>' if rec.direction == 'in' else \
+                '<span class="fa fa-arrow-right"/>'
 
     def _get_call_users(self):
         for rec in self:
