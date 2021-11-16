@@ -355,7 +355,7 @@ class Channel(models.Model):
         })
         reason = event.get('Reason')
         # Notify user on a failed click to dial.
-        if channel.call and channel.call.model and channel.calls.res_id:
+        if channel.call and channel.call.model and channel.call.res_id:
             self.env.user.asterisk_plus_notify(
                 _('Call failed, reason {0}').format(reason),
                 uid=channel.create_uid.id, warning=True)
