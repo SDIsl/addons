@@ -35,6 +35,22 @@ class Call(models.Model):
     partner = fields.Many2one('res.partner', ondelete='set null')
     calling_user = fields.Many2one('res.users', ondelete='set null')
     called_user = fields.Many2one('res.users', ondelete='set null')
+    # Related object
+    model = fields.Char()
+    res_id = fields.Integer()
+    ref = fields.Reference(string='Reference',
+                           selection=[('res.partner', _('Partners')),
+                                      ('asterisk_plus.user', _('Users'))],
+                           compute='_compute_ref',
+                           readonly=True)
+
+    @api.depends('model', 'res_id') 
+    def _compute_ref(self):
+        for rec in self:
+            if rec.model and rec.model in self.env:
+                rec.ref = '%s,%s' % (rec.model, rec.res_id or 0)
+            else:
+                rec.ref = None
 
     def _get_direction_icon(self):
         for rec in self:

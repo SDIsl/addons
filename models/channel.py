@@ -77,9 +77,6 @@ class Channel(models.Model):
     cause = fields.Char(index=True)
     cause_txt = fields.Char(index=True)
     hangup_date = fields.Datetime(index=True)
-    # Related object
-    model = fields.Char()
-    res_id = fields.Integer()
     timestamp = fields.Char(size=20)
     event = fields.Char(size=64)
     #: Path to recorded call file
@@ -91,19 +88,6 @@ class Channel(models.Model):
     recording_filename = fields.Char(readonly=True, index=True)
     recording_data = fields.Binary(readonly=True, string=_('Download'))
 
-    obj = fields.Reference(string='Reference',
-                           selection=[('res.partner', _('Partners')),
-                                      ('asterisk_plus.user', _('Users'))],
-                           compute='_compute_obj',
-                           readonly=True)
-
-    @api.depends('model', 'res_id') 
-    def _compute_obj(self):
-        for rec in self:
-            if rec.model and rec.model in self.env:
-                rec.obj = '%s,%s' % (rec.model, rec.res_id or 0)
-            else:
-                rec.obj = None
 
     ########################### COMPUTED FIELDS ###############################
     def _get_channel_short(self):
@@ -164,29 +148,33 @@ class Channel(models.Model):
         user_channel = self.env['asterisk_plus.user_channel'].get_user_channel(
             self.channel, self.system_name)
         debug(self, 'User channel: {}'.format(user_channel.name))
+        data = {}
         if user_channel:
             if len(self.call.channels) == 1: # This is the primary channel.
                 # We use sudo() as server does not have access to res.users.
-                data = {
+                data.update({
                     'direction': 'out',
                     'calling_user': user_channel.sudo().asterisk_user.user.id
-                }
+                })
                 if not self.call.partner:
                     # Match the partner
                     data.update({
                         'partner': self.env[
                             'res.partner'].search_by_number(self.exten)
                     })
-                self.call.write(data)
+                if data:
+                    self.call.write(data)
             else: # Secondady channel that means user is called
                 self.call.called_user = user_channel.sudo().asterisk_user.user.id
         else: # No user channel is found. Try to match the partner.
             # No user channel try to match the partner by caller ID number
-            data = {'direction': 'in'}
+            if not self.call.direction:
+                data['direction'] = 'in'
             if not self.call.partner:
                 data['partner'] = self.env[
                     'res.partner'].search_by_number(self.callerid_num)
-            self.call.write(data)
+            if data:
+                self.call.write(data)
 
     ########################### AMI Event handlers ############################
     @api.model
@@ -366,7 +354,8 @@ class Channel(models.Model):
             'cause_txt': event['Response'],  # Failure
         })
         reason = event.get('Reason')
-        if channel and channel.model and channel.res_id:
+        # Notify user on a failed click to dial.
+        if channel.call and channel.call.model and channel.calls.res_id:
             self.env.user.asterisk_plus_notify(
                 _('Call failed, reason {0}').format(reason),
                 uid=channel.create_uid.id, warning=True)

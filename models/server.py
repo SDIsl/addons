@@ -276,7 +276,6 @@ class Server(models.Model):
             # Save original callerid
             variables.append('OUTBOUND_CALLERID="{}" <{}>'.format(
                 self.env.user.name, self.env.user.asterisk_users.exten))
-
             for ch in originate_channels:
                 channel_vars = variables.copy()
                 if ch.auto_answer_header:
@@ -312,6 +311,8 @@ class Server(models.Model):
                     'direction': 'out',
                     'is_active': True,
                     'status': 'progress',
+                    'model': model,
+                    'res_id': res_id,
                 }
                 if model == 'res.partner':
                     # Set call partner
@@ -323,8 +324,6 @@ class Server(models.Model):
                         'channel': ch.name,
                         'uniqueid': channel_id,
                         'linkedid': other_channel_id,
-                        'model': model,
-                        'res_id': res_id,                        
                 })
                 if not self.env.context.get('no_commit'):
                     self.env.cr.commit()

@@ -78,7 +78,6 @@
                         <group>
                             <field name="call"/>
                             <field name="user"/>
-                            <field name="obj" />
                             <field name="server" />
                             <field name="create_date" />
                             <field name="hangup_date" />
@@ -105,8 +104,6 @@
                             <field name="priority"/>
                             <field name="app_data"/>
                             <field name="language"/>
-                            <field name="model" invisible="1"/>
-                            <field name="res_id" invisible="1"/>
                             <field name="event"/>
                         </group>
                     </group>
