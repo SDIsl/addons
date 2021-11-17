@@ -24,7 +24,7 @@ class Call(models.Model):
     ended = fields.Datetime(index=True)
     direction = fields.Selection(selection=[('in', 'Incoming'), ('out', 'Outgoing')],
         index=True)
-    direction_icon = fields.Html(string='<->', compute='_get_direction_icon')
+    direction_icon = fields.Html(string='Dir', compute='_get_direction_icon')
     status = fields.Selection(selection=[
          ('noanswer', 'No Answer'), ('answered', 'Answered'),
          ('busy', 'Busy'), ('failed', 'Failed'),

@@ -32,6 +32,7 @@
       <field name="model">asterisk_plus.call</field>
       <field name="arch" type="xml">
           <tree edit="false" create="false" duplicate="false">
+            <field name="direction_icon"/>
             <field name="calling_number"/>
             <field name="calling_user"/>
             <field name="called_number"/>
@@ -39,7 +40,6 @@
             <field name="ref"/>
             <field name="status"/>
             <field name="ended"/>
-            <field name="direction_icon"/>
             </tree>
       </field>
     </record>
