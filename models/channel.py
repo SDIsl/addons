@@ -319,8 +319,16 @@ class Channel(models.Model):
         channel.write(data)
         # Set call status by the originated channel
         if event['Uniqueid'] == event['Linkedid']:
+            if channel.cause == '16':
+                call_status = 'answered'
+            elif channel.cause == '17':
+                call_status = 'busy'
+            elif channel.cause == '19':
+                call_status = 'noanswer'
+            else:
+                call_status = 'failed'
             channel.call.write({
-                'status': 'answered', # TODO
+                'status': call_status,
                 'is_active': False,
                 'ended': datetime.now(),
             })
