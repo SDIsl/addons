@@ -62,18 +62,18 @@
         </header>
         <sheet>
           <div class="oe_button_box" name="button_box">
-            <button attrs="{'invisible': [('direction', '=', 'in')]}"
-                    class="oe_stat_button"
-                    style="text-align: center; color: #7C7BAD">
+            <div attrs="{'invisible': [('direction', '=', 'in')]}"
+                    class="btn btn-group oe_stat_button"
+                    style="justify-content: center; align-items: center; color: #7C7BAD;">
               <span class="fa fa-phone fa-2x" title="Out"/>
               <span class="fa fa-arrow-right" title="Out"/>
-            </button>
-            <button attrs="{'invisible': [('direction', '=', 'out')]}"
-                    class="oe_stat_button"
-                    style="text-align: center; color: #7C7BAD">
+            </div>
+            <div attrs="{'invisible': [('direction', '=', 'out')]}"
+                    class="btn btn-group oe_stat_button"
+                    style="justify-content: center; align-items: center; color: #7C7BAD;">
               <span class="fa fa-phone fa-2x" title="In"/>
               <span class="fa fa-arrow-left" title="In"/>
-            </button>
+            </div>
             <button class="oe_stat_button"
                     string="Channels"
                     icon="fa-list"
@@ -100,7 +100,7 @@
           <group>
             <field name="channels"
                 attrs="{'invisible': [('channels', '=', [])]}">
-              <tree>
+              <tree create="0" delete="0">
                 <field name="channel"/>
                 <field name="cause_txt"/>
                 <field name="exten"/>

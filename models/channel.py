@@ -142,7 +142,7 @@ class Channel(models.Model):
             'channel': self.channel_short,
             'auto_reload': True
         }
-        self.env['bus.bus'].sendone('asterisk_plus_channels', json.dumps(msg))    
+        self.env['bus.bus']._sendone('asterisk_plus_channels', 'reload_channels', json.dumps(msg))
 
     def update_call_data(self):
         self.ensure_one()

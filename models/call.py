@@ -40,11 +40,12 @@ class Call(models.Model):
     res_id = fields.Integer()
     ref = fields.Reference(string='Reference',
                            selection=[('res.partner', _('Partners')),
-                                      ('asterisk_plus.user', _('Users'))],
+                                      ('asterisk_plus.user', _('Users')),
+                                      ('res.users', _('Res Users'))],
                            compute='_compute_ref',
                            readonly=True)
 
-    @api.depends('model', 'res_id') 
+    @api.depends('model', 'res_id')
     def _compute_ref(self):
         for rec in self:
             if rec.model and rec.model in self.env:
@@ -95,7 +96,7 @@ class Call(models.Model):
         if self.partner:
             msg.update(res_id=self.partner.id, model='res.partner')
         msg.update(data)
-        self.env['bus.bus'].sendone('asterisk_plus_channels', json.dumps(msg))
+        self.env['bus.bus']._sendone('asterisk_plus_channels', 'reload_calls', json.dumps(msg))
 
     def move_to_history(self):
         self.is_active = False

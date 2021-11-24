@@ -37,8 +37,9 @@ class ResUser(models.Model):
         # Use calling user UID if not specified.
         if not uid:
             uid = self.env.uid
-        self.env['bus.bus'].sendone(
+        self.env['bus.bus']._sendone(
             'asterisk_plus_notification_{}'.format(uid),
+            'asterisk_plus_notification',
             {
                 'message': message,
                 'title': title,

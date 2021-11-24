@@ -28,7 +28,6 @@
         'data/res_users.xml',
         'data/server.xml',
         # UI Views
-        'views/assets.xml',
         'views/menu.xml',
         'views/server.xml',
         'views/settings.xml',
@@ -50,4 +49,14 @@
     'application': True,
     'auto_install': False,
     'images': ['static/description/logo.png'],
+    'assets': {
+        'web.assets_backend': [
+            '/asterisk_plus/static/src/js/support.js',
+            '/asterisk_plus/static/src/js/notification.js',
+            '/asterisk_plus/static/src/js/originate.js',
+        ],
+        'web.assets_qweb': [
+            'asterisk_plus/static/src/xml/**/*',
+        ],
+    }
 }
