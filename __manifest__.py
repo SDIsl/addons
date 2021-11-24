@@ -22,6 +22,7 @@
         'security/admin_record_rules.xml',
         'security/user.xml',
         'security/user_record_rules.xml',
+        'security/debug.xml',
         # Data
         'data/events.xml',
         'data/res_users.xml',

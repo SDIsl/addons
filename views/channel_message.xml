@@ -9,10 +9,10 @@
     </record>
 
     <menuitem id="asterisk_plus_channel_message_menu"
-    sequence="1000"
-    parent="asterisk_plus.asterisk_settings_menu"
-    name="AMI Messages"
-    action="asterisk_plus_channel_message_action"/>
+              sequence="100"
+              parent="asterisk_debug_menu"
+              name="AMI Messages"
+              action="asterisk_plus_channel_message_action"/>
 
     <record id="asterisk_plus_channel_message_list" model="ir.ui.view">
       <field name="name">asterisk.plus.channel.message.list</field>

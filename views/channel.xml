@@ -9,11 +9,10 @@
     </record>
 
     <menuitem id="asterisk_plus_channel_menu"
-            groups="asterisk_plus.group_asterisk_admin"
-            sequence="300"
-            parent="asterisk_plus.asterisk_apps_menu"
-            name="Channels"
-            action="asterisk_plus_channel_action"/>
+              sequence="200"
+              parent="asterisk_debug_menu"
+              name="Channels"
+              action="asterisk_plus_channel_action"/>
 
     <record id="asterisk_plus_channel_list" model="ir.ui.view">
       <field name="name">asterisk.plus.channel.list</field>
