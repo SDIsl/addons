@@ -48,7 +48,7 @@ class Server(models.Model):
     password = fields.Char(related='user.password', string="Password", readonly=False)
 
     _sql_constraints = [
-        ('user_unique', 'UNIQUE(user)', 'This user is already used for another server!'),
+        ('user_unique', 'UNIQUE("user")', 'This user is already used for another server!'),
     ]
 
 

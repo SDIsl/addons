@@ -13,7 +13,8 @@ class ChannelMessage(models.Model):
     _order = 'id desc'
     _description = 'Channel Message'
 
-    channel_id = fields.Many2one('asterisk_plus.channel', ondelete='cascade')
+    channel_id = fields.Many2one('asterisk_plus.channel', ondelete='cascade',
+                                 string='Channel ID')
     event = fields.Char(index=True, size=64)
     privilege = fields.Char(size=256)
     channel = fields.Char(index=True, size=256)

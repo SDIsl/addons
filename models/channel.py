@@ -35,7 +35,7 @@ class Channel(models.Model):
     channel = fields.Char(index=True)
     #: Shorted channel to compare with user's channel as it is defined. E.g. SIP/1001
     channel_short = fields.Char(compute='_get_channel_short',
-                                string=_('Channel'))
+                                string=_('Chan'))
     #: Channels that were created from this channel.
     linked_channels = fields.One2many('asterisk_plus.channel',
         inverse_name='parent_channel')
@@ -52,7 +52,7 @@ class Channel(models.Model):
     #: Connected line name.
     connected_line_name = fields.Char(size=80)
     #: Channel's current state.
-    state = fields.Char(size=80)
+    state = fields.Char(size=80, string='State code')
     #: Channel's current state description.
     state_desc = fields.Char(size=256, string=_('State'))
     #: Channel extension.
