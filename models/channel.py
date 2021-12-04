@@ -238,7 +238,7 @@ class Channel(models.Model):
         return channel.id
 
     @api.model
-    def update_channel_state(self, event):
+    def on_ami_update_channel_state(self, event):
         debug(self, json.dumps(event, indent=2))
         get = event.get
         data = {
@@ -341,7 +341,7 @@ class Channel(models.Model):
         return channel.id
 
     @api.model
-    def ami_originate_response_failure(self, event):
+    def on_ami_originate_response_failure(self, event):
         # This comes from Asterisk OriginateResponse AMI message when
         # call originate has been failed.           
         if event['Response'] != 'Failure':
