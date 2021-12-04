@@ -1,6 +1,6 @@
 <odoo>
 
-  <menuitem id="asterisk_top_menu" name="* PBX"
+  <menuitem id="asterisk_top_menu" name="PBX"
         sequence="8" web_icon='asterisk_plus,static/description/menu_icon.png'/>
 
   <menuitem id="asterisk_apps_menu" name="Applications"
