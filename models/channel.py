@@ -131,8 +131,10 @@ class Channel(models.Model):
                     filename=rec.recording_filename,
                     source='recording_data')
 
-    def reload_channels(self, data={}):
+    def reload_channels(self, data=None):
         self.ensure_one()
+        if data is None:
+            data = {}
         msg = {
             'event': 'update_channel',
             'dst': self.exten,

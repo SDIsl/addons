@@ -49,6 +49,9 @@ class Settings(models.Model):
         help='Default context to set when creating PBX / Odoo user mapping.')
     originate_timeout = fields.Integer(default=60, required=True)
     # Recording settings
+    record_calls = fields.Boolean(
+        default=True,
+        help=_("If checked, call recording will be enabled"))
     delete_recordings = fields.Boolean(
         default=True,
         help='Keep recordings on Asterisk after upload to Odoo.')
@@ -131,3 +134,18 @@ class Settings(models.Model):
     def write(self, vals):
         self.clear_caches()
         return super(Settings, self).write(vals)
+
+    @api.constrains('record_calls')
+    def record_calls_toggle(self):
+        # Enable/disable call recording event
+        recording_event = self.env.ref('asterisk_plus.var_set_mixmon')
+        # Check if enent can be updated
+        if recording_event.update == 'no':
+            raise ValidationError(
+                _('Event {} is not updatebale'.format(recording_event.name)))
+        recording_event.is_enabled = True if self.record_calls is True else False
+        # Reload events map
+        server = self.env.ref('asterisk_plus.default_server')
+        server.ami_action(
+            {'Action': 'ReloadEvents'},
+        )

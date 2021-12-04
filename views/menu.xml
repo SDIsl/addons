@@ -16,4 +16,8 @@
         groups="asterisk_plus.group_asterisk_admin"
         sequence="500" parent="asterisk_top_menu"/>
 
+  <menuitem id="asterisk_debug_menu" name="Debug"
+        groups="asterisk_plus.group_asterisk_debug"
+        sequence="600" parent="asterisk_top_menu"/>
+
 </odoo>

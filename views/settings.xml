@@ -36,10 +36,11 @@
                   </group>
                   <group>
                     <group string="Call Recording">
-                      <field name="use_mp3_encoder"/>
+                      <field name="record_calls"/>
+                      <field name="use_mp3_encoder" attrs="{'invisible': [('record_calls', '=', False)]}"/>
                       <field name="mp3_encoder_quality" attrs="{'invisible': [('use_mp3_encoder', '=', False)]}"/>
                       <field name="mp3_encoder_bitrate" attrs="{'invisible': [('use_mp3_encoder', '=', False)]}"/>
-                      <field name="delete_recordings"/>
+                      <field name="delete_recordings" attrs="{'invisible': [('record_calls', '=', False)]}"/>
                     </group>
                   </group>
                 </page>                

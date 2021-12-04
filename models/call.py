@@ -80,9 +80,11 @@ class Call(models.Model):
                 rec.src_user = False
                 rec.dst_user = False
 
-    def reload_calls(self, data={}):
+    def reload_calls(self, data=None):
         # TODO:
         self.ensure_one()
+        if data is None:
+            data = {}
         msg = {
             'event': 'update_channel',
             'dst': self.exten,
