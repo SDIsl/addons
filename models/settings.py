@@ -149,3 +149,21 @@ class Settings(models.Model):
         server.ami_action(
             {'Action': 'ReloadEvents'},
         )
+
+    @api.constrains('use_mp3_encoder')
+    def _check_lameenc(self):
+        try:
+            import lameenc
+        except ImportError:
+            for rec in self:
+                if rec.use_mp3_encoder:
+                    raise ValidationError(
+                        "Please install lameenc to enable MP3 encoding"
+                        "(pip3 install lameenc).")
+
+    @api.onchange('use_mp3_encoder')
+    def on_change_mp3_encoder(self):
+        for rec in self:
+            if rec.use_mp3_encoder:
+                rec.mp3_encoder_bitrate = '96'
+                rec.mp3_encoder_quality = '4'
