@@ -48,7 +48,7 @@ class Server(models.Model):
     password = fields.Char(related='user.password', string="Password", readonly=False)
 
     _sql_constraints = [
-        ('user_unique', 'UNIQUE(user)', 'This user is already used for another server!'),
+        ('user_unique', 'UNIQUE("user")', 'This user is already used for another server!'),
     ]
 
 
@@ -156,6 +156,8 @@ class Server(models.Model):
             return ret
         try:
             return call_fun()
+        except ConnectionResetError:
+            raise ValidationError('Salt API connection reset! Check HTTP/HTTPS settings.')
         except urllib.error.URLError:
             raise ValidationError('Salt API connection error!')
         #except pepper.ServerError ?? TODO: catch when master is donw.

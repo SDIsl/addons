@@ -93,7 +93,7 @@
               <field name="called_number"/>
               <field name="called_user" attrs="{'invisible': [('called_user', '=', False)]}"/>
               <field name="started"/>
-              <field name="answered"/>
+              <field name="answered" attrs="{'invisible': [('answered', '=', False)]}"/>
               <field name="ended"/>
             </group>
           </group>
@@ -130,9 +130,9 @@
           domain="[('direction', '=', 'in')]"/>
         <filter name="out" string="Outgoing"
           domain="[('direction', '=', 'out')]"/>
-          <filter name="by_status" string="Ended" context="{'group_by':'status'}"/>
+          <filter name="by_status" string="Status" context="{'group_by':'status'}"/>
         <filter name="by_ended" string="Ended" context="{'group_by':'ended'}"/>
-        <filter name="by_direction" string="Ended" context="{'group_by':'direction'}"/>
+        <filter name="by_direction" string="Direction" context="{'group_by':'direction'}"/>
         <filter name="by_partner" string="Partner" context="{'group_by':'partner'}"/>
         <filter name="by_calling_user" string="Calling User" context="{'group_by':'calling_user'}"/>
         <filter name="by_called_user" string="Called User" context="{'group_by':'called_user'}"/>
