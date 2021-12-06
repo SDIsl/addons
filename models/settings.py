@@ -145,8 +145,8 @@ class Settings(models.Model):
                 _('Event {} is not updatebale'.format(recording_event.name)))
         recording_event.is_enabled = True if self.record_calls is True else False
         # Reload events map
-        server = self.env.ref('asterisk_plus.default_server')
-        server.ami_action(
+        servers = self.env['asterisk_plus.server'].search([])
+        servers.ami_action(
             {'Action': 'ReloadEvents'},
         )
 
