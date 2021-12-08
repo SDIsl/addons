@@ -18,6 +18,7 @@ class Call(models.Model):
     uniqueid = fields.Char(size=64, index=True)
     server = fields.Many2one('asterisk_plus.server', ondelete='cascade')
     calling_number = fields.Char(index=True)
+    calling_name = fields.Char(compute='_get_calling_name')
     called_number = fields.Char(index=True)
     started = fields.Datetime(index=True)
     answered = fields.Datetime(index=True)
@@ -60,7 +61,7 @@ class Call(models.Model):
     def notify_called_user(self):
         for rec in self:
             if rec.called_user:
-                message = 'Incoming call from {}'
+                message = 'Incoming call from {}'.format(rec.calling_name)
                 self.env['res.users'].asterisk_plus_notify(
                     message, uid=rec.called_user.id)
 
@@ -71,6 +72,19 @@ class Call(models.Model):
                 rec.ref = '%s,%s' % (rec.model, rec.res_id or 0)
             else:
                 rec.ref = None
+
+    def _get_calling_name(self):
+        """Returns the following according to the priority:
+           1. ref.name if reference is set and has name field.
+           2. calling user name is reference is not set.
+        """
+        for rec in self:
+            if rec.ref and hasattr(rec, 'name'):
+                rec.calling_name = rec.ref.name
+            elif rec.calling_user:
+                rec.calling_name = rec.calling_user.name
+            else:
+                rec.calling_name = ''
 
     def _get_direction_icon(self):
         for rec in self:
@@ -84,21 +98,21 @@ class Call(models.Model):
             if user_channel:
                 if user_channel.originate_context == rec.context:
                     debug(self, 'Src user: {}'.format(user_channel.sudo().asterisk_user.user.name))
-                    rec.src_user = user_channel.sudo().asterisk_user.user.id
-                    if rec.parent_channel.dst_user:
-                        rec.dst_user = rec.parent_channel.dst_user
+                    rec.calling_user = user_channel.sudo().asterisk_user.user.id
+                    if rec.parent_channel.called_user:
+                        rec.called_user = rec.parent_channel.called_user
                     else:
-                        rec.dst_user = False
+                        rec.called_user = False
                 else:
                     debug(self, 'Dst user: {}'.format(user_channel.sudo().asterisk_user.user.name))
-                    rec.dst_user = user_channel.sudo().asterisk_user.user.id
-                    if rec.parent_channel.src_user:
-                        rec.src_user = rec.parent_channel.src_user
+                    rec.called_user = user_channel.sudo().asterisk_user.user.id
+                    if rec.parent_channel.calling_user:
+                        rec.calling_user = rec.parent_channel.calling_user
                     else:
-                        rec.src_user = False
+                        rec.calling_user = False
             else:
-                rec.src_user = False
-                rec.dst_user = False
+                rec.calling_user = False
+                rec.called_user = False
 
     def reload_calls(self, data=None):
         if data is None:
