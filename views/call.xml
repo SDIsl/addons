@@ -59,6 +59,7 @@
       <form create='0' edit='0' duplicate='0'>
         <header>
           <field name="status" widget="statusbar"/>
+          <button string="Add Notes" name="add_note" type="object" class="oe_highlight" icon='fa-pencil'/>
         </header>
         <sheet>
           <div class="oe_button_box" name="button_box">
@@ -88,6 +89,7 @@
               <field name="model" invisible="1"/>
               <field name="ref" attrs="{'invisible': ['|', ('ref', '=', False),('model','=', 'res.partner')]}"/>
               <field name="direction"/>
+              <field name="notes"/>
             </group>
             <group>
               <field name="called_number"/>

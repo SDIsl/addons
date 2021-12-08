@@ -44,6 +44,7 @@ class Call(models.Model):
                                       ('asterisk_plus.user', _('Users'))],
                            compute='_compute_ref',
                            readonly=True)
+    notes = fields.Text()
 
     @api.model
     def create(self, vals):
@@ -125,3 +126,13 @@ class Call(models.Model):
 
     def move_to_history(self):
         self.is_active = False
+
+    def add_note(self):
+        return {
+            'name': _("Add Notes"),
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'asterisk_plus.add_note_wizard',
+            'target': 'new',
+            'context': {'default_notes': self.notes}
+        }
