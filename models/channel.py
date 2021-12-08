@@ -131,18 +131,15 @@ class Channel(models.Model):
                     filename=rec.recording_filename,
                     source='recording_data')
 
+    @api.model
     def reload_channels(self, data=None):
-        self.ensure_one()
         if data is None:
             data = {}
         msg = {
-            'event': 'update_channel',
-            'dst': self.exten,
-            'system_name': self.system_name,
-            'channel': self.channel_short,
-            'auto_reload': True
+            'action': 'reload_view',
+            'model': 'asterisk_plus.channel'
         }
-        self.env['bus.bus'].sendone('asterisk_plus_channels', json.dumps(msg))    
+        self.env['bus.bus'].sendone('asterisk_plus_actions', json.dumps(msg))
 
     def update_call_data(self):
         self.ensure_one()
@@ -233,7 +230,7 @@ class Channel(models.Model):
             channel.write(data)
         # Update call based on channel.
         channel.update_call_data()
-        channel.reload_channels()
+        self.reload_channels()
         if self.env['asterisk_plus.settings'].sudo().get_param('trace_ami'):
             data['channel_id'] = channel.id
             self.env['asterisk_plus.channel_message'].create_from_event(channel, event)
@@ -334,7 +331,7 @@ class Channel(models.Model):
                 'is_active': False,
                 'ended': datetime.now(),
             })
-        channel.reload_channels({'event': 'hangup_channel'})
+        self.reload_channels()
         if self.env['asterisk_plus.settings'].sudo().get_param('trace_ami'):
             # Remove and add fields according to the message
             data['channel_id'] = channel.id

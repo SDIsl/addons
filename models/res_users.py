@@ -38,8 +38,9 @@ class ResUser(models.Model):
         if not uid:
             uid = self.env.uid
         self.env['bus.bus'].sendone(
-            'asterisk_plus_notification_{}'.format(uid),
+            'asterisk_plus_actions_{}'.format(uid),
             {
+                'action': 'notify',
                 'message': message,
                 'title': title,
                 'sticky': sticky,
@@ -47,25 +48,18 @@ class ResUser(models.Model):
             })
         return True
 
-    @api.model
-    def get_asterisk_channels(self, uid):
-        # Used from notification.js
+    def get_pbx_user_settings(self):
+        # Used from actions.js
+        self.ensure_one()
         res = {}
-        user_channels = self.env['asterisk_plus.user_channel'].search(
-            [('user', '=', uid)])
-        for user_channel in user_channels:
-            res.setdefault(
-                user_channel.system_name, []).append(user_channel.name)
-        return res
-
-    @api.model
-    def get_pbx_user_settings(self, uid):
-        res = {}
-        user_channels = self.env['asterisk_plus.user_channel'].search(
-            [('user', '=', uid)])
-        for user_channel in user_channels:
-            res.setdefault(user_channel.system_name, {})
-            res[user_channel.system_name].setdefault(
-                'channels', []).append(user_channel.name)
-            res.setdefault('open_partner_form', user_channel.asterisk_user.open_partner_form)
+        for ast_user in self.asterisk_users:
+            res[ast_user.server_id] = {}
+            user_channels = self.env['asterisk_plus.user_channel'].search(
+                [('asterisk_user', '=', ast_user.id)])        
+            for user_channel in user_channels:
+                # Set channels.
+                res[ast_user.server_id].setdefault(
+                    'channels', []).append(user_channel.name)
+            # Set open_reference.
+            res[ast_user.server_id]['open_reference'] = ast_user.open_reference
         return res

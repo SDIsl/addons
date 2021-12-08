@@ -93,7 +93,7 @@
             </page>
             <page name="settings" string="Settings">
               <group><group>
-                <field name="open_partner_form"/>
+                <field name="open_reference"/>
               </group></group>
             </page>
           </notebook>

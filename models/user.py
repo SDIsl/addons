@@ -20,12 +20,13 @@ class PbxUser(models.Model):
     #: Server where the channel is defined.
     server = fields.Many2one('asterisk_plus.server', required=True,
                              ondelete='restrict', default=get_default_server)
+    server_id = fields.Char(related='server.server_id')
     channels = fields.One2many('asterisk_plus.user_channel',
                                inverse_name='asterisk_user')
     originate_vars = fields.Text(string='Channel Variables')
-    open_partner_form = fields.Boolean(
+    open_reference = fields.Boolean(
         default=True,
-        help=_('Open partner form on incoming calls from partner'))
+        help=_('Open reference form on incoming calls.'))
 
     _sql_constraints = [
         ('exten_uniq', 'unique (exten,server)',

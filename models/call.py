@@ -29,8 +29,8 @@ class Call(models.Model):
          ('noanswer', 'No Answer'), ('answered', 'Answered'),
          ('busy', 'Busy'), ('failed', 'Failed'),
          ('progress', 'In Progress')], index=True, default='progress')
-    # Boolean index for split all calls on this flag.
-    is_active = fields.Boolean(index=True)
+    # Boolean index for split all calls on this flag. Calls are by default in active state.
+    is_active = fields.Boolean(index=True, default=True)
     channels = fields.One2many('asterisk_plus.channel', inverse_name='call')
     partner = fields.Many2one('res.partner', ondelete='set null')
     calling_user = fields.Many2one('res.users', ondelete='set null')
@@ -43,6 +43,26 @@ class Call(models.Model):
                                       ('asterisk_plus.user', _('Users'))],
                            compute='_compute_ref',
                            readonly=True)
+
+    @api.model
+    def create(self, vals):
+        # Reload after call is created
+        self.reload_calls()
+        return super(Call, self).create(vals)
+
+    @api.constrains('is_active')
+    def reload_on_hangup(self):
+        for rec in self:
+            if not rec.is_active:
+                self.reload_calls()
+
+    @api.constrains('called_user')
+    def notify_called_user(self):
+        for rec in self:
+            if rec.called_user:
+                message = 'Incoming call from {}'
+                self.env['res.users'].asterisk_plus_notify(
+                    message, uid=rec.called_user.id)
 
     @api.depends('model', 'res_id') 
     def _compute_ref(self):
@@ -81,21 +101,13 @@ class Call(models.Model):
                 rec.dst_user = False
 
     def reload_calls(self, data=None):
-        # TODO:
-        self.ensure_one()
         if data is None:
             data = {}
         msg = {
-            'event': 'update_channel',
-            'dst': self.exten,
-            'system_name': self.system_name,
-            'channel': self.channel_short,
-            'auto_reload': True
+            'action': 'reload_view',
+            'model': 'asterisk_plus.call'
         }
-        if self.partner:
-            msg.update(res_id=self.partner.id, model='res.partner')
-        msg.update(data)
-        self.env['bus.bus'].sendone('asterisk_plus_channels', json.dumps(msg))
+        self.env['bus.bus'].sendone('asterisk_plus_actions', json.dumps(msg))
 
     def move_to_history(self):
         self.is_active = False
