@@ -2,3 +2,4 @@ humanize
 lameenc
 phonenumbers
 salt-pepper
+SpeechRecognition

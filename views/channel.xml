@@ -113,7 +113,11 @@
                       </group>
                       <group>
                         <field name="recording_data" filename="recording_filename"/>
+                        <field name="show_transcript" widget="boolean_toggle"/>
                       </group>
+                    </group>
+                    <group string="Transcription" attrs="{'invisible': [('show_transcript', '=', False)]}">
+                      <field name="recording_transcript" nolabel="1"/>
                     </group>
                     <group>
                       <field name="linked_channels"
