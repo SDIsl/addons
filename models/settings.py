@@ -55,6 +55,19 @@ class Settings(models.Model):
     delete_recordings = fields.Boolean(
         default=True,
         help='Keep recordings on Asterisk after upload to Odoo.')
+    transcipt_record = fields.Boolean(
+        default=False, string=_("Transcript Recording"),
+        help=_("If checked, call recordings will be transcripted using the Google Speech Recognition API."
+               "Requires SpeechRecognition Python package installed to work."))
+    google_sr_api_key = fields.Char(
+        string=_("API Key"),
+        help=_('The Google Speech Recognition API key.'
+               'If not specified, it uses a generic key that works out of the box.'
+               'This should generally be used for personal or testing purposes only, as it **may be revoked by Google at any time**.'))
+    recognition_lang = fields.Char(
+        default='en-US',
+        string=_('Recognition Language'),
+        help=_('RFC5646 language tag like ``"en-US"`` (US English) or ``"fr-FR"`` (International French)'))
     use_mp3_encoder = fields.Boolean(
         default=False, string=_("Encode to MP3"),
         help=_("If checked, call recordings will be encoded using MP3"

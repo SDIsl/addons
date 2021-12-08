@@ -16,6 +16,12 @@ try:
 except ImportError:
     LAMEENC = False
 
+try:
+    import speech_recognition as sr
+    SR = True
+except ImportError:
+    SR - False
+
 logger = logging.getLogger(__name__)
 
 
@@ -87,6 +93,8 @@ class Channel(models.Model):
     recording_icon = fields.Char(compute='_get_recording_icon', string='R')
     recording_filename = fields.Char(readonly=True, index=True)
     recording_data = fields.Binary(readonly=True, string=_('Download'))
+    show_transcript = fields.Boolean()
+    recording_transcript = fields.Text(string='Transcript')
 
 
     ########################### COMPUTED FIELDS ###############################
@@ -440,6 +448,28 @@ class Channel(models.Model):
             channel.channel))
         mp3_encode = self.env['asterisk_plus.settings'].get_param(
             'use_mp3_encoder')
+        transcipt_record = self.env['asterisk_plus.settings'].get_param(
+            'transcipt_record')
+        # Transcript
+        if SR and transcipt_record:
+            debug(self, 'Transcript call recording for channel {}'.format(
+                channel.channel))
+            key = self.env['asterisk_plus.settings'].get_param(
+                'google_sr_api_key') or None
+            lang = self.env['asterisk_plus.settings'].get_param(
+                'recognition_lang')
+            r = sr.Recognizer()
+            decoded_input = base64.b64decode(input_data)
+            audio_file = sr.AudioFile(io.BytesIO(decoded_input))
+            with audio_file as src:
+                r.adjust_for_ambient_noise(src, duration=0.5)
+                audio = r.record(src)
+            try:
+                transcript = r.recognize_google(audio, key=key, language=lang)
+            except Exception as e:
+                logger.error('Speech Recognition error: {}'.format(e))
+                transcript = ''
+            channel.recording_transcript = transcript
         # Convert to mp3
         if LAMEENC and mp3_encode:
             bit_rate = int(self.env['asterisk_plus.settings'].get_param(
