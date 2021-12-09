@@ -43,6 +43,8 @@
         'views/templates.xml',
         # Cron
         'views/ir_cron.xml',
+        # Wizards
+        'wizard/add_note.xml',
     ],
     'demo': [],
     "qweb": ['static/src/xml/*.xml'],
