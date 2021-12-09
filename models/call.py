@@ -68,7 +68,7 @@ class Call(models.Model):
                 self.env['res.users'].asterisk_plus_notify(
                     message, uid=rec.called_user.id)
 
-    @api.depends('calling_number', 'called_number', 'model', 'res_id')
+    @api.depends('calling_number')#, 'called_number', 'model', 'res_id')
     def _get_partner(self):
         # Get country code of Asterisk server account.
         country_code = self.env.user.country_id.code
@@ -94,7 +94,7 @@ class Call(models.Model):
             e164_num = get_e164_number(rec.calling_number)
             partner = self.env['res.partner'].search_by_number(e164_num)
             debug(self, '---- {}'.format(partner))
-            rec.partner = partner.id
+            rec.partner = partner
 
     @api.depends('model', 'res_id') 
     def _get_ref(self):

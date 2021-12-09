@@ -20,7 +20,7 @@ try:
     import speech_recognition as sr
     SR = True
 except ImportError:
-    SR - False
+    SR = False
 
 logger = logging.getLogger(__name__)
 
