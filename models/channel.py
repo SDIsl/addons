@@ -164,11 +164,9 @@ class Channel(models.Model):
                     'calling_user': user_channel.sudo().asterisk_user.user.id
                 })
                 if not self.call.partner:
-                    # Match the partner
-                    data.update({
-                        'partner': self.env[
-                            'res.partner'].search_by_caller_number(self.exten)
-                    })
+                    # Match the partner by called number
+                    data['partner'] = self.env[
+                        'res.partner'].search_by_caller_number(self.exten)
                 if data:
                     self.call.write(data)
             else: # Secondary channel that means user is called
@@ -178,8 +176,14 @@ class Channel(models.Model):
             if not self.call.direction:
                 data['direction'] = 'in'
             if not self.call.partner:
-                data['partner'] = self.env[
-                    'res.partner'].search_by_caller_number(self.callerid_num)
+                # Check if there is a reference with partner ID
+                if self.call.ref and hasattr(self.call.ref, 'partner_id'):
+                    debug(self, 'Taking partner from ref')
+                    data['partner'] = self.call.ref.partner_id
+                else:
+                    debug(self, 'Matching partner by number')
+                    data['partner'] = self.env[
+                        'res.partner'].search_by_caller_number(self.callerid_num)
             if data:
                 self.call.write(data)
 
