@@ -137,6 +137,27 @@ class Partner(models.Model):
         else:
             debug(self, 'NO PARTNERS FOUND FOR NUMBER {}'.format(number))
 
+    def search_by_caller_number(self, number):
+        # Called from AMI events.fields.
+        # Get country code of Asterisk server account.
+        country_code = self.env.user.country_id.code
+        try:
+            phone_nbr = phonenumbers.parse(number, country_code)
+            if not phonenumbers.is_possible_number(phone_nbr):
+                debug(self, 'PHONE NUMBER {} NOT POSSIBLE'.format(number))
+            elif not phonenumbers.is_valid_number(phone_nbr):
+                debug(self, 'PHONE NUMBER {} NOT VALID'.format(number))
+            # We have a parsed number, let check what format to return.
+            number = phonenumbers.format_number(
+                phone_nbr, phonenumbers.PhoneNumberFormat.E164)
+            debug(self, 'E164 FORMATTED NUMBER: {}'.format(number))
+        except phonenumberutil.NumberParseException:
+            debug(self, 'PHONE NUMBER {} PARSE ERROR'.format(number))
+        except Exception:
+            logger.exception('FORMAT NUMBER ERROR:')
+        finally:            
+            return self.search_by_number(number)
+
     def _get_country_code(self):
         partner = self
         if partner and partner.country_id:

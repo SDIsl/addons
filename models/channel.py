@@ -167,11 +167,11 @@ class Channel(models.Model):
                     # Match the partner
                     data.update({
                         'partner': self.env[
-                            'res.partner'].search_by_number(self.exten)
+                            'res.partner'].search_by_caller_number(self.exten)
                     })
                 if data:
                     self.call.write(data)
-            else: # Secondady channel that means user is called
+            else: # Secondary channel that means user is called
                 self.call.called_user = user_channel.sudo().asterisk_user.user.id
         else: # No user channel is found. Try to match the partner.
             # No user channel try to match the partner by caller ID number
@@ -179,7 +179,7 @@ class Channel(models.Model):
                 data['direction'] = 'in'
             if not self.call.partner:
                 data['partner'] = self.env[
-                    'res.partner'].search_by_number(self.callerid_num)
+                    'res.partner'].search_by_caller_number(self.callerid_num)
             if data:
                 self.call.write(data)
 

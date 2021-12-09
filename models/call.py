@@ -34,8 +34,7 @@ class Call(models.Model):
     # Boolean index for split all calls on this flag. Calls are by default in active state.
     is_active = fields.Boolean(index=True, default=True)
     channels = fields.One2many('asterisk_plus.channel', inverse_name='call')
-    partner = fields.Many2one('res.partner', ondelete='set null',
-                              compute='_get_partner', stored=True)
+    partner = fields.Many2one('res.partner', ondelete='set null')
     calling_user = fields.Many2one('res.users', ondelete='set null')
     called_user = fields.Many2one('res.users', ondelete='set null')
     # Related object
@@ -68,34 +67,6 @@ class Call(models.Model):
                 self.env['res.users'].asterisk_plus_notify(
                     message, uid=rec.called_user.id)
 
-    @api.depends('calling_number')#, 'called_number', 'model', 'res_id')
-    def _get_partner(self):
-        # Get country code of Asterisk server account.
-        country_code = self.env.user.country_id.code
-        def get_e164_number(number):
-            try:
-                phone_nbr = phonenumbers.parse(number, country_code)
-                if not phonenumbers.is_possible_number(phone_nbr):
-                    debug(self, 'PHONE NUMBER {} NOT POSSIBLE'.format(number))
-                elif not phonenumbers.is_valid_number(phone_nbr):
-                    debug(self, 'PHONE NUMBER {} NOT VALID'.format(number))
-                # We have a parsed number, let check what format to return.
-                number = phonenumbers.format_number(
-                    phone_nbr, phonenumbers.PhoneNumberFormat.E164)
-                debug(self, 'E164 FORMATTED NUMBER: {}'.format(number))
-            except phonenumberutil.NumberParseException:
-                debug(self, 'PHONE NUMBER {} PARSE ERROR'.format(number))
-            except Exception:
-                logger.exception('FORMAT NUMBER ERROR:')
-            finally:
-                return number
-
-        for rec in self:
-            e164_num = get_e164_number(rec.calling_number)
-            partner = self.env['res.partner'].search_by_number(e164_num)
-            debug(self, '---- {}'.format(partner))
-            rec.partner = partner
-
     @api.depends('model', 'res_id') 
     def _get_ref(self):
         for rec in self:
@@ -106,11 +77,14 @@ class Call(models.Model):
 
     def _get_calling_name(self):
         """Returns the following according to the priority:
-           1. ref.name if reference is set and has name field.
-           2. calling user name is reference is not set.
+           1. Partner name.
+           2. ref.name if reference is set and has name field.
+           3. calling user name is reference is not set.
         """
         for rec in self:
-            if rec.ref and hasattr(rec.ref, 'name'):
+            if rec.partner:
+                rec.calling_name = rec.partner.name
+            elif rec.ref and hasattr(rec.ref, 'name'):
                 rec.calling_name = rec.ref.name
             elif rec.calling_user:
                 rec.calling_name = rec.calling_user.name
