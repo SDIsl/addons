@@ -96,29 +96,6 @@ class Call(models.Model):
             rec.direction_icon = '<span class="fa fa-arrow-left"/>' if rec.direction == 'in' else \
                 '<span class="fa fa-arrow-right"/>'
 
-    def _get_call_users(self):
-        for rec in self:
-            user_channel = self.env['asterisk_plus.user_channel'].get_user_channel(
-                rec.channel, rec.system_name)
-            if user_channel:
-                if user_channel.originate_context == rec.context:
-                    debug(self, 'Src user: {}'.format(user_channel.sudo().asterisk_user.user.name))
-                    rec.calling_user = user_channel.sudo().asterisk_user.user.id
-                    if rec.parent_channel.called_user:
-                        rec.called_user = rec.parent_channel.called_user
-                    else:
-                        rec.called_user = False
-                else:
-                    debug(self, 'Dst user: {}'.format(user_channel.sudo().asterisk_user.user.name))
-                    rec.called_user = user_channel.sudo().asterisk_user.user.id
-                    if rec.parent_channel.calling_user:
-                        rec.calling_user = rec.parent_channel.calling_user
-                    else:
-                        rec.calling_user = False
-            else:
-                rec.calling_user = False
-                rec.called_user = False
-
     def reload_calls(self, data=None):
         if data is None:
             data = {}
