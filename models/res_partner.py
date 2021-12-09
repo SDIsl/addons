@@ -92,7 +92,7 @@ class Partner(models.Model):
         except Exception as e:
             logger.warning('Normalize phone error: %s', e)
         # Strip the number if parse error.
-        return strip_number(number)
+        return number
 
     def search_by_number(self, number):
         """Search partner by number.
@@ -110,7 +110,7 @@ class Partner(models.Model):
         parents = found.mapped('parent_id')
         # 1-st case: just one partner, perfect!
         if len(found) == 1:
-            debug(self, 'FOUND PARTNER BY NUMBER {}'.format(number))
+            debug(self, 'FOUND PARTNER {} BY NUMBER {}'.format(found.name, number))
             return found[0]
         # 2-nd case: Many partners, no parent company / many companies
         elif len(parents) == 0 and len(found) > 1:

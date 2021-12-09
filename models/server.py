@@ -131,9 +131,9 @@ class Server(models.Model):
             raise ValidationError('Cannot connect to Salt API process.')
         # Wrap calling function to be able to re-login on session expiration.
 
-        def call_fun():
+        def call_fun(server_id):
             if not sync:
-                ret = saltapi.local_async(tgt=self.server_id, fun=fun, arg=arg,
+                ret = saltapi.local_async(tgt=server_id, fun=fun, arg=arg,
                                           kwarg=kwarg, timeout=timeout, ret='odoo')
                 self.env['asterisk_plus.salt_job'].sudo().create({
                     'jid': ret['return'][0]['jid'],
@@ -143,7 +143,7 @@ class Server(models.Model):
                     'pass_back': json.dumps(pass_back) if pass_back else False,
                 })
             else:
-                ret = saltapi.local(tgt=self.server_id, fun=fun, arg=arg,
+                ret = saltapi.local(tgt=server_id, fun=fun, arg=arg,
                                     kwarg=kwarg, timeout=timeout)
             # TODO: Add server:
             # {'return': [{'jid': '20210928122846179815', 'minions': ['asterisk']}]}
@@ -155,12 +155,13 @@ class Server(models.Model):
                 self.env.cr.commit()
             return ret
         try:
-            return call_fun()
+            for rec in self:
+                return call_fun(rec.server_id)
         except ConnectionResetError:
             raise ValidationError('Salt API connection reset! Check HTTP/HTTPS settings.')
         except urllib.error.URLError:
             raise ValidationError('Salt API connection error!')
-        #except pepper.ServerError ?? TODO: catch when master is donw.
+        #except pepper.ServerError ?? TODO: catch when master is done.
         #    raise ValidationError('Salt Master connection error!')
         except KeyError as e:
             if 'jid' in str(e):
