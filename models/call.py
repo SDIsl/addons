@@ -43,27 +43,25 @@ class Call(models.Model):
     ref = fields.Reference(string='Reference',
                            selection=[('res.partner', _('Partners')),
                                       ('crm.lead', _('Leads'))],
-                            compute='_get_ref', readonly=True)
+                            compute='_get_ref', inverse='_set_ref')
     notes = fields.Text()
 
     @api.model
     def create(self, vals):
         # Reload after call is created
-        self.reload_calls()
         call = super(Call, self).create(vals)
         try:
-            call.update_reference()
+            if not call.ref:
+                call.update_reference()
         except Exception:
             logger.exception('Update call reference error:')
         finally:
+            self.reload_calls()
             return call
 
     def update_reference(self):
-        for rec in self:
-            # Ommit existing reference
-            if rec.ref:
-                continue
-            rec.write({'model': 'crm.lead', 'res_id': 1})
+        # Inherit in modules.
+        pass
 
     @api.constrains('is_active')
     def reload_on_hangup(self):
@@ -81,13 +79,20 @@ class Call(models.Model):
 
     @api.depends('model', 'res_id') 
     def _get_ref(self):
-        # We need a reference field to be computed because we want to search and group by
-        # model.
+        # We need a reference field to be computed because we want to
+        # search and group by model.
         for rec in self:
             if rec.model and rec.model in self.env:
                 rec.ref = '%s,%s' % (rec.model, rec.res_id or 0)
             else:
                 rec.ref = None
+
+    def _set_ref(self):
+        for rec in self:
+            if rec.ref:
+                rec.write({'model': rec.ref._name, 'res_id': rec.ref.id})
+            else:
+                rec.write({'model': False, 'res_id': False})
 
     def _get_calling_name(self):
         """Returns the following according to the priority:

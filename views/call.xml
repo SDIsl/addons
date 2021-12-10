@@ -57,7 +57,7 @@
     <field name="model">asterisk_plus.call</field>
     <field name="type">form</field>
     <field name="arch" type="xml">
-      <form create='0' edit='0' duplicate='0'>
+      <form create='0' edit='1' duplicate='0'>
         <header>
           <field name="status" widget="statusbar"/>
           <button string="Add Notes" name="add_note" type="object" class="oe_highlight" icon='fa-pencil'/>
@@ -88,7 +88,7 @@
               <field name="calling_user" attrs="{'invisible': [('calling_user', '=', False)]}"/>
               <field name="partner" attrs="{'invisible': [('partner', '=', False)]}"/>
               <field name="model" invisible="1"/>
-              <field name="ref" attrs="{'invisible': ['|', ('ref', '=', False),('model','=', 'res.partner')]}"/>
+              <field name="ref"/>
               <field name="direction"/>
               <field name="notes"/>
             </group>
@@ -129,6 +129,7 @@
         <field name="called_user"/>
         <field name="status"/>
         <field name="ended"/>
+        <field name="model"/>
         <filter name="in" string="Incoming"
           domain="[('direction', '=', 'in')]"/>
         <filter name="out" string="Outgoing"
@@ -139,6 +140,7 @@
         <filter name="by_partner" string="Partner" context="{'group_by':'partner'}"/>
         <filter name="by_calling_user" string="Calling User" context="{'group_by':'calling_user'}"/>
         <filter name="by_called_user" string="Called User" context="{'group_by':'called_user'}"/>
+        <filter name="by_model" string="Model" context="{'group_by':'model'}"/>
       </search>
     </field>
   </record>
