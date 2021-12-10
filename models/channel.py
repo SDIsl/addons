@@ -159,10 +159,10 @@ class Channel(models.Model):
         if user_channel:
             if len(self.call.channels) == 1: # This is the primary channel.
                 # We use sudo() as server does not have access to res.users.
-                data.update({
-                    'direction': 'out',
-                    'calling_user': user_channel.sudo().asterisk_user.user.id
-                })
+                if not self.call.calling_user:
+                    data['calling_user'] = user_channel.sudo().asterisk_user.user.id
+                if not self.call.direction:
+                    data['direction'] = 'out'
                 if not self.call.partner:
                     # Match the partner by called number
                     data['partner'] = self.env[

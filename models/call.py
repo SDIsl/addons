@@ -42,16 +42,28 @@ class Call(models.Model):
     res_id = fields.Integer()
     ref = fields.Reference(string='Reference',
                            selection=[('res.partner', _('Partners')),
-                                      ('asterisk_plus.user', _('Users'))],
-                           compute='_get_ref',
-                           readonly=True)
+                                      ('crm.lead', _('Leads'))],
+                            compute='_get_ref', readonly=True)
     notes = fields.Text()
 
     @api.model
     def create(self, vals):
         # Reload after call is created
         self.reload_calls()
-        return super(Call, self).create(vals)
+        call = super(Call, self).create(vals)
+        try:
+            call.update_reference()
+        except Exception:
+            logger.exception('Update call reference error:')
+        finally:
+            return call
+
+    def update_reference(self):
+        for rec in self:
+            # Ommit existing reference
+            if rec.ref:
+                continue
+            rec.write({'model': 'crm.lead', 'res_id': 1})
 
     @api.constrains('is_active')
     def reload_on_hangup(self):
@@ -69,6 +81,8 @@ class Call(models.Model):
 
     @api.depends('model', 'res_id') 
     def _get_ref(self):
+        # We need a reference field to be computed because we want to search and group by
+        # model.
         for rec in self:
             if rec.model and rec.model in self.env:
                 rec.ref = '%s,%s' % (rec.model, rec.res_id or 0)

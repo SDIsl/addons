@@ -308,6 +308,7 @@ class Server(models.Model):
                 call_data = {
                     'server': asterisk_user.server.id,
                     'uniqueid': channel_id,
+                    'calling_user': self.env.user.id,
                     'calling_number': asterisk_user.exten,
                     'called_number': number,
                     'started': datetime.now(),
