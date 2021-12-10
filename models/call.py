@@ -18,7 +18,7 @@ class Call(models.Model):
 
     uniqueid = fields.Char(size=64, index=True)
     server = fields.Many2one('asterisk_plus.server', ondelete='cascade')
-    calling_number = fields.Char(index=True)
+    calling_number = fields.Char(index=True, readonly=True)
     calling_name = fields.Char(compute='_get_calling_name')
     called_number = fields.Char(index=True)
     started = fields.Datetime(index=True)
@@ -41,8 +41,7 @@ class Call(models.Model):
     model = fields.Char()
     res_id = fields.Integer()
     ref = fields.Reference(string='Reference',
-                           selection=[('res.partner', _('Partners')),
-                                      ('crm.lead', _('Leads'))],
+                           selection=[],
                             compute='_get_ref', inverse='_set_ref')
     notes = fields.Text()
 
@@ -83,7 +82,10 @@ class Call(models.Model):
         # search and group by model.
         for rec in self:
             if rec.model and rec.model in self.env:
-                rec.ref = '%s,%s' % (rec.model, rec.res_id or 0)
+                try:
+                    rec.ref = '%s,%s' % (rec.model, rec.res_id or 0)
+                except ValueError as e:
+                    logger.warning(e)
             else:
                 rec.ref = None
 

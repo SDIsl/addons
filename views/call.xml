@@ -60,7 +60,7 @@
       <form create='0' edit='1' duplicate='0'>
         <header>
           <field name="status" widget="statusbar"/>
-          <button string="Add Notes" name="add_note" type="object" class="oe_highlight" icon='fa-pencil'/>
+          <button string="Notes" name="add_note" type="object" class="oe_highlight" icon='fa-pencil'/>
         </header>
         <sheet>
           <div class="oe_button_box" name="button_box">
