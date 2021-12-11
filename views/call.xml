@@ -18,7 +18,7 @@
   <record id="asterisk_plus_calls_history_action" model="ir.actions.act_window">
     <field name="name">Calls History</field>
     <field name="res_model">asterisk_plus.call</field>
-    <field name="view_mode">tree,form</field>
+    <field name="view_mode">tree,form,graph,pivot</field>
     <field name="domain">[('is_active', '=', False)]</field>
   </record>
 
@@ -98,6 +98,7 @@
               <field name="started"/>
               <field name="answered" attrs="{'invisible': [('answered', '=', False)]}"/>
               <field name="ended"/>
+              <field name="billsec_human" attrs="{'invisible': [('answered', '=', False)]}"/>
             </group>
           </group>
           <group>
@@ -114,6 +115,30 @@
           </group>
         </sheet>
       </form>
+    </field>
+  </record>
+
+  <record id="asterisk_plus_call_graph" model="ir.ui.view">
+    <field name="name">asterisk_plus_call_graph</field>
+    <field name="model">asterisk_plus.call</field>
+    <field name="arch" type="xml">
+      <graph type="bar" string="Call by day">
+        <field name='started' type='row'  interval="day"/>
+        <field name='status' type='row'/>
+        <field name="billsec" type="measure"/>
+      </graph>
+    </field>
+  </record>
+
+  <record id="asterisk_plus_call_pivot" model="ir.ui.view">
+    <field name="name">asterisk_plus_call_pivot</field>
+    <field name="model">asterisk_plus.call</field>
+    <field name="arch" type="xml">
+      <pivot display_quantity="true" string="Calls">
+        <field name='started' type='row'/>
+        <field name='status' type='row'/>
+        <field name="billsec" type="measure"/>
+      </pivot>
     </field>
   </record>
 
