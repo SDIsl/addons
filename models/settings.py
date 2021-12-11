@@ -88,6 +88,11 @@ class Settings(models.Model):
                    ('6', '6'),
                    ('7', '7-Fastest')],
         required=False)
+    calls_keep_days = fields.Char(
+        string=_('History Keep Days'),
+        default='90',
+        required=True,
+        help=_('Calls older then set value will be removed.'))
 
     @api.model
     def _get_name(self):

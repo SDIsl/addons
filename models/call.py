@@ -138,3 +138,15 @@ class Call(models.Model):
             'target': 'new',
             'context': {'default_notes': self.notes}
         }
+
+    @api.model
+    def delete_calls(self):
+        # Delete calls history
+        days = self.env[
+            'asterisk_plus.settings'].get_param('calls_keep_days')
+        expire_date = datetime.utcnow() - timedelta(days=int(days))
+        expired_calls = self.env['asterisk_plus.call'].search([
+            ('ended', '<=', expire_date.strftime('%Y-%m-%d %H:%M:%S'))
+        ])
+        logger.info('Expired {} calls'.format(len(expired_calls)))
+        expired_calls.unlink()
