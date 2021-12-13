@@ -98,7 +98,7 @@
               <field name="started"/>
               <field name="answered" attrs="{'invisible': [('answered', '=', False)]}"/>
               <field name="ended"/>
-              <field name="billsec_human" attrs="{'invisible': [('answered', '=', False)]}"/>
+              <field name="duration_human" attrs="{'invisible': [('answered', '=', False)]}"/>
             </group>
           </group>
           <group>
@@ -125,7 +125,7 @@
       <graph type="bar" string="Call by day">
         <field name='started' type='row'  interval="day"/>
         <field name='status' type='row'/>
-        <field name="billsec" type="measure"/>
+        <field name="duration" type="measure"/>
       </graph>
     </field>
   </record>
@@ -137,7 +137,7 @@
       <pivot display_quantity="true" string="Calls">
         <field name='started' type='row'/>
         <field name='status' type='row'/>
-        <field name="billsec" type="measure"/>
+        <field name="duration" type="measure"/>
       </pivot>
     </field>
   </record>

@@ -44,10 +44,10 @@ class Call(models.Model):
                            selection=[],
                             compute='_get_ref', inverse='_set_ref')
     notes = fields.Text()
-    billsec = fields.Integer(readonly=True, compute='_get_billsec', store=True)
-    billsec_human = fields.Char(
-        string=_('Talk Time'),
-        compute='_get_billsec_human')
+    duration = fields.Integer(readonly=True, compute='_get_duration', store=True)
+    duration_human = fields.Char(
+        string=_('Call Duration'),
+        compute='_get_duration_human')
 
     @api.model
     def create(self, vals):
@@ -156,11 +156,11 @@ class Call(models.Model):
         expired_calls.unlink()
 
     @api.depends('answered', 'ended')
-    def _get_billsec(self):
+    def _get_duration(self):
         for rec in self:
             if rec.answered and rec.ended:
-                rec.billsec = (rec.ended - rec.answered).total_seconds()
+                rec.duration = (rec.ended - rec.answered).total_seconds()
 
-    def _get_billsec_human(self):
+    def _get_duration_human(self):
         for rec in self:
-            rec.billsec_human = str(timedelta(seconds=rec.billsec))
+            rec.duration_human = str(timedelta(seconds=rec.duration))
