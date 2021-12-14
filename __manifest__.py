@@ -45,6 +45,10 @@
         'views/ir_cron.xml',
         # Wizards
         'wizard/add_note.xml',
+        'wizard/call.xml',
+        # Reports
+        'reports/reports.xml',
+        'reports/calls_report.xml',
     ],
     'demo': [],
     "qweb": ['static/src/xml/*.xml'],

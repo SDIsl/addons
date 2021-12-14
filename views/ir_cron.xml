@@ -10,5 +10,18 @@
             <field name="code">model.vacuum()</field>
             <field name="state">code</field>
         </record>
+
+        <record id="delete_calls" model="ir.cron">
+            <field name="name">Asterisk delete expired calls</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+            <field name="model_id" ref="model_asterisk_plus_call"/>
+            <field name="code">model.delete_calls()</field>
+            <field name="state">code</field>
+            <field name="nextcall"
+                eval="(datetime.now(pytz.timezone('UTC')) + timedelta(days=1)).strftime('%Y-%m-%d 00:00:01')"/>
+        </record>
     </data>
 </odoo>

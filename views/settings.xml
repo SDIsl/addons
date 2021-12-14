@@ -45,6 +45,9 @@
                       <field name="google_sr_api_key" attrs="{'invisible': [('transcipt_record', '=', False)]}"/>
                       <field name="recognition_lang" attrs="{'invisible': [('transcipt_record', '=', False)]}"/>
                     </group>
+                  <group string="Call History Archive">
+                    <field name="calls_keep_days"/>
+                  </group>
                   </group>
                 </page>                
                 <page name="salt" string="Salt Master">
