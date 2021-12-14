@@ -34,6 +34,7 @@
         'views/settings.xml',
         'views/about.xml',
         'views/event.xml',
+        'views/recording.xml',
         'views/res_users.xml',
         'views/user.xml',
         'views/res_partner.xml',

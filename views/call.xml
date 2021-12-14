@@ -16,7 +16,7 @@
   </record>
 
   <record id="asterisk_plus_calls_history_action" model="ir.actions.act_window">
-    <field name="name">Calls History</field>
+    <field name="name">Call History</field>
     <field name="res_model">asterisk_plus.call</field>
     <field name="view_mode">tree,form,graph,pivot</field>
     <field name="domain">[('is_active', '=', False)]</field>
@@ -31,7 +31,7 @@
   <menuitem id="asterisk_plus_calls_history_menu"
             sequence="200"
             parent="asterisk_plus.asterisk_apps_menu"
-            name="Calls History"
+            name="Call History"
             action="asterisk_plus_calls_history_action"/>
 
     <record id="asterisk_plus_call_list" model="ir.ui.view">
@@ -48,6 +48,7 @@
             <field name="ref"/>
             <field name="status"/>
             <field name="ended"/>
+            <field name="recording_icon" widget="html"/>
             </tree>
       </field>
     </record>
@@ -100,6 +101,13 @@
               <field name="ended"/>
               <field name="duration_human" attrs="{'invisible': [('answered', '=', False)]}"/>
             </group>
+          </group>
+          <group attrs="{'invisible': [('recordings', '=', [])]}">
+              <field name="recordings">
+                <tree>
+                  <field name="recording_widget" widget="html" nolabel="1"/>
+                </tree>
+              </field>
           </group>
           <group>
             <field name="channels"

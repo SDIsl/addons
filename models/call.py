@@ -34,6 +34,8 @@ class Call(models.Model):
     # Boolean index for split all calls on this flag. Calls are by default in active state.
     is_active = fields.Boolean(index=True, default=True)
     channels = fields.One2many('asterisk_plus.channel', inverse_name='call')
+    recordings = fields.One2many('asterisk_plus.recording', inverse_name='call')
+    recording_icon = fields.Char(compute='_get_recording_icon', string='R')
     partner = fields.Many2one('res.partner', ondelete='set null')
     calling_user = fields.Many2one('res.users', ondelete='set null')
     called_user = fields.Many2one('res.users', ondelete='set null')
@@ -61,6 +63,13 @@ class Call(models.Model):
         finally:
             self.reload_calls()
             return call
+
+    def _get_recording_icon(self):
+        for rec in self:
+            if rec.recordings:
+                rec.recording_icon = '<span class="fa fa-file-sound-o"/>'
+            else:
+                rec.recording_icon = ''
 
     def update_reference(self):
         # Inherit in modules.

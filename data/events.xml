@@ -44,7 +44,7 @@
       <field name="name">VarSet</field>
       <field name="source">AMI</field>
       <field name="model">asterisk_plus.channel</field>
-      <field name="method">update_monitor_filename</field>
+      <field name="method">update_recording_filename</field>
       <field name="delay">1.5</field>
       <field name="condition">event['Variable'] == 'MIXMONITOR_FILENAME'</field>
     </record>

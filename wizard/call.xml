@@ -54,7 +54,7 @@
         <field name="view_id" ref="call_wizard_form"/>        
     </record>
 
-    <menuitem name="Custom" id="call_wizard_menu"
+    <menuitem name="Calls" id="call_wizard_menu"
         parent="asterisk_reports_menu"
         groups="asterisk_plus.group_asterisk_user,asterisk_plus.group_asterisk_admin"
         sequence="100" action="call_wizard_action"/>

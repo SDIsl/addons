@@ -1,7 +1,6 @@
 # ©️ OdooPBX by Odooist, Odoo Proprietary License v1.0, 2020
 import logging
 from odoo import fields, models, api, _
-from odoo.addons.asterisk_calls.models.call import DISPOSITION_TYPES
 
 logger = logging.getLogger(__name__)
 

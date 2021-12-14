@@ -55,7 +55,7 @@ class Settings(models.Model):
     delete_recordings = fields.Boolean(
         default=True,
         help='Keep recordings on Asterisk after upload to Odoo.')
-    transcipt_record = fields.Boolean(
+    transcipt_recording = fields.Boolean(
         default=False, string=_("Transcript Recording"),
         help=_("If checked, call recordings will be transcripted using the Google Speech Recognition API."
                "Requires SpeechRecognition Python package installed to work."))

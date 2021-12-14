@@ -10,7 +10,7 @@
   </record>
 
   <menuitem id="asterisk_plus_user_menu"
-            sequence="400"
+            sequence="2100"
             parent="asterisk_plus.asterisk_apps_menu"
             name="Users"
             action="asterisk_plus_user_action"/>
