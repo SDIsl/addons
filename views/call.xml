@@ -86,7 +86,7 @@
             <group>
               <field name="calling_number"/>
               <field name="calling_user" attrs="{'invisible': [('calling_user', '=', False)]}"/>
-              <field name="partner" attrs="{'invisible': [('partner', '=', False)]}"/>
+              <field name="partner"/>
               <field name="model" invisible="1"/>
               <field name="ref"/>
               <field name="direction"/>
