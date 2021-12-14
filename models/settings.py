@@ -89,8 +89,8 @@ class Settings(models.Model):
                    ('7', '7-Fastest')],
         required=False)
     calls_keep_days = fields.Char(
-        string=_('History Keep Days'),
-        default='90',
+        string=_('Call History Keep Days'),
+        default='365',
         required=True,
         help=_('Calls older then set value will be removed.'))
 
@@ -102,7 +102,7 @@ class Settings(models.Model):
     def open_settings_form(self):
         rec = self.env['asterisk_plus.settings'].search([])
         if not rec:
-            rec = self.sudo().create({})
+            rec = self.sudo().with_context(no_constrains=True).create({})
         else:
             rec = rec[0]
         return {
@@ -122,7 +122,7 @@ class Settings(models.Model):
         """
         data = self.search([])
         if not data:
-            data = self.sudo().create({})
+            data = self.sudo().with_context(no_constrains=True).create({})
         else:
             data = data[0]
         return getattr(data, param, default)
@@ -133,7 +133,7 @@ class Settings(models.Model):
         """
         data = self.search([])
         if not data:
-            data = self.sudo().create({})
+            data = self.sudo().with_context(no_constrains=True).create({})
         else:
             data = data[0]
         # Check if the param is already there.
@@ -155,6 +155,8 @@ class Settings(models.Model):
 
     @api.constrains('record_calls')
     def record_calls_toggle(self):
+        if 'no_constrains' in self.env.context:
+            return
         # Enable/disable call recording event
         recording_event = self.env.ref('asterisk_plus.var_set_mixmon')
         # Check if enent can be updated
@@ -170,6 +172,8 @@ class Settings(models.Model):
 
     @api.constrains('use_mp3_encoder')
     def _check_lameenc(self):
+        if 'no_constrains' in self.env.context:
+            return
         try:
             import lameenc
         except ImportError:
@@ -181,6 +185,8 @@ class Settings(models.Model):
 
     @api.onchange('use_mp3_encoder')
     def on_change_mp3_encoder(self):
+        if 'no_constrains' in self.env.context:
+            return
         for rec in self:
             if rec.use_mp3_encoder:
                 rec.mp3_encoder_bitrate = '96'
