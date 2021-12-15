@@ -85,7 +85,7 @@
           </div>
           <group>
             <group>
-              <field name="calling_number"/>
+              <field name="calling_number" widget="originate_call"/>
               <field name="calling_user" attrs="{'invisible': [('calling_user', '=', False)]}"/>
               <field name="partner"/>
               <field name="model" invisible="1"/>
@@ -94,7 +94,7 @@
               <field name="notes"/>
             </group>
             <group>
-              <field name="called_number"/>
+              <field name="called_number" widget="originate_call"/>
               <field name="called_user" attrs="{'invisible': [('called_user', '=', False)]}"/>
               <field name="started"/>
               <field name="answered" attrs="{'invisible': [('answered', '=', False)]}"/>
