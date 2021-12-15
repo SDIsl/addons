@@ -42,9 +42,8 @@ class Call(models.Model):
     # Related object
     model = fields.Char()
     res_id = fields.Integer()
-    ref = fields.Reference(string='Reference',
-                           selection=[],
-                            compute='_get_ref', inverse='_set_ref')
+    ref = fields.Reference(string='Reference', selection=[],
+                           compute='_get_ref', inverse='_set_ref')
     notes = fields.Text()
     duration = fields.Integer(readonly=True, compute='_get_duration', store=True)
     duration_human = fields.Char(
@@ -55,14 +54,8 @@ class Call(models.Model):
     def create(self, vals):
         # Reload after call is created
         call = super(Call, self).create(vals)
-        try:
-            if not call.ref:
-                call.update_reference()
-        except Exception:
-            logger.exception('Update call reference error:')
-        finally:
-            self.reload_calls()
-            return call
+        self.reload_calls()
+        return call
 
     def _get_recording_icon(self):
         for rec in self:
@@ -73,7 +66,7 @@ class Call(models.Model):
 
     def update_reference(self):
         # Inherit in modules.
-        pass
+        self.ensure_one()
 
     @api.constrains('is_active')
     def reload_on_hangup(self):

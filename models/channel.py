@@ -134,7 +134,7 @@ class Channel(models.Model):
                 data['direction'] = 'in'
             if not self.call.partner:
                 # Check if there is a reference with partner ID
-                if self.call.ref and hasattr(self.call.ref, 'partner_id'):
+                if self.call.ref and getattr(self.call.ref, 'partner_id', False):
                     debug(self, 'Taking partner from ref')
                     data['partner'] = self.call.ref.partner_id
                 else:
@@ -143,6 +143,11 @@ class Channel(models.Model):
                         'res.partner'].search_by_caller_number(self.callerid_num)
             if data:
                 self.call.write(data)
+        try:
+            if not self.call.ref:
+                self.call.update_reference()
+        except Exception:
+            logger.exception('Update call reference error:')
 
     ########################### AMI Event handlers ############################
     @api.model
