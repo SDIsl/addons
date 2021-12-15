@@ -190,3 +190,14 @@ class Recording(models.Model):
         logger.info('Recording convert .wav -> .mp3 took %.2f seconds.',
                     time.time() - started)
         return mp3_data
+
+    @api.model
+    def delete_recordings(self):
+        days = self.env[
+            'asterisk_plus.settings'].get_param('recordings_keep_days')
+        expire_date = datetime.utcnow() - timedelta(days=int(days))
+        expired_recordings = self.env['asterisk_plus.recording'].search([
+            ('answered', '<=', expire_date.strftime('%Y-%m-%d %H:%M:%S'))
+        ])
+        logger.info('Expired {} recordings'.format(len(expired_recordings)))
+        expired_recordings.unlink()

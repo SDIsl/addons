@@ -47,6 +47,7 @@
                     </group>
                   <group string="Call History Archive">
                     <field name="calls_keep_days"/>
+                    <field name="recordings_keep_days"/>
                   </group>
                   </group>
                 </page>                
