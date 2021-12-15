@@ -34,6 +34,8 @@
                       <field name="originate_timeout"/>
                     </group>
                   </group>
+                </page>
+                <page name="calls" string="Calls">
                   <group>
                     <group string="Call Recording">
                       <field name="record_calls"/>
@@ -45,12 +47,12 @@
                       <field name="google_sr_api_key" attrs="{'invisible': [('transcipt_recording', '=', False)]}"/>
                       <field name="recognition_lang" attrs="{'invisible': [('transcipt_recording', '=', False)]}"/>
                     </group>
-                  <group string="Call History Archive">
-                    <field name="calls_keep_days"/>
-                    <field name="recordings_keep_days"/>
+                    <group string="Call History Archive">
+                      <field name="calls_keep_days"/>
+                      <field name="recordings_keep_days"/>
+                    </group>
                   </group>
-                  </group>
-                </page>                
+                </page>
                 <page name="salt" string="Salt Master">
                   <group>
                     <group>
