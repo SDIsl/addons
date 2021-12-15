@@ -1,5 +1,5 @@
 # ©️ OdooPBX by Odooist, Odoo Proprietary License v1.0, 2020
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import logging
 from odoo import models, fields, api, _
@@ -354,5 +354,9 @@ class Channel(models.Model):
         return False
 
     @api.model
-    def vacuum(self):
-        self.search([]).unlink()
+    def vacuum(self, hours=24):
+        expire_date = datetime.utcnow() - timedelta(hours=24)
+        channels = self.env['asterisk_plus.channel'].search([
+            ('create_date', '<=', expire_date.strftime('%Y-%m-%d %H:%M:%S'))
+        ])
+        channels.unlink()
