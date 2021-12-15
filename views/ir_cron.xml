@@ -23,5 +23,18 @@
             <field name="nextcall"
                 eval="(datetime.now(pytz.timezone('UTC')) + timedelta(days=1)).strftime('%Y-%m-%d 00:00:01')"/>
         </record>
+
+        <record id="delete_recordings" model="ir.cron">
+            <field name="name">Asterisk delete expired recordings</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+            <field name="model_id" ref="model_asterisk_plus_recording"/>
+            <field name="code">model.delete_recordings()</field>
+            <field name="state">code</field>
+            <field name="nextcall"
+                eval="(datetime.now(pytz.timezone('UTC')) + timedelta(days=1)).strftime('%Y-%m-%d 00:00:01')"/>
+        </record>
     </data>
 </odoo>

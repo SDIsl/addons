@@ -93,6 +93,11 @@ class Settings(models.Model):
         default='365',
         required=True,
         help=_('Calls older then set value will be removed.'))
+    recordings_keep_days = fields.Char(
+        string=_('Call Recording Keep Days'),
+        default='365',
+        required=True,
+        help=_('Call recordings older then set value will be removed.'))
 
     @api.model
     def _get_name(self):

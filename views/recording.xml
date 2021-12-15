@@ -76,7 +76,7 @@
                         <field name="recording_data" filename="recording_filename"/>
                       </group>
                     </group>
-                    <group name="transcript" string="Transript"
+                    <group name="transcript" string="Transcript"
                         attrs="{'invisible': [('transcript', '=', '')]}">
                       <field name="transcript" nolabel="1"/>
                     </group>
