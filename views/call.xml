@@ -87,7 +87,7 @@
             <group>
               <field name="calling_number" widget="originate_call"/>
               <field name="calling_user" attrs="{'invisible': [('calling_user', '=', False)]}"/>
-              <field name="partner"/>
+              <field name="partner" context="{'call_id': active_id}"/>
               <field name="model" invisible="1"/>
               <field name="ref" context="{'call_id': active_id}"/>
               <field name="direction"/>

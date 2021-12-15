@@ -31,6 +31,16 @@ class Partner(models.Model):
 
     @api.model
     def create(self, vals):
+        try:
+            if self.env.context.get('call_id'):
+                call = self.env['asterisk_plus.call'].browse(
+                    self.env.context['call_id'])
+                if call.direction == 'in':
+                    vals['phone'] = call.calling_number
+                else:
+                    vals['phone'] = call.called_number
+        except Exception as e:
+            logger.exception(e)
         res = super(Partner, self).create(vals)
         if res and not self.env.context.get('no_clear_cache'):
             self.clear_caches()
