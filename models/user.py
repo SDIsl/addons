@@ -27,6 +27,7 @@ class PbxUser(models.Model):
     open_reference = fields.Boolean(
         default=True,
         help=_('Open reference form on incoming calls.'))
+    user_call_count = fields.Integer(compute='_get_call_count', string='Calls')
 
     _sql_constraints = [
         ('exten_uniq', 'unique (exten,server)',
@@ -107,3 +108,21 @@ class PbxUser(models.Model):
         debug(self, 'GET RES USER BY EXTEN {} at {}: {}'.format(
             exten, system_name, astuser))
         return astuser.user.id
+
+    def _get_call_count(self):
+        for rec in self:
+            rec.user_call_count = self.env[
+                'asterisk_plus.call'].sudo().search_count(
+                ['|', ('calling_user', '=', rec.user.id),
+                      ('called_user', '=', rec.user.id)])
+
+    def action_view_calls(self):
+        self.ensure_one()
+        return {
+            'name': _("Calls"),
+            'type': 'ir.actions.act_window',
+            'view_mode': 'tree',
+            'res_model': 'asterisk_plus.call',
+            'domain': ['|', ('calling_user', '=', self.user.id),
+                            ('called_user', '=', self.user.id)],
+        }

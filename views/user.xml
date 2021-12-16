@@ -38,7 +38,12 @@
         <header>
         </header>
         <sheet>
-          <div class="oe_button_box" name="button_box"/>
+          <div class="oe_button_box" name="button_box">
+            <button class="oe_stat_button" icon="fa-phone"
+                    name="action_view_calls" type="object">
+                <field name="user_call_count" widget="statinfo"/>
+            </button>
+          </div>
           <div name="title" class="oe_title">
             <h1>
               <label class="oe_edit_only" for="exten"/>

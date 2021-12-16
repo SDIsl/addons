@@ -27,6 +27,7 @@ except ImportError:
 
 class Recording(models.Model):
     _name = 'asterisk_plus.recording'
+    _inherit = 'mail.thread'
     _description = 'Recording'
     _rec_name = 'uniqueid'
     _order = 'id desc'
