@@ -62,7 +62,7 @@ odoo.define("asterisk_plus.actions", function (require) {
           }
           // Check if this is a notification action
           else if (message.action == 'notify') {
-            return this.asterisk_plus_handle_notification_message(message) 
+            return this.asterisk_plus_handle_notify(message)
           }
           // Check if it a open record action
           else if (message.action == 'open_record') {
@@ -101,7 +101,7 @@ odoo.define("asterisk_plus.actions", function (require) {
           controller.widget.reload()
         },
 
-        asterisk_plus_handle_notification_message: function(message) {
+        asterisk_plus_handle_notify: function(message) {
           console.log(message)
           if (message.warning == true)
             this.do_warn(message.title, message.message, message.sticky)
