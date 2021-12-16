@@ -28,6 +28,7 @@ class Partner(models.Model):
         'Prefix with # to add 1 second pause before entering. '
         'Every # adds 1 second pause. Example: ###1001'))
     call_count = fields.Integer(compute='_get_call_count', string='Calls')
+    recorded_calls = fields.One2many('asterisk_plus.recording', 'partner')
 
     @api.model
     def create(self, vals):
