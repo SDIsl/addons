@@ -171,9 +171,10 @@ class Settings(models.Model):
         recording_event.is_enabled = True if self.record_calls is True else False
         # Reload events map
         servers = self.env['asterisk_plus.server'].search([])
-        servers.ami_action(
-            {'Action': 'ReloadEvents'},
-        )
+        for s in servers:
+            s.ami_action(
+                {'Action': 'ReloadEvents'},
+            )
 
     @api.constrains('use_mp3_encoder')
     def _check_lameenc(self):

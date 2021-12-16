@@ -65,6 +65,19 @@ class Server(models.Model):
         }
 
     @api.model
+    def set_minion_data(self, minion_id, timezone):
+        # Called by minion to set server's ID on login.
+        server = self.search([('user', '=', self.env.uid)])
+        server.server_id = minion_id
+        logger.info('Minion %s has been connected.', minion_id)
+        try:
+            server.tz = timezone
+        except Exception as e:
+            # It's not a critical error just inform.
+            logger.warning('Could not set server timezone to %s: %s', timezone, e)
+        return True
+
+    @api.model
     def _get_saltapi(self, force_login=False):
         """Get Salt API pepper instance.
         TODO: Cache auth in ORM cache not ir.config_parameter.
@@ -131,9 +144,9 @@ class Server(models.Model):
             raise ValidationError('Cannot connect to Salt API process.')
         # Wrap calling function to be able to re-login on session expiration.
 
-        def call_fun(server_id):
+        def call_fun():
             if not sync:
-                ret = saltapi.local_async(tgt=server_id, fun=fun, arg=arg,
+                ret = saltapi.local_async(tgt=self.server_id, fun=fun, arg=arg,
                                           kwarg=kwarg, timeout=timeout, ret='odoo')
                 self.env['asterisk_plus.salt_job'].sudo().create({
                     'jid': ret['return'][0]['jid'],
@@ -143,7 +156,7 @@ class Server(models.Model):
                     'pass_back': json.dumps(pass_back) if pass_back else False,
                 })
             else:
-                ret = saltapi.local(tgt=server_id, fun=fun, arg=arg,
+                ret = saltapi.local(tgt=self.server_id, fun=fun, arg=arg,
                                     kwarg=kwarg, timeout=timeout)
             # TODO: Add server:
             # {'return': [{'jid': '20210928122846179815', 'minions': ['asterisk']}]}
@@ -155,8 +168,7 @@ class Server(models.Model):
                 self.env.cr.commit()
             return ret
         try:
-            for rec in self:
-                return call_fun(rec.server_id)
+            return call_fun()
         except ConnectionResetError:
             raise ValidationError('Salt API connection reset! Check HTTP/HTTPS settings.')
         except urllib.error.URLError:
