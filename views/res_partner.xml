@@ -33,11 +33,11 @@
                         <field name="recorded_calls"
                             class="oe_read_only" nolabel="1">
                             <tree limit="5">
-                                <field name="started"/>
+                                <field name="recording_widget" widget="html"/>
                                 <field name="duration_human"/>
+                                <field name="answered"/>
                                 <field name="calling_user"/>
                                 <field name="called_user"/>
-                                <field name="recording_widget" widget="html"/>
                             </tree>
                         </field>
                     </group>

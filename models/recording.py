@@ -41,7 +41,6 @@ class Recording(models.Model):
     calling_number = fields.Char(index=True, readonly=True)
     calling_name = fields.Char(compute='_get_calling_name', readonly=True)
     called_number = fields.Char(index=True, readonly=True)
-    started = fields.Datetime(index=True, readonly=True)
     answered = fields.Datetime(index=True, readonly=True)
     duration = fields.Integer(related='call.duration', store=True)
     duration_human = fields.Char(related='call.duration_human', store=True)
@@ -161,7 +160,6 @@ class Recording(models.Model):
             'called_user': channel.call.called_user.id,
             'calling_number': channel.call.calling_number,
             'called_number': channel.call.called_number,
-            'started': channel.call.started,
             'answered': channel.call.answered,
             'transcript': transcript,
             'file_path': channel.recording_file_path,
