@@ -61,23 +61,13 @@
       <form create='0' edit='1' duplicate='0'>
         <header>
           <field name="status" widget="statusbar"/>
-          <button string="Notes" name="add_note" type="object" class="oe_highlight" icon='fa-pencil'/>
+          <button string="Notes" name="add_note" type="object"
+                  class="oe_highlight" icon='fa-pencil'/>
         </header>
         <sheet>
           <div class="oe_button_box" name="button_box">
-            <button attrs="{'invisible': [('direction', '=', 'in')]}"
-                    class="oe_stat_button"
-                    style="text-align: center; color: #7C7BAD">
-              <span class="fa fa-phone fa-2x" title="Out"/>
-              <span class="fa fa-arrow-right" title="Out"/>
-            </button>
-            <button attrs="{'invisible': [('direction', '=', 'out')]}"
-                    class="oe_stat_button"
-                    style="text-align: center; color: #7C7BAD">
-              <span class="fa fa-phone fa-2x" title="In"/>
-              <span class="fa fa-arrow-left" title="In"/>
-            </button>
             <button class="oe_stat_button"
+                    groups="asterisk_plus.group_asterisk_admin"
                     string="Channels"
                     icon="fa-list"
                     name="%(call_channels_action)d"
@@ -85,21 +75,20 @@
           </div>
           <group>
             <group>
-              <field name="calling_number" widget="originate_call"/>
-              <field name="calling_user" attrs="{'invisible': [('calling_user', '=', False)]}"/>
               <field name="partner" context="{'call_id': active_id}"/>
-              <field name="model" invisible="1"/>
               <field name="ref" context="{'call_id': active_id}"/>
-              <field name="direction"/>
+              <field name="called_user" attrs="{'invisible': [('called_user', '=', False)]}"/>
+              <field name="calling_user" attrs="{'invisible': [('calling_user', '=', False)]}"/>
+              <field name="called_number" widget="originate_call"/>
+              <field name="calling_number" widget="originate_call"/>
               <field name="notes"/>
             </group>
             <group>
-              <field name="called_number" widget="originate_call"/>
-              <field name="called_user" attrs="{'invisible': [('called_user', '=', False)]}"/>
               <field name="started"/>
               <field name="answered" attrs="{'invisible': [('answered', '=', False)]}"/>
               <field name="ended"/>
               <field name="duration_human" attrs="{'invisible': [('answered', '=', False)]}"/>
+              <field name="direction"/>
             </group>
           </group>
           <group attrs="{'invisible': [('recordings', '=', [])]}">
@@ -111,6 +100,7 @@
           </group>
           <group>
             <field name="channels"
+                groups="asterisk_plus.group_asterisk_admin"
                 attrs="{'invisible': [('channels', '=', [])]}">
               <tree>
                 <field name="channel"/>
