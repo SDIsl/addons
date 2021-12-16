@@ -12,8 +12,8 @@ class CallsWizard(models.TransientModel):
     start_date = fields.Datetime(required=True)
     end_date = fields.Datetime(required=True,
                                default=lambda self: fields.Datetime.now())
-    from_user = fields.Many2one('res.users')
-    to_user = fields.Many2one('res.users')
+    from_user = fields.Many2one('res.users', domain=[('share', '=', False)])
+    to_user = fields.Many2one('res.users', domain=[('share', '=', False)])
     to_partner = fields.Many2one('res.partner')
     from_partner = fields.Many2one('res.partner')
     call_status = fields.Selection(selection=[

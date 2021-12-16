@@ -64,6 +64,7 @@
                         <group>
                           <field name="partner"/>
                           <field name="duration"/>
+                          <field name="started"/>
                           <field name="answered"/>
                           <field name="file_path"/>                          
                         </group>

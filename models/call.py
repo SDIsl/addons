@@ -19,13 +19,13 @@ class Call(models.Model):
     uniqueid = fields.Char(size=64, index=True)
     server = fields.Many2one('asterisk_plus.server', ondelete='cascade')
     calling_number = fields.Char(index=True, readonly=True)
-    calling_name = fields.Char(compute='_get_calling_name')
-    called_number = fields.Char(index=True)
-    started = fields.Datetime(index=True)
-    answered = fields.Datetime(index=True)
-    ended = fields.Datetime(index=True)
+    calling_name = fields.Char(compute='_get_calling_name', readonly=True)
+    called_number = fields.Char(index=True, readonly=True)
+    started = fields.Datetime(index=True, readonly=True)
+    answered = fields.Datetime(index=True, readonly=True)
+    ended = fields.Datetime(index=True, readonly=True)
     direction = fields.Selection(selection=[('in', 'Incoming'), ('out', 'Outgoing')],
-        index=True)
+        index=True, readonly=True)
     direction_icon = fields.Html(string='Dir', compute='_get_direction_icon')
     status = fields.Selection(selection=[
          ('noanswer', 'No Answer'), ('answered', 'Answered'),
@@ -33,12 +33,12 @@ class Call(models.Model):
          ('progress', 'In Progress')], index=True, default='progress')
     # Boolean index for split all calls on this flag. Calls are by default in active state.
     is_active = fields.Boolean(index=True, default=True)
-    channels = fields.One2many('asterisk_plus.channel', inverse_name='call')
-    recordings = fields.One2many('asterisk_plus.recording', inverse_name='call')
+    channels = fields.One2many('asterisk_plus.channel', inverse_name='call', readonly=True)
+    recordings = fields.One2many('asterisk_plus.recording', inverse_name='call', readonly=True)
     recording_icon = fields.Char(compute='_get_recording_icon', string='R')
     partner = fields.Many2one('res.partner', ondelete='set null')
-    calling_user = fields.Many2one('res.users', ondelete='set null')
-    called_user = fields.Many2one('res.users', ondelete='set null')
+    calling_user = fields.Many2one('res.users', ondelete='set null', readonly=True)
+    called_user = fields.Many2one('res.users', ondelete='set null', readonly=True)
     # Related object
     model = fields.Char()
     res_id = fields.Integer()
