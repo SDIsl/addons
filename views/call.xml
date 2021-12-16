@@ -163,11 +163,43 @@
         <field name="status"/>
         <field name="ended"/>
         <field name="model"/>
-        <filter name="in" string="Incoming"
-          domain="[('direction', '=', 'in')]"/>
-        <filter name="out" string="Outgoing"
-          domain="[('direction', '=', 'out')]"/>
-          <filter name="by_status" string="Status" context="{'group_by':'status'}"/>
+        <filter name="my" string="My Calls"
+            domain="['|', ('calling_user','=', uid), ('called_user','=', uid)]"/>
+        <filter name="answered" string="My Answered"
+            domain="[('status', '=', 'answered'), '|',
+                ('calling_user','=', uid), ('called_user','=', uid)]"/>
+        <filter name="missed" string="My Missed"
+            domain="[('status', '!=', 'answered'), '|',
+                ('calling_user','=', uid), ('called_user','=', uid)]"/>
+        <filter name="incoming" string="My Incoming"
+            domain="[('called_user','=', uid)]"/>
+        <filter name="outgoing" string="My Outgoing"
+            domain="[('calling_user','=', uid)]"/>
+        <separator/>
+        <filter name="today" string="Today" domain="[
+            ('started','&gt;', context_today().strftime('%Y-%m-%d 00:00:00'))]"/>
+        <filter name="week" string="This Week" domain="[
+            ('started', '&gt;', (context_today() + relativedelta(weeks=-1, weekday=0)).strftime('%Y-%m-%d 00:00:00'))]"/>
+        <filter string="This month" name="this_month" domain="[
+            ('started','&gt;=', (context_today() + relativedelta(day=1)).strftime('%Y-%m-%d 00:00:00'))]"/>
+        <filter string="Previous month" name="prev_month" domain="[
+            ('started','&gt;=',(context_today()+relativedelta(months=-1, day=1)).strftime('%Y-%m-%d 00:00:00')),
+            ('started','&lt;=',(context_today()+relativedelta(months=-1, day=31)).strftime('%Y-%m-%d 23:59:59'))]"/>
+        <filter string="This year" name="this_year" domain="[
+            ('started','&gt;=',(context_today()+relativedelta(month=1, day=1)).strftime('%Y-%m-%d 00:00:00'))]"/>
+        <separator/>
+        <filter name="recordings" string="Recordings" domain="[('recordings','!=',False)]"/>
+        <filter name="partners" string="Partners"
+            domain="[('partner','!=',False)]"/>
+        <filter name="without_partner" string="No Partner"
+            domain="[('partner','=',False)]"/>
+        <filter string="Missed" name="missed" domain="[('status','!=','answered')]"/>
+        <filter string="Answered" name="answered" domain="[('status','=','answered')]"/>
+        <filter string="Busy" name="busy" domain="[('status','=','busy')]"/>
+        <filter string="No answer" name="no_answer" domain="[('status','=','noanswer')]"/>
+        <filter string="Failed" name="failed" domain="[('status','=','failed')]"/>
+        <filter name="by_status" string="Status" context="{'group_by':'status'}"/>
+        <filter name="by_started" string="Started" context="{'group_by':'started'}"/>
         <filter name="by_ended" string="Ended" context="{'group_by':'ended'}"/>
         <filter name="by_direction" string="Direction" context="{'group_by':'direction'}"/>
         <filter name="by_partner" string="Partner" context="{'group_by':'partner'}"/>
