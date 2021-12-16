@@ -11,6 +11,10 @@ class Tag(models.Model):
                                   relation='asterisk_plus_recording_tag',
                                   column1='recording', column2='tag')
 
+    _sql_constraints = [
+        ('name_uniq', 'unique (name)', _('The name must be unique!')),
+    ]
+
     @api.model
     def create(self, vals):
         # Delete tags not attached to any recording
