@@ -166,6 +166,9 @@
         <filter name="outgoing" string="My Outgoing"
             domain="[('calling_user','=', uid)]"/>
         <separator/>
+          <filter name="in" string="Incoming" domain="[('direction', '=', 'in')]"/>
+          <filter name="out" string="Outgoing" domain="[('direction', '=', 'out')]"/>
+        <separator/>
         <filter name="today" string="Today" domain="[
             ('started','&gt;', context_today().strftime('%Y-%m-%d 00:00:00'))]"/>
         <filter name="week" string="This Week" domain="[
@@ -188,6 +191,7 @@
         <filter string="Busy" name="busy" domain="[('status','=','busy')]"/>
         <filter string="No answer" name="no_answer" domain="[('status','=','noanswer')]"/>
         <filter string="Failed" name="failed" domain="[('status','=','failed')]"/>
+        <filter name="by_status" string="Status" context="{'group_by':'status'}"/>
         <filter name="by_status" string="Status" context="{'group_by':'status'}"/>
         <filter name="by_started" string="Started" context="{'group_by':'started'}"/>
         <filter name="by_ended" string="Ended" context="{'group_by':'ended'}"/>
