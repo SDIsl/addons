@@ -25,6 +25,7 @@
             <field name="called_number"/>
             <field name="calling_user"/>
             <field name="called_user"/>
+            <field name="tags" widget="many2many_tags"/>
           </tree>
       </field>
     </record>
@@ -42,6 +43,7 @@
         <field name="transcript"/>
         <field name="answered"/>
         <field name="file_path"/>
+        <field name="tags"/>
   </search>
     </field>
     </record>
@@ -60,6 +62,7 @@
                             <field name="calling_user"/>
                             <field name="called_number"/>
                             <field name="called_user"/>
+                            <field name="tags" widget="many2many_tags"/>
                         </group>
                         <group>
                           <field name="partner"/>

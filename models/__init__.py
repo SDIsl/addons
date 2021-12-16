@@ -10,3 +10,4 @@ from . import salt_job
 from . import user_channel
 from . import user
 from . import res_partner
+from . import tag

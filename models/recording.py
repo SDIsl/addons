@@ -51,6 +51,9 @@ class Recording(models.Model):
     recording_data = fields.Binary(readonly=True, string=_('Download'))
     transcript = fields.Text(string='Transcript')
     file_path = fields.Char(readonly=True)
+    tags = fields.Many2many('asterisk_plus.tag',
+                            relation='asterisk_plus_recording_tag',
+                            column1='tag', column2='recording')
 
     def _get_recording_widget(self):
         for rec in self:
