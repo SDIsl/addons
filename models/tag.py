@@ -17,7 +17,6 @@ class Tag(models.Model):
 
     @api.model
     def create(self, vals):
-        # Delete tags not attached to any recording
-        tags = self.sudo().search([])
-        tags.filtered(lambda x: len(x.recordings) == 0).unlink()
-        return super(Tag, self).create(vals)
+        res = super(Tag, self).create(vals)
+        return res
+
