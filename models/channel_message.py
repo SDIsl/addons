@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import json
 import logging
 from odoo import models, fields, api, _
@@ -42,3 +43,10 @@ class ChannelMessage(models.Model):
         }
         self.create(data)
 
+    @api.model
+    def vacuum(self, hours=24):
+        expire_date = datetime.utcnow() - timedelta(hours=24)
+        channel_msgs = self.env['asterisk_plus.channel_message'].search([
+            ('create_date', '<=', expire_date.strftime('%Y-%m-%d %H:%M:%S'))
+        ])
+        channel_msgs.unlink()
