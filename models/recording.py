@@ -54,6 +54,11 @@ class Recording(models.Model):
     tags = fields.Many2many('asterisk_plus.tag',
                             relation='asterisk_plus_recording_tag',
                             column1='tag', column2='recording')
+    keep_forever = fields.Selection([
+        ('no', 'Keep Temporarily'),
+        ('yes', 'Keep Forever')
+    ], default='no')
+    icon = fields.Html(compute='_get_icon', string='I')
 
     def _get_recording_widget(self):
         for rec in self:
@@ -211,7 +216,15 @@ class Recording(models.Model):
             'asterisk_plus.settings'].get_param('recordings_keep_days')
         expire_date = datetime.utcnow() - timedelta(days=int(days))
         expired_recordings = self.env['asterisk_plus.recording'].search([
+            ('keep_forever', '=', 'no'),
             ('answered', '<=', expire_date.strftime('%Y-%m-%d %H:%M:%S'))
         ])
         logger.info('Expired {} recordings'.format(len(expired_recordings)))
         expired_recordings.unlink()
+
+    def _get_icon(self):
+        for rec in self:
+            if rec.keep_forever == 'yes':
+                rec.icon = '<span class="fa fa-floppy-o"></span>'
+            else:
+                rec.icon = ''
