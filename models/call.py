@@ -124,6 +124,10 @@ class Call(models.Model):
                 '<span class="fa fa-arrow-right"/>'
 
     def reload_calls(self, data=None):
+        auto_reload = self.env[
+            'asterisk_plus.settings'].get_param('auto_reload_calls')
+        if not auto_reload:
+            return
         if data is None:
             data = {}
         msg = {
