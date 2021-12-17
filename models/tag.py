@@ -10,6 +10,8 @@ class Tag(models.Model):
     recordings = fields.Many2many('asterisk_plus.recording',
                                   relation='asterisk_plus_recording_tag',
                                   column1='recording', column2='tag')
+    recording_count = fields.Integer(compute='_get_recording_count',
+                                string=_('Recordings'))
 
     _sql_constraints = [
         ('name_uniq', 'unique (name)', _('The name must be unique!')),
@@ -20,3 +22,7 @@ class Tag(models.Model):
         res = super(Tag, self).create(vals)
         return res
 
+    def _get_recording_count(self):
+        for rec in self:
+            rec.recording_count = self.env['asterisk_plus.recording'].search_count(
+                    [('tags', 'in', rec.id)])
