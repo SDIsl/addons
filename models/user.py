@@ -28,6 +28,9 @@ class PbxUser(models.Model):
         default=True,
         help=_('Open reference form on incoming calls.'))
     user_call_count = fields.Integer(compute='_get_call_count', string='Calls')
+    missed_calls_notify = fields.Boolean(
+        default=True,
+        help=_('Notify user on missed calls.'))
 
     _sql_constraints = [
         ('exten_uniq', 'unique (exten,server)',

@@ -97,9 +97,12 @@
               </group>
             </page>
             <page name="settings" string="Settings">
-              <group><group>
-                <field name="open_reference"/>
-              </group></group>
+              <group>
+                <group>
+                  <field name="missed_calls_notify"/>
+                  <field name="open_reference"/>
+                </group>
+              </group>
             </page>
           </notebook>
         </sheet>
