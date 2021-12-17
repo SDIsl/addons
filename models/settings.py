@@ -52,6 +52,9 @@ class Settings(models.Model):
     record_calls = fields.Boolean(
         default=True,
         help=_("If checked, call recording will be enabled"))
+    recording_storage = fields.Selection(
+        [('db', _('Database')), ('filestore', _('Files'))],
+        default='filestore', required=True)
     delete_recordings = fields.Boolean(
         default=True,
         help='Keep recordings on Asterisk after upload to Odoo.')
@@ -197,3 +200,30 @@ class Settings(models.Model):
             if rec.use_mp3_encoder:
                 rec.mp3_encoder_bitrate = '96'
                 rec.mp3_encoder_quality = '4'
+
+    def sync_recording_storage(self):
+        count = 0
+        try:
+            recordings = self.env['asterisk_plus.recording'].search([])
+            for rec in recordings:
+                if self.recording_storage == 'db' and not rec.recording_attachment:
+                    rec.write({
+                        'recording_data': False,
+                        'recording_attachment': rec.recording_data})
+                    count += 1
+                    self.env.cr.commit()
+                    logger.info('Recording {} moved to {}'.format(rec, self.recording_storage))
+                elif self.recording_storage == 'filestore' and not rec.recording_data:
+                    rec.write({
+                        'recording_attachment': False,
+                        'recording_data': rec.recording_attachment})
+                    count += 1
+                    self.env.cr.commit()
+                    logger.info('Recording {} moved to {}'.format(rec, self.recording_storage))
+        except Exception as e:
+            logger.info('Sync recordings error: %s', str(e))
+        finally:
+            logger.info('Moved %s recordings', count)
+            # Perform the garbage collection of the filestore.
+            # _file_gc() in Odoo < 14.0
+            self.env['ir.attachment']._gc_file_store()

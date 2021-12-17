@@ -76,7 +76,8 @@
                         <field name="recording_widget" widget="html" nolabel="1"/>
                       </group>
                       <group>
-                        <field name="recording_data" filename="recording_filename"/>
+                        <field name="recording_data" filename="recording_filename" attrs="{'invisible': [('recording_data', '=', False)]}"/>
+                        <field name="recording_attachment" filename="recording_filename" attrs="{'invisible': [('recording_attachment', '=', False)]}"/>
                       </group>
                     </group>
                     <group name="transcript" string="Transcript"

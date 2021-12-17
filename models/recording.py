@@ -47,7 +47,8 @@ class Recording(models.Model):
     recording_widget = fields.Char(compute='_get_recording_widget',
                                    string='Recording')
     recording_filename = fields.Char(readonly=True, index=True)
-    recording_data = fields.Binary(readonly=True, string=_('Download'))
+    recording_data = fields.Binary(attachment=False, readonly=True, string=_('Download'))
+    recording_attachment = fields.Binary(readonly=True, string=_('Download'))
     transcript = fields.Text(string='Transcript')
     file_path = fields.Char(readonly=True)
     tags = fields.Many2many('asterisk_plus.tag',
@@ -56,6 +57,7 @@ class Recording(models.Model):
 
     def _get_recording_widget(self):
         for rec in self:
+            recording_source = 'recording_data' if rec.recording_data else 'recording_attachment'
             rec.recording_widget = '<audio id="sound_file" preload="auto" ' \
                 'controls="controls"> ' \
                 '<source src="/web/content?model=asterisk_plus.recording&' \
@@ -64,7 +66,7 @@ class Recording(models.Model):
                 '</audio>'.format(
                     recording_id=rec.id,
                     filename=rec.recording_filename,
-                    source='recording_data')
+                    source=recording_source)
 
     @api.model
     def save_call_recording(self, event):
@@ -148,10 +150,17 @@ class Recording(models.Model):
         else:
             output_data = input_data
             extension = 'wav'
+        # Set filestore
+        fs = {}
+        if self.env['asterisk_plus.settings'].get_param(
+                'recording_storage') == 'db':
+            fs['recording_attachment'] = output_data
+        else:
+            fs['recording_data'] = output_data
         # Create a recording
         rec = self.create({
             'uniqueid': channel.uniqueid,
-            'recording_data': output_data,
+            **fs,
             'recording_filename': '{}.{}'.format(channel.uniqueid, extension),
             'call': channel.call.id,
             'channel': channel.id,

@@ -39,11 +39,15 @@
                   <group>
                     <group string="Call Recording">
                       <field name="record_calls"/>
+                      <field name="recording_storage" attrs="{'invisible': [('record_calls', '=', False)]}"/>
+                      <button type="object" name="sync_recording_storage"
+                              help="Use this button after changing the storage type."
+                              string="Move storage" class="btn btn-info oe_read_only"/>
                       <field name="use_mp3_encoder" attrs="{'invisible': [('record_calls', '=', False)]}"/>
                       <field name="mp3_encoder_quality" attrs="{'invisible': [('use_mp3_encoder', '=', False)]}"/>
                       <field name="mp3_encoder_bitrate" attrs="{'invisible': [('use_mp3_encoder', '=', False)]}"/>
                       <field name="delete_recordings" attrs="{'invisible': [('record_calls', '=', False)]}"/>
-                      <field name="transcipt_recording"/>
+                      <field name="transcipt_recording" attrs="{'invisible': [('record_calls', '=', False)]}"/>
                       <field name="google_sr_api_key" attrs="{'invisible': [('transcipt_recording', '=', False)]}"/>
                       <field name="recognition_lang" attrs="{'invisible': [('transcipt_recording', '=', False)]}"/>
                     </group>
