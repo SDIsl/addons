@@ -39,14 +39,17 @@ class Call(models.Model):
     recordings = fields.One2many('asterisk_plus.recording', inverse_name='call', readonly=True)
     recording_icon = fields.Char(compute='_get_recording_icon', string='R')
     partner = fields.Many2one('res.partner', ondelete='set null')
+    partner_img = fields.Binary(related='partner.image_1920')
     calling_user = fields.Many2one('res.users', ondelete='set null', readonly=True)
+    calling_user_img = fields.Binary(related='calling_user.image_1920')
     called_user = fields.Many2one('res.users', ondelete='set null', readonly=True)
+    called_user_img = fields.Binary(related='called_user.image_1920')
     # Related object
     model = fields.Char()
     res_id = fields.Integer()
     ref = fields.Reference(string='Reference', selection=[],
                            compute='_get_ref', inverse='_set_ref')
-    notes = fields.Text()
+    notes = fields.Html()
     duration = fields.Integer(readonly=True, compute='_get_duration', store=True)
     duration_human = fields.Char(
         string=_('Call Duration'),
