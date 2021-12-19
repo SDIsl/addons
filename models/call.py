@@ -13,13 +13,14 @@ logger = logging.getLogger(__name__)
 class Call(models.Model):
     _name = 'asterisk_plus.call'
     _inherit = 'mail.thread'
-    _description = 'Asterisk Call'
+    _description = 'Call Detail Record'
     _order = 'id desc'
     _log_access = False
     _rec_name = 'id'
 
     uniqueid = fields.Char(size=64, index=True)
     server = fields.Many2one('asterisk_plus.server', ondelete='cascade')
+    events = fields.One2many('asterisk_plus.call_event', inverse_name='call')
     calling_number = fields.Char(index=True, readonly=True)
     calling_name = fields.Char(compute='_get_calling_name', readonly=True)
     called_number = fields.Char(index=True, readonly=True)
@@ -58,7 +59,8 @@ class Call(models.Model):
     @api.model
     def create(self, vals):
         # Reload after call is created
-        call = super(Call, self).create(vals)
+        call = super(Call, self.with_context(
+            mail_create_nosubscribe=True, mail_create_nolog=True)).create(vals)
         self.reload_calls()
         return call
 
@@ -131,7 +133,7 @@ class Call(models.Model):
             elif rec.calling_user:
                 rec.calling_name = rec.calling_user.name
             else:
-                rec.calling_name = ''
+                rec.calling_name = 'Anonymous'
 
     def _get_direction_icon(self):
         for rec in self:
@@ -195,38 +197,23 @@ class Call(models.Model):
                 continue
             # TODO get missed_calls_notify option from user
             if rec.status != 'answered' and rec.called_user:
-                call_from = rec.calling_number
-                if rec.partner:
-                    call_from = rec.partner.name
-                elif rec.calling_user:
-                    call_from = rec.calling_user.name
                 rec.message_post(
                     subject=_('Missed call notification'),
-                    body=_('You have a missed call from {}').format(
-                        call_from),
+                    body=_('{} has a missed call from {}').format(
+                        rec.called_user.name, rec.calling_name),
                     partner_ids=[rec.called_user.partner_id.id],
                 )
             if rec.partner:
-                if rec.status != 'answered':
-                    # Missed call
-                    if rec.called_user:
-                        message = _('Missed call ({}) to {}.').format(
-                            rec.status, rec.called_user.name)
-                    elif rec.calling_user:
-                        message = _('Missed call ({}) from {}.').format(
-                            rec.status, rec.calling_user.name)
-                    else:
-                        message = _('Missed call ({}) from {} to {}.').format(
-                            rec.status, rec.calling_number, rec.called_number)
-                elif rec.called_user:
-                    message = _('Answered call to {}.').format(
-                        rec.called_user.name)
+                # Missed call
+                if rec.called_user:
+                    message = _('{} call to {}.').format(
+                        rec.status.capitalize(), rec.called_user.name)
                 elif rec.calling_user:
-                    message = _('Answered call from {}.').format(
-                        rec.calling_user.name)
+                    message = _('{} call from {}.').format(
+                        rec.status.capitalize(), rec.calling_user.name)
                 else:
-                    message = _('Answered call from {} to {}.').format(
-                        rec.calling_number, rec.called_number)
+                    message = _('{} from {} to {}.').format(
+                        rec.status.capitalize(), rec.calling_number, rec.called_number)
                 self.env['mail.message'].sudo().create({
                     'subject': '',
                     'body': message,
@@ -236,5 +223,4 @@ class Call(models.Model):
                     'subtype_id': self.env[
                         'ir.model.data'].xmlid_to_res_id(
                         'mail.mt_note'),
-                    'email_from': self.env.user.partner_id.email,
                 })
