@@ -37,6 +37,18 @@
         <field name="perm_unlink" eval="1"/>
     </record>
 
+    <!-- Call Events -->
+    <record id="asterisk_plus_call_event_user_rule" model="ir.rule">
+        <field name="name">asterisk_plus_call_event_user_rule</field>
+        <field name="model_id" ref="asterisk_plus.model_asterisk_plus_call_event"/>
+        <field name="groups" eval="[(6, 0, [ref('group_asterisk_user')])]"/>
+        <field name="domain_force">['|',('call.calling_user', '=', user.id), ('call.called_user', '=', user.id)]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>    
+
     <!-- Tags -->
     <record id="asterisk_plus_tag_user_rule" model="ir.rule">
         <field name="name">asterisk_plus_tag_user_rule</field>

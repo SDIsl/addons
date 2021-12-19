@@ -250,6 +250,11 @@ class Channel(models.Model):
             channel.call.write({
                 'answered': datetime.now(),
             })
+        self.env['asterisk_plus.call_event'].create({
+            'call': channel.call.id,
+            'create_date': datetime.now(),
+            'event': 'Channel {} status is {}'.format(channel.channel_short, get('ChannelStateDesc')),
+        })
         return channel
 
     @api.model
@@ -309,6 +314,12 @@ class Channel(models.Model):
                 'is_active': False,
                 'ended': datetime.now(),
             })
+        # Create hangup event
+        self.env['asterisk_plus.call_event'].create({
+            'call': channel.call.id,
+            'create_date': datetime.now(),
+            'event': 'Channel {} hangup'.format(channel.channel_short),
+        })
         self.reload_channels()
         if self.env['asterisk_plus.settings'].sudo().get_param('trace_ami'):
             # Remove and add fields according to the message

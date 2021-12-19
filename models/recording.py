@@ -60,6 +60,12 @@ class Recording(models.Model):
     ], default='no')
     icon = fields.Html(compute='_get_icon', string='I')
 
+    @api.model
+    def create(self, vals):
+        rec = super(Recording, self.with_context(
+            mail_create_nosubscribe=True, mail_create_nolog=True)).create(vals)
+        return rec
+
     def _get_recording_widget(self):
         for rec in self:
             recording_source = 'recording_data' if rec.recording_data else 'recording_attachment'
