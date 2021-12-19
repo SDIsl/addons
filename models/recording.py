@@ -51,13 +51,13 @@ class Recording(models.Model):
     recording_attachment = fields.Binary(readonly=True, string=_('Download'))
     transcript = fields.Text(string='Transcript')
     file_path = fields.Char(readonly=True)
-    tags = fields.Many2many('asterisk_plus.tag',
+    tags = fields.Many2many('asterisk_plus.tag', tracking=True,
                             relation='asterisk_plus_recording_tag',
                             column1='tag', column2='recording')
     keep_forever = fields.Selection([
-        ('no', 'Keep Temporarily'),
+        ('no', 'Archivable'),
         ('yes', 'Keep Forever')
-    ], default='no')
+    ], default='no', tracking=True)
     icon = fields.Html(compute='_get_icon', string='I')
 
     @api.model
