@@ -26,6 +26,7 @@
             <field name="calling_user"/>
             <field name="called_user"/>
             <field name="tags" widget="many2many_tags"/>
+            <field name="icon" widget="html"/>
           </tree>
       </field>
     </record>
@@ -44,6 +45,8 @@
         <field name="answered"/>
         <field name="file_path"/>
         <field name="tags"/>
+        <filter name="keep_forever" string="Keep Forever" domain="[('keep_forever','=','yes')]"/>
+        <filter name="by_keep_forever" string="Keep Time" context="{'group_by':'keep_forever'}"/>
   </search>
     </field>
     </record>
@@ -54,7 +57,9 @@
         <field name="type">form</field>
         <field name="arch" type="xml">
             <form create='0' edit='1' duplicate='0'>
-                <header></header>
+                <header>
+                  <field  string ='WTF' name="keep_forever" widget="statusbar" options="{'clickable': '1'}"/>
+                </header>
                 <sheet>
                     <group>
                         <group>

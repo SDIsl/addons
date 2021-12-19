@@ -98,6 +98,10 @@ class Channel(models.Model):
 
     @api.model
     def reload_channels(self, data=None):
+        auto_reload = self.env[
+            'asterisk_plus.settings'].get_param('auto_reload_channels')
+        if not auto_reload:
+            return
         if data is None:
             data = {}
         msg = {

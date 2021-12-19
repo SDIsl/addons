@@ -9,8 +9,10 @@ from .server import debug
 
 logger = logging.getLogger(__name__)
 
+
 class Call(models.Model):
     _name = 'asterisk_plus.call'
+    _inherit = 'mail.thread'
     _description = 'Asterisk Call'
     _order = 'id desc'
     _log_access = False
@@ -37,14 +39,17 @@ class Call(models.Model):
     recordings = fields.One2many('asterisk_plus.recording', inverse_name='call', readonly=True)
     recording_icon = fields.Char(compute='_get_recording_icon', string='R')
     partner = fields.Many2one('res.partner', ondelete='set null')
+    partner_img = fields.Binary(related='partner.image_1920')
     calling_user = fields.Many2one('res.users', ondelete='set null', readonly=True)
+    calling_user_img = fields.Binary(related='calling_user.image_1920')
     called_user = fields.Many2one('res.users', ondelete='set null', readonly=True)
+    called_user_img = fields.Binary(related='called_user.image_1920')
     # Related object
     model = fields.Char()
     res_id = fields.Integer()
     ref = fields.Reference(string='Reference', selection=[],
                            compute='_get_ref', inverse='_set_ref')
-    notes = fields.Text()
+    notes = fields.Html()
     duration = fields.Integer(readonly=True, compute='_get_duration', store=True)
     duration_human = fields.Char(
         string=_('Call Duration'),
@@ -81,6 +86,16 @@ class Call(models.Model):
                 message = 'Incoming call from {}'.format(rec.calling_name)
                 self.env['res.users'].asterisk_plus_notify(
                     message, uid=rec.called_user.id)
+
+    @api.constrains('calling_user', 'called_user')
+    def subscribe_users(self):
+        subscribe_list = []
+        for rec in self:
+            if rec.calling_user:
+                subscribe_list.append(rec.calling_user.partner_id.id)
+            if rec.called_user:
+                subscribe_list.append(rec.called_user.partner_id.id)
+        self.message_subscribe(partner_ids=subscribe_list)
 
     @api.depends('model', 'res_id') 
     def _get_ref(self):
@@ -124,6 +139,10 @@ class Call(models.Model):
                 '<span class="fa fa-arrow-right"/>'
 
     def reload_calls(self, data=None):
+        auto_reload = self.env[
+            'asterisk_plus.settings'].get_param('auto_reload_calls')
+        if not auto_reload:
+            return
         if data is None:
             data = {}
         msg = {
@@ -166,3 +185,56 @@ class Call(models.Model):
     def _get_duration_human(self):
         for rec in self:
             rec.duration_human = str(timedelta(seconds=rec.duration))
+
+    @api.constrains('is_active')
+    def register_call(self):
+        self.ensure_one()
+        # Missed calls to users
+        for rec in self:
+            if rec.is_active:
+                continue
+            # TODO get missed_calls_notify option from user
+            if rec.status != 'answered' and rec.called_user:
+                call_from = rec.calling_number
+                if rec.partner:
+                    call_from = rec.partner.name
+                elif rec.calling_user:
+                    call_from = rec.calling_user.name
+                rec.message_post(
+                    subject=_('Missed call notification'),
+                    body=_('You have a missed call from {}').format(
+                        call_from),
+                    partner_ids=[rec.called_user.partner_id.id],
+                )
+            if rec.partner:
+                if rec.status != 'answered':
+                    # Missed call
+                    if rec.called_user:
+                        message = _('Missed call ({}) to {}.').format(
+                            rec.status, rec.called_user.name)
+                    elif rec.calling_user:
+                        message = _('Missed call ({}) from {}.').format(
+                            rec.status, rec.calling_user.name)
+                    else:
+                        message = _('Missed call ({}) from {} to {}.').format(
+                            rec.status, rec.calling_number, rec.called_number)
+                elif rec.called_user:
+                    message = _('Answered call to {}.').format(
+                        rec.called_user.name)
+                elif rec.calling_user:
+                    message = _('Answered call from {}.').format(
+                        rec.calling_user.name)
+                else:
+                    message = _('Answered call from {} to {}.').format(
+                        rec.calling_number, rec.called_number)
+                self.env['mail.message'].sudo().create({
+                    'subject': '',
+                    'body': message,
+                    'model': 'res.partner',
+                    'res_id': rec.partner.id,
+                    'message_type': 'comment',
+                    'subtype_id': self.env[
+                        'ir.model.data'].xmlid_to_res_id(
+                        'mail.mt_note'),
+                    'email_from': self.env.user.partner_id.email,
+                })

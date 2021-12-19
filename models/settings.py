@@ -101,6 +101,12 @@ class Settings(models.Model):
         default='365',
         required=True,
         help=_('Call recordings older then set value will be removed.'))
+    auto_reload_calls = fields.Boolean(
+        default=True,
+        help=_('Automatically refresh active calls view'))
+    auto_reload_channels = fields.Boolean(
+        default=True,
+        help=_('Automatically refresh active channels view'))
 
     @api.model
     def _get_name(self):

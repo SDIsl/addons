@@ -34,6 +34,12 @@
                       <field name="originate_timeout"/>
                     </group>
                   </group>
+                  <group>
+                    <group name="ui" string="User Interface">
+                      <field name="auto_reload_calls"/>
+                      <field name="auto_reload_channels"/>
+                    </group>
+                  </group>
                 </page>
                 <page name="calls" string="Calls">
                   <group>

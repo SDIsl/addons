@@ -5,7 +5,7 @@ class AddNoteWizard(models.TransientModel):
     _name = 'asterisk_plus.add_note_wizard'
     _description = 'Add notes to call'
 
-    notes = fields.Text()
+    notes = fields.Html()
 
     def add_note(self):
         call = self.env['asterisk_plus.call'].browse(

@@ -73,45 +73,92 @@
                     name="%(call_channels_action)d"
                     type="action"/>
           </div>
-          <group>
+            <h1><field name="direction"/> call <field name="started"/></h1>
             <group>
-              <field name="partner" context="{'call_id': active_id}"/>
-              <field name="ref" context="{'call_id': active_id}"/>
-              <field name="called_user" attrs="{'invisible': [('called_user', '=', False)]}"/>
-              <field name="calling_user" attrs="{'invisible': [('calling_user', '=', False)]}"/>
-              <field name="called_number" widget="originate_call"/>
-              <field name="calling_number" widget="originate_call"/>
+              <group name="calling">
+                <div style="display: flex; align-items: center;">
+                  <div style="margin-right: 5px;">
+                    <field name="calling_user_img"
+                          attrs="{'invisible': [('calling_user', '=', False)]}"
+                          widget="image" class="oe_avatar"
+                          style="float: left"/>
+                  </div>
+                  <group>
+                    <field name="calling_user" attrs="{'invisible': [('calling_user', '=', False)]}"/>
+                    <field name="calling_number" widget="originate_call"/>
+                  </group>
+                </div>
+              </group>
+              <group name="called">
+                <div style="display: flex; align-items: center;">
+                  <div style="margin-right: 5px;">
+                    <field name="called_user_img"
+                          attrs="{'invisible': [('called_user', '=', False)]}"
+                          widget="image" class="oe_avatar"
+                          style="float: left"/>
+                  </div>
+                  <group>
+                    <field name="called_user" attrs="{'invisible': [('called_user', '=', False)]}"/>
+                    <field name="called_number" widget="originate_call"/>
+                  </group>
+                </div>
+              </group>
+            </group>
+
+            <group>
+              <group>
+                <div style="display: flex; align-items: center;">
+                  <div style="margin-right: 5px;">
+                    <field name="partner_img"
+                            attrs="{'invisible': [('partner', '=', False)]}"
+                            widget="image" class="oe_avatar"
+                            style="float: left"/>
+                  </div>
+                  <group>
+                    <field name="partner" context="{'call_id': active_id}"/>
+                    <field name="ref" context="{'call_id': active_id}"/>
+                  </group>
+                </div>
+              </group>
+              <group>
+                <field name="answered" attrs="{'invisible': [('answered', '=', False)]}"/>
+                <field name="ended"/>
+                <field name="duration_human" attrs="{'invisible': [('answered', '=', False)]}"/>
+              </group>
+            </group>
+            <group>
               <field name="notes"/>
             </group>
-            <group>
-              <field name="started"/>
-              <field name="answered" attrs="{'invisible': [('answered', '=', False)]}"/>
-              <field name="ended"/>
-              <field name="duration_human" attrs="{'invisible': [('answered', '=', False)]}"/>
-              <field name="direction"/>
-            </group>
-          </group>
-          <group attrs="{'invisible': [('recordings', '=', [])]}">
+          <notebook>
+            <page name="channels"
+                  groups="asterisk_plus.group_asterisk_admin"
+                  string="Channels"
+                  attrs="{'invisible': [('channels', '=', [])]}">
+              <field name="channels">
+                <tree>
+                  <field name="channel"/>
+                  <field name="cause_txt"/>
+                  <field name="exten"/>
+                  <field name="callerid_num"/>
+                  <field name="user"/>
+                </tree>
+              </field>
+            </page>
+            <page name="recordings"
+                  string="Recordings"
+                  attrs="{'invisible': [('recordings', '=', [])]}">
               <field name="recordings">
                 <tree>
                   <field name="recording_widget" widget="html" nolabel="1"/>
                 </tree>
               </field>
-          </group>
-          <group>
-            <field name="channels"
-                groups="asterisk_plus.group_asterisk_admin"
-                attrs="{'invisible': [('channels', '=', [])]}">
-              <tree>
-                <field name="channel"/>
-                <field name="cause_txt"/>
-                <field name="exten"/>
-                <field name="callerid_num"/>
-                <field name="user"/>
-              </tree>
-            </field>
-          </group>
+            </page>
+          </notebook>
         </sheet>
+        <div class="oe_chatter">
+          <field name="message_follower_ids" widget="mail_followers"/>
+          <field name="message_ids" widget="mail_thread"/>
+        </div>
       </form>
     </field>
   </record>
