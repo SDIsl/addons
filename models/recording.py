@@ -51,7 +51,7 @@ class Recording(models.Model):
     recording_attachment = fields.Binary(attachment=True, readonly=True, string=_('Download'))
     transcript = fields.Text(string='Transcript')
     file_path = fields.Char(readonly=True)
-    tags = fields.Many2many('asterisk_plus.tag', tracking=True,
+    tags = fields.Many2many('asterisk_plus.tag',
                             relation='asterisk_plus_recording_tag',
                             column1='tag', column2='recording')
     keep_forever = fields.Selection([
@@ -65,6 +65,20 @@ class Recording(models.Model):
         rec = super(Recording, self.with_context(
             mail_create_nosubscribe=True, mail_create_nolog=True)).create(vals)
         return rec
+
+    def write(self, vals):
+        if vals.get("tags"):
+            # Get tags to be notified when attached to recording
+            present_tags = self.tags.ids
+            new_tags = vals.get("tags")
+            tags_to_notify = set(new_tags[0][2]) - set(present_tags)
+            msg = "Tag attached to recording {}".format(self.uniqueid)
+            for tag in tags_to_notify:
+                self.env['asterisk_plus.tag'].browse(
+                    tag).sudo().message_post(
+                        subject=_('Tag attached to recording'),
+                        body=msg)
+        return super(Recording, self).write(vals)
 
     def _get_recording_widget(self):
         for rec in self:

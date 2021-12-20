@@ -4,6 +4,7 @@ from odoo import models, fields, api, _
 
 class Tag(models.Model):
     _name = 'asterisk_plus.tag'
+    _inherit = 'mail.thread'
     _description = 'Recording Tag'
 
     name = fields.Char(required=True)
