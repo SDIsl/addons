@@ -48,7 +48,7 @@ class Recording(models.Model):
                                    string='Recording')
     recording_filename = fields.Char(readonly=True, index=True)
     recording_data = fields.Binary(attachment=False, readonly=True, string=_('Download'))
-    recording_attachment = fields.Binary(readonly=True, string=_('Download'))
+    recording_attachment = fields.Binary(attachment=True, readonly=True, string=_('Download'))
     transcript = fields.Text(string='Transcript')
     file_path = fields.Char(readonly=True)
     tags = fields.Many2many('asterisk_plus.tag', tracking=True,
