@@ -235,3 +235,18 @@ class Call(models.Model):
                         'ir.model.data'].xmlid_to_res_id(
                         'mail.mt_note'),
                 })
+
+    @api.constrains('is_active')
+    def register_reference_call(self):
+        self.ensure_one()
+        for rec in self:
+            if rec.is_active:
+                continue
+            if rec.ref:
+                try:
+                    rec.ref.message_post(
+                        subject=_('Call notification'),
+                        body=_('{} has a call from {}').format(
+                            rec.called_user.name, rec.calling_name))
+                except Exception:
+                    logger.exception('Register reference call error')
