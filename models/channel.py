@@ -172,6 +172,7 @@ class Channel(models.Model):
                     'started': datetime.now(),
                     'is_active': True,
                     'status': 'progress',
+                    'server': self.env.user.asterisk_server.id,
                 })
         else:
             # There is already a parent channel and the call

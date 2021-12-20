@@ -18,7 +18,7 @@ class ResUser(models.Model):
         for rec in self:
             # There is an unique constraint to limit 1 user per server.
             rec.asterisk_server = self.env['asterisk_plus.server'].search(
-                [('user', '=', self.env.uid)], limit=1).id
+                [('user', '=', self.env.uid)], limit=1)
 
     @api.model
     def asterisk_plus_notify(self, message, title='PBX', uid=None,

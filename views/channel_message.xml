@@ -19,6 +19,8 @@
       <field name="model">asterisk_plus.channel_message</field>
       <field name="arch" type="xml">
           <tree edit="false" create="false" duplicate="false">
+            <field name="uniqueid"/>
+            <field name="linkedid"/>
             <field name="event"/>
             <field name="create_date"/>
             <field name="channel"/>            

@@ -20,6 +20,7 @@ class ChannelMessage(models.Model):
     privilege = fields.Char(size=256)
     channel = fields.Char(index=True, size=256)
     uniqueid = fields.Char(size=150, index=True, string='Unique ID')
+    linkedid = fields.Char(size=150, index=True, string='Linked ID')
     context = fields.Char(size=80)
     exten = fields.Char(size=32)
     callerid_num = fields.Char(size=32, string='CallerID number')
@@ -38,6 +39,8 @@ class ChannelMessage(models.Model):
             'context': event['Context'],
             'exten': event['Exten'],
             'uniqueid': event['Uniqueid'],
+            # All AMI events have linkedid? Better try to get...
+            'uniqueid': event.get('Uniqueid'),
             'message': json.dumps(event, indent=2),
 
         }

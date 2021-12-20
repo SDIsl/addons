@@ -120,6 +120,7 @@ class PbxUser(models.Model):
                       ('called_user', '=', rec.user.id)])
 
     def action_view_calls(self):
+        # Used from the user calls view button.
         self.ensure_one()
         return {
             'name': _("Calls"),

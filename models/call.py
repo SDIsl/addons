@@ -195,8 +195,10 @@ class Call(models.Model):
         for rec in self:
             if rec.is_active:
                 continue
-            # TODO get missed_calls_notify option from user
-            if rec.status != 'answered' and rec.called_user:
+            # Check if user has missed_calls_notify enabled.
+            pbx_user = self.env['asterisk_plus.user'].search(
+                [('user', '=', rec.called_user.id), ('server', '=', self.server.id)], limit=1)
+            if rec.status != 'answered' and pbx_user.missed_calls_notify:
                 rec.message_post(
                     subject=_('Missed call notification'),
                     body=_('{} has a missed call from {}').format(
