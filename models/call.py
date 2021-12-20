@@ -205,15 +205,26 @@ class Call(models.Model):
                 )
             if rec.partner:
                 # Missed call
+                direction = 'outgoing' if rec.direction == 'out' else 'incoming'
                 if rec.called_user:
-                    message = _('{} call to {}.').format(
-                        rec.status.capitalize(), rec.called_user.name)
+                    message = _('{} {} call to {}. Duration: {}').format(
+                        rec.status.capitalize(),
+                        direction,
+                        rec.called_user.name,
+                        rec.duration_human)
                 elif rec.calling_user:
-                    message = _('{} call from {}.').format(
-                        rec.status.capitalize(), rec.calling_user.name)
+                    message = _('{} {} call from {}.  Duration: {}').format(
+                        rec.status.capitalize(),
+                        direction,
+                        rec.calling_user.name,
+                        rec.duration_human)
                 else:
-                    message = _('{} from {} to {}.').format(
-                        rec.status.capitalize(), rec.calling_number, rec.called_number)
+                    message = _('{} {} call from {} to {}. Duration: {}').format(
+                        rec.status.capitalize(),
+                        direction,
+                        rec.calling_number,
+                        rec.called_number,
+                        rec.duration_human)
                 self.env['mail.message'].sudo().create({
                     'subject': '',
                     'body': message,
