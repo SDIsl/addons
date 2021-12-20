@@ -369,8 +369,8 @@ class Channel(models.Model):
         return False
 
     @api.model
-    def vacuum(self, hours=24):
-        expire_date = datetime.utcnow() - timedelta(hours=24)
+    def vacuum(self, hours):
+        expire_date = datetime.utcnow() - timedelta(hours=hours)
         channels = self.env['asterisk_plus.channel'].search([
             ('create_date', '<=', expire_date.strftime('%Y-%m-%d %H:%M:%S'))
         ])

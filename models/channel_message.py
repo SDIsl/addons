@@ -44,8 +44,8 @@ class ChannelMessage(models.Model):
         self.create(data)
 
     @api.model
-    def vacuum(self, hours=24):
-        expire_date = datetime.utcnow() - timedelta(hours=24)
+    def vacuum(self, hours):
+        expire_date = datetime.utcnow() - timedelta(hours=hours)
         channel_msgs = self.env['asterisk_plus.channel_message'].search([
             ('create_date', '<=', expire_date.strftime('%Y-%m-%d %H:%M:%S'))
         ])

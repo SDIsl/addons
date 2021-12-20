@@ -7,7 +7,7 @@
             <field name="numbercall">-1</field>
             <field name="doall" eval="False"/>
             <field name="model_id" ref="model_asterisk_plus_channel"></field>
-            <field name="code">model.vacuum()</field>
+            <field name="code">model.vacuum(hours=24)</field>
             <field name="state">code</field>
         </record>
 
@@ -44,7 +44,7 @@
             <field name="numbercall">-1</field>
             <field name="doall" eval="False"/>
             <field name="model_id" ref="model_asterisk_plus_channel_message"></field>
-            <field name="code">model.vacuum()</field>
+            <field name="code">model.vacuum(hours=24)</field>
             <field name="state">code</field>
             <field name="nextcall"
                 eval="(datetime.now(pytz.timezone('UTC')) + timedelta(days=1)).strftime('%Y-%m-%d 00:00:01')"/>
