@@ -45,6 +45,7 @@ class Call(models.Model):
     calling_user_img = fields.Binary(related='calling_user.image_1920')
     called_user = fields.Many2one('res.users', ondelete='set null', readonly=True)
     called_user_img = fields.Binary(related='called_user.image_1920')
+    calling_avatar = fields.Text(compute='_get_calling_avatar', readonly=True)
     # Related object
     model = fields.Char()
     res_id = fields.Integer()
@@ -85,9 +86,22 @@ class Call(models.Model):
     def notify_called_user(self):
         for rec in self:
             if rec.called_user:
-                message = 'Incoming call from {}'.format(rec.calling_name)
+                message = f"""
+                <div class="d-flex align-items-center justify-content-center">
+                    <div>
+                        <img style="max-height: 100px; max-width: 100px;"
+                             class="rounded-circle"
+                             src={rec.calling_avatar}/>
+                    </div>
+                    <div>
+                        <p class="text-center">Incoming call from <strong>{rec.calling_name}</strong> at {rec.started.strftime("%H:%M:%S")}</p>
+                    </div>
+                </div>
+                <hr/>
+                 <p class="text-center"><strong>Reference:</strong> {rec.ref.name if rec.ref else "Not found"}</p>
+                """
                 self.env['res.users'].asterisk_plus_notify(
-                    message, uid=rec.called_user.id)
+                    message, uid=rec.called_user.id, sticky=True)
 
     @api.constrains('calling_user', 'called_user')
     def subscribe_users(self):
@@ -134,6 +148,15 @@ class Call(models.Model):
                 rec.calling_name = rec.calling_user.name
             else:
                 rec.calling_name = 'Anonymous'
+
+    def _get_calling_avatar(self):
+        for rec in self:
+            if rec.partner:
+                rec.calling_avatar = '/web/image/{}/{}/image_1024'.format(rec.partner._name, rec.partner.id)
+            elif rec.calling_user:
+                rec.calling_avatar = '/web/image/{}/{}/image_1024'.format(rec.calling_user._name, rec.calling_user.id)
+            else:
+                rec.calling_avatar = '/web/image/'
 
     def _get_direction_icon(self):
         for rec in self:
