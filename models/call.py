@@ -246,9 +246,28 @@ class Call(models.Model):
                 continue
             if rec.ref:
                 try:
+                    direction = 'outgoing' if rec.direction == 'out' else 'incoming'
+                    if rec.called_user:
+                        message = _('{} {} call to {}. Duration: {}').format(
+                            rec.status.capitalize(),
+                            direction,
+                            rec.called_user.name,
+                            rec.duration_human)
+                    elif rec.calling_user:
+                        message = _('{} {} call from {}.  Duration: {}').format(
+                            rec.status.capitalize(),
+                            direction,
+                            rec.calling_user.name,
+                            rec.duration_human)
+                    else:
+                        message = _('{} {} call from {} to {}. Duration: {}').format(
+                            rec.status.capitalize(),
+                            direction,
+                            rec.calling_number,
+                            rec.called_number,
+                            rec.duration_human)
                     rec.ref.message_post(
                         subject=_('Call notification'),
-                        body=_('{} has a call from {}').format(
-                            rec.called_user.name, rec.calling_name))
+                        body=message)
                 except Exception:
                     logger.exception('Register reference call error')
