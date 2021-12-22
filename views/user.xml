@@ -101,6 +101,8 @@
                 <group>
                   <field name="missed_calls_notify"/>
                   <field name="open_reference"/>
+                  <field name="call_popup_is_enabled"/>
+                  <field name="call_popup_is_sticky"/>
                 </group>
               </group>
             </page>

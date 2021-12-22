@@ -86,6 +86,15 @@ class Call(models.Model):
     def notify_called_user(self):
         for rec in self:
             if rec.called_user:
+                ref_block = ''
+                if rec.ref and hasattr(rec.ref, 'name'):
+                    ref_block = f"""
+                     <p class="text-center"><strong>Reference:</strong>
+                        <a href='/web#id={rec.res_id}&model={rec.model}&view_type=form'>
+                            {rec.ref.name}
+                        </a>
+                     </p>
+                    """
                 message = f"""
                 <div class="d-flex align-items-center justify-content-center">
                     <div>
@@ -98,10 +107,17 @@ class Call(models.Model):
                     </div>
                 </div>
                 <hr/>
-                 <p class="text-center"><strong>Reference:</strong> {rec.ref.name if rec.ref else "Not found"}</p>
+                    {ref_block}
                 """
-                self.env['res.users'].asterisk_plus_notify(
-                    message, uid=rec.called_user.id, sticky=True)
+                # Check user notify settings.
+                pbx_user = self.env['asterisk_plus.user'].search(
+                    [('user', '=', rec.called_user.id),
+                     ('server', '=', self.server.id)], limit=1)
+                if pbx_user.call_popup_is_enabled:
+                    self.env['res.users'].asterisk_plus_notify(
+                        message,
+                        uid=rec.called_user.id,
+                        sticky=pbx_user.call_popup_is_sticky)
 
     @api.constrains('calling_user', 'called_user')
     def subscribe_users(self):

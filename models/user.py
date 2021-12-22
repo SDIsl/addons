@@ -31,6 +31,12 @@ class PbxUser(models.Model):
     missed_calls_notify = fields.Boolean(
         default=True,
         help=_('Notify user on missed calls.'))
+    call_popup_is_enabled = fields.Boolean(
+        default=True,
+        string='Call Popup')
+    call_popup_is_sticky = fields.Boolean(
+        default=True,
+        string='Popup Is Sticky')
 
     _sql_constraints = [
         ('exten_uniq', 'unique (exten,server)',
