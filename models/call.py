@@ -238,7 +238,7 @@ class Call(models.Model):
             pbx_user = self.env['asterisk_plus.user'].search(
                 [('user', '=', rec.called_user.id), ('server', '=', self.server.id)], limit=1)
             if rec.status != 'answered' and pbx_user.missed_calls_notify:
-                rec.message_post(
+                rec.sudo().message_post(
                     subject=_('Missed call notification'),
                     body=_('{} has a missed call from {}').format(
                         rec.called_user.name, rec.calling_name),
@@ -305,7 +305,7 @@ class Call(models.Model):
                             rec.calling_number,
                             rec.called_number,
                             rec.duration_human)
-                    rec.ref.message_post(
+                    rec.ref.sudo().message_post(
                         subject=_('Call notification'),
                         body=message)
                 except Exception:
