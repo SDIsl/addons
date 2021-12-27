@@ -249,6 +249,7 @@ class Channel(models.Model):
             self.env['asterisk_plus.channel_message'].create_from_event(channel, event)
         if get('ChannelStateDesc') == 'Up':
             channel.call.write({
+                'status': 'answered',
                 'answered': datetime.now(),
             })
         self.env['asterisk_plus.call_event'].create({
