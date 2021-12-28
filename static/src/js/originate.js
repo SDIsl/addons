@@ -8,16 +8,19 @@ odoo.define('asterisk_plus.originate_widget', function (require) {
 
     _renderReadonly: function () {
       this._super();
-      var self = this
-      this.$el.append('&nbsp;<button type="button" class="originate-call-lg-btn originate_call_button btn btn-lg btn-primary fa fa-phone" \
-                      aria-label="Call" title="Call"></button>')
-      this.$el.find('.originate_call_button').click(function(){
-        return self._rpc({
+      var self = this;
+      if (self.value) {
+        this.$el.prop("onclick", null).off("click");
+        this.$el.append('&nbsp;<button type="button" class="originate-call-lg-btn originate_call_button btn btn-lg btn-primary fa fa-phone" \
+                        aria-label="Call" title="Call"></button>')
+        this.$el.find('.originate_call_button').click(function () {
+          const el = self._rpc({
             'model': 'asterisk_plus.server',
             'method': 'originate_call',
             'args': [self.value, self.model, self.res_id]
+          })
         })
-      })
+      }
     },
   })
 
@@ -25,16 +28,19 @@ odoo.define('asterisk_plus.originate_widget', function (require) {
 
     _renderReadonly: function () {
       this._super();
-      var self = this
-      this.$el.append('&nbsp;<button type="button" class="originate-call-lg-btn originate_extension_button btn btn-lg btn-primary fa fa-phone" \
-                      aria-label="Call" title="Call"></button>')
-      this.$el.find('.originate_extension_button').click(function(){
-        return self._rpc({
+      var self = this;
+      if (self.value) {
+        this.$el.prop("onclick", null).off("click");
+        this.$el.append('&nbsp;<button type="button" class="originate-call-lg-btn originate_extension_button btn btn-lg btn-primary fa fa-phone" \
+                        aria-label="Call" title="Call"></button>')
+        this.$el.find('.originate_extension_button').click(function () {
+          const el = self._rpc({
             'model': 'res.partner',
             'method': 'originate_call',
             'args': [self.value, self.model, self.res_id]
+          })
         })
-      })
+      }
     },
   })
 
