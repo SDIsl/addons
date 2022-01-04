@@ -8,7 +8,7 @@
     'currency': 'EUR',
     'maintainer': 'Odooist',
     'support': 'odooist@gmail.com',
-    'license': 'OPL-1',
+    'license': 'LGPL-3',
     'category': 'Phone',
     'summary': 'Asterisk Plus Sale integration',
     'description': "",
