@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="website_talk_button.talk_button_base">
+    <div>
+      <script type="text/javascript" src="/website_talk_button/static/src/js/jssip-3.7.4.min.js"/>
+      <script type="text/javascript" src="/website_talk_button/static/src/js/talk_button.js"/>
+
+      <button class="btn btn-info btn-lg" id="talk_btn" style="margin-bottom: 1rem;">Let's Talk</button>
+    </div>
+  </template>
+
+  <template id="talk_button" inherit_id="website.company_description">
+    <xpath expr="//address" position="after">
+      <t t-call="website_talk_button.talk_button_base"/>
+    </xpath>
+  </template>
+</odoo>
