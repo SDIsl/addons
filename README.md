@@ -1,9 +1,9 @@
 # OdooPBX addons
-Current list if free modules:
+Current list of free modules:
 * Asterisk Plus
 * Asterisk Plus CRM
 * Asterisk Plus Project
 * Asterisk Plus Sale
 
-Current list if EE modules:
+Current list of EE modules:
 * Asterisk Plus Helpdesk
