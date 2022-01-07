@@ -1,7 +1,7 @@
 # ©️ OdooPBX by Odooist, Odoo Proprietary License v1.0, 2020
 import inspect
 import logging
-from odoo import fields, models, api, _
+from odoo import fields, models, api, release, _
 from odoo.exceptions import ValidationError
 from odoo.tools import ormcache
 
@@ -231,5 +231,7 @@ class Settings(models.Model):
         finally:
             logger.info('Moved %s recordings', count)
             # Perform the garbage collection of the filestore.
-            # _file_gc() in Odoo < 14.0. _gc_file_store >=14.0
-            self.env['ir.attachment']._file_gc()
+            if release.version_info[0] >= 14:
+                self.env['ir.attachment']._gc_file_store()
+            else:
+                self.env['ir.attachment']._file_gc()
