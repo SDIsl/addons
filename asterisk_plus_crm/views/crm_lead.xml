@@ -14,22 +14,27 @@
         <field name="model">crm.lead</field>
         <field name="inherit_id" ref="crm.crm_lead_view_form"/>
         <field name="arch" type="xml">
-            
-            <xpath expr="//group[@name='opportunity_partner']//field[@name='phone']" position="attributes">
+
+            <xpath expr="/descendant::field[@name='phone'][1]" position="attributes">
                 <attribute name="widget">originate_call</attribute>
             </xpath>
 
-            <xpath expr="//group[@name='lead_info']//field[@name='phone']" position="attributes">
+            <xpath expr="/descendant::field[@name='mobile'][1]" position="attributes">
                 <attribute name="widget">originate_call</attribute>
             </xpath>
 
-            <xpath expr="//group[@name='lead_info']//field[@name='mobile']" position="attributes">
+            <xpath expr="/descendant::field[@name='phone'][2]" position="attributes">
                 <attribute name="widget">originate_call</attribute>
             </xpath>
 
-            <xpath expr="//page[@name='lead']//field[@name='mobile']" position="attributes">
+            <xpath expr="/descendant::field[@name='mobile'][2]" position="attributes">
                 <attribute name="widget">originate_call</attribute>
             </xpath>
+
+            <field name="partner_address_phone" position="attributes">
+                <attribute name="widget">originate_call</attribute>
+            </field>
+
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button name="%(asterisk_calls_lead_action)d" type="action"
                     class="oe_stat_button" icon="fa-phone"> 

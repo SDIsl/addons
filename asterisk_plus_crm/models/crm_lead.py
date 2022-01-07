@@ -66,9 +66,8 @@ class Lead(models.Model):
                     if rec.partner_address_phone:
                         rec.phone_normalized = rec.normalize_phone(
                             rec.partner_address_phone)
-                    if rec.partner_address_mobile:
-                        rec.mobile_normalized = rec.normalize_phone(
-                            rec.partner_address_mobile)
+                    if rec.mobile:
+                        rec.mobile_normalized = rec.normalize_phone(rec.mobile)
                 else:
                     # No partner set takes phones from lead.
                     if rec.phone:
