@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 class PbxUser(models.Model):
     _name = 'asterisk_plus.user'
+    _inherit = 'mail.thread'
     _description = _('Asterisk User')
 
     exten = fields.Char()
