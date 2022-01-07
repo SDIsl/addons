@@ -15,6 +15,6 @@ class SaleCall(models.Model):
             if self.partner:
                 sale_order = self.env['sale.order'].search([
                     ('partner_id', '=', self.partner.id)], limit=1)
-            if sale_order:
-                self.ref = sale_order
-                return True
+                if sale_order:
+                    self.ref = sale_order
+                    return True
