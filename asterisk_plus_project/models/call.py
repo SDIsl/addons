@@ -22,9 +22,9 @@ class ProjectCall(models.Model):
                     ('partner_id', '=', self.partner.id)], limit=1)
                 project = self.env['project.project'].search([
                     ('partner_id', '=', self.partner.id)], limit=1)
-            if task:
-                self.ref = task
-                return True
-            elif project:
-                self.ref = project
-                return True
+                if task:
+                    self.ref = task
+                    return True
+                elif project:
+                    self.ref = project
+                    return True
