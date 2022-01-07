@@ -97,4 +97,15 @@
     <field name="perm_unlink" eval="1"/>
   </record>
 
+  <!-- Settings -->
+  <record id="asterisk_settings_user" model="ir.model.access">
+    <field name="name">asterisk_settings_user</field>
+    <field name="model_id" ref="asterisk_plus.model_asterisk_plus_settings"/>
+    <field name="group_id" ref="asterisk_plus.group_asterisk_user"/>
+    <field name="perm_read" eval="1"/>
+    <field name="perm_write" eval="0"/>
+    <field name="perm_create" eval="0"/>
+    <field name="perm_unlink" eval="0"/>
+  </record>
+
 </odoo>

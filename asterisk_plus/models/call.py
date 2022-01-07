@@ -49,8 +49,13 @@ class Call(models.Model):
     # Related object
     model = fields.Char()
     res_id = fields.Integer()
-    ref = fields.Reference(string='Reference', selection=[],
-                           compute='_get_ref', inverse='_set_ref')
+    ref = fields.Reference(
+        string='Reference',
+        selection=[
+            ('res.partner', _('Partners')),
+            ('asterisk_plus.user', _('Users'))],
+        compute='_get_ref',
+        inverse='_set_ref')
     notes = fields.Html()
     duration = fields.Integer(readonly=True, compute='_get_duration', store=True)
     duration_human = fields.Char(
