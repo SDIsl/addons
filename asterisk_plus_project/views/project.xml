@@ -14,7 +14,7 @@
         <field name="model">project.project</field>
         <field name="inherit_id" ref="project.edit_project"/>
         <field name="arch" type="xml">
-            <page name="description_page" position="after">
+            <page name="settings" position="after">
                 <page string="Recorded Calls" name="recordings">
                     <group>
                         <field name="recorded_calls"
@@ -30,11 +30,10 @@
                     </group>
                 </page>
             </page>
-            <field name="partner_phone" position="replace">
+
+            <field name="partner_id" position="after">
                 <field name="partner_phone" widget="originate_call"
                     attrs="{'invisible': ['|',('partner_id','=',False),('partner_phone','=',False)]}"/>
-            </field>
-            <field name="partner_id" position="after">
                 <field name="partner_mobile" widget="originate_call"
                     attrs="{'invisible': ['|',('partner_id','=',False),('partner_mobile','=',False)]}"/>
             </field>

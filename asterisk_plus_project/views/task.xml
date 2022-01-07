@@ -30,11 +30,10 @@
                     </group>
                 </page>
             </page>
-            <field name="partner_phone" position="replace">
+
+            <field name="partner_id" position="after">
                 <field name="partner_phone" widget="originate_call"
                     attrs="{'invisible': ['|',('partner_id','=',False),('partner_phone','=',False)]}"/>
-            </field>            
-            <field name="partner_id" position="after">
                 <field name="partner_mobile" widget="originate_call"
                     attrs="{'invisible': ['|',('partner_id','=',False),('partner_mobile','=',False)]}"/>
             </field>
