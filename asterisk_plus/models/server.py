@@ -336,6 +336,7 @@ class Server(models.Model):
                 call = self.env['asterisk_plus.call'].create(call_data)
                 self.env['asterisk_plus.channel'].create({
                         'server': asterisk_user.server.id,
+                        'user': self.env.user.id,
                         'call': call.id,
                         'channel': ch.name,
                         'uniqueid': channel_id,
