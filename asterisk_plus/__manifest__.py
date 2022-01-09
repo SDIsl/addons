@@ -13,6 +13,9 @@
     'summary': 'Asterisk plus Odoo',
     'description': 'Asterisk plus Odoo',
     'depends': ['base', 'mail'],
+    'external_dependencies': {
+       'python': ['humanize', 'lameenc', 'phonenumbers', 'salt-pepper', 'SpeechRecognition'],
+    },
     'data': [
         # Security rules
         'security/groups.xml',
