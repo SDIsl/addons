@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_asterisk_plus_web_phone_settings,Access asterisk_plus.web_phone_settings,model_asterisk_plus_web_phone_settings,,1,1,1,1
