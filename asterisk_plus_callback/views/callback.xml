@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="asterisk_plus_callback_action" model="ir.actions.act_window">
+        <field name="name">Callback</field>
+        <field name="res_model">asterisk_plus_callback.callback</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="asterisk_plus_callback_menu"
+              sequence="250"
+              name="Callback"
+              parent="asterisk_plus.asterisk_apps_menu"
+              action="asterisk_plus_callback_action"/>
+
+    <record id="asterisk_plus_callback_callback_view_tree" model="ir.ui.view">
+        <field name="name">asterisk.plus.callback.callback.view.tree</field>
+        <field name="model">asterisk_plus_callback.callback</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="channel"/>
+                <field name="exten"/>
+                <field name="context"/>
+                <field name="status"/>
+            </tree>
+        </field>
+    </record>
+    
+    <record id="asterisk_plus_callback_callback_view_form" model="ir.ui.view">
+        <field name="name">asterisk.plus.callback.callback.view.form</field>
+        <field name="model">asterisk_plus_callback.callback</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button type="object" name="wakeup" string="Wakeup"/>
+                    <field name="status" widget="statusbar" clickable="1"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Info">
+                            <field name="channel"/>
+                            <field name="exten"/>
+                            <field name="clid_number"/>
+                            <field name="context"/>
+                            <field name="done_by_event"/>
+                            <field name="variables"/>
+                        </group>
+                        <group string="Options">
+                            <field name="delay"/>
+                            <field name="not_after"/>
+                            <field name="not_before"/>
+                            <field name="attempt_interval"/>
+                            <field name="daily_attempts"/>
+                            <field name="max_attempts"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Channels">
+                            <field name="channels">
+                                <tree>
+                                    <field name="create_date"/>
+                                    <field name="cause"/>
+                                    <field name="cause_txt"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="asterisk_plus_callback_callback_view_search" model="ir.ui.view">
+        <field name="name">asterisk_plus_callback_callback_view_search</field>
+        <field name="model">asterisk_plus_callback.callback</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="channel"/>
+            </search>
+        </field>
+    </record>
+
+
+</odoo>

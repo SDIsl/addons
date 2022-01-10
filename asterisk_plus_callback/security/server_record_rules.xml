@@ -1,0 +1,12 @@
+<odoo>
+  <record id="asterisk_plus_callback_callback_rule" model="ir.rule">
+    <field name="name">asterisk.plus.callback.callback.rule</field>
+    <field name="model_id" ref="asterisk_plus_callback.model_asterisk_plus_callback_callback"/>
+    <field name="groups" eval="[(6, 0, [ref('asterisk_plus.group_asterisk_server')])]"/>
+    <field name="domain_force">[('create_uid', '=', user.id)]</field>
+    <field name="perm_read" eval="1"/>
+    <field name="perm_write" eval="1"/>
+    <field name="perm_create" eval="1"/>
+    <field name="perm_unlink" eval="1"/>
+  </record>
+</odoo>

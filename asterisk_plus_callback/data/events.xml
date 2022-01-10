@@ -1,0 +1,11 @@
+<odoo>
+    <data>
+      <record id="callback_done" model="asterisk_plus.event">
+        <field name="name">UserEvent</field>
+        <field name="source">AMI</field>
+        <field name="model">asterisk_plus_callback.callback</field>
+        <field name="method">on_callback_done</field>
+        <field name="condition">event['UserEvent'] == 'CallbackDone'</field>
+      </record>
+    </data>  
+  </odoo>

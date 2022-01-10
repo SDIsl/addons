@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id='asterisk_plus_callback_settings_form' model='ir.ui.view'>
+        <field name='name'>asterisk_plus_callback_settings_form</field>
+        <field name='model'>asterisk_plus.settings</field>
+        <field name="inherit_id" ref="asterisk_plus.asterisk_settings_form"/>
+        <field name='arch' type='xml'>
+            <page name="general" position="after">
+                <page name="callback" string="Callback">
+                    <group>
+                        <group>
+                            <field name="callback_not_after"/>
+                            <field name="callback_not_before"/>
+                            <field name="callback_attempt_interval"/>
+                            <field name="callback_daily_attempts"/>
+                            <field name="callback_max_attempts"/>
+                        </group>
+                    </group>
+            </page>
+          </page>
+        </field>
+    </record>
+</odoo>
