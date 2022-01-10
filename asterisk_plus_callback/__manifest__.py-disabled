@@ -1,0 +1,30 @@
+# -*- coding: utf-8 -*-
+{
+    'name': "Asterisk Plus Callback",
+    'description': """Make calls with a schedule""",
+    'currency': 'EUR',
+    'price': '0',
+    'version': '1.0',
+    'category': 'Tools/Phone',
+    'author': 'Odooist',
+    'license': 'OPL-1',
+    'installable': True,
+    'application': False,
+    'auto_install': False,
+    'depends': ['asterisk_plus'],
+    'data': [
+        # Security rules
+        'security/admin.xml',
+        'security/server.xml',
+        # Views
+        'views/callback.xml',
+        'views/settings.xml',
+        # Data
+        'data/events.xml',
+        # Cron
+        'views/ir_cron.xml',
+    ],
+    'demo': [],
+    'js': [],
+    'qweb': [],
+}
