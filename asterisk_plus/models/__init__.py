@@ -12,3 +12,5 @@ from . import user_channel
 from . import user
 from . import res_partner
 from . import tag
+from . import web_phone_settings
+from . import web_phone_user

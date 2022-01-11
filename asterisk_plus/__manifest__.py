@@ -26,6 +26,7 @@
         'security/user.xml',
         'security/user_record_rules.xml',
         'security/debug.xml',
+        'security/ir.model.access.csv',
         # Data
         'data/events.xml',
         'data/res_users.xml',
@@ -54,6 +55,9 @@
         # Reports
         'reports/reports.xml',
         'reports/calls_report.xml',
+        # Web Phone
+        'views/web_phone_user.xml',
+        'views/web_phone_settings.xml',
     ],
     'demo': [],
     "qweb": ['static/src/xml/*.xml'],
@@ -61,4 +65,18 @@
     'application': True,
     'auto_install': False,
     'images': ['static/description/logo.png'],
+    'js': ['static/src/lib/*.js',
+           'static/src/js/*.js'],
+    'qweb': [
+        'static/src/xml/*.xml',
+    ],
+    'assets': {
+        'web.assets_backend': [
+            '/web_phone/static/src/js/web_phone_core.js',
+            '/web_phone/static/src/lib/jssip.min.js',
+        ],
+        'web.assets_qweb': [
+            'web_phone/static/src/xml/web_phone_core.xml',
+        ],
+    }
 }
