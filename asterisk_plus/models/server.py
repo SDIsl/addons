@@ -7,6 +7,7 @@ import logging
 import time
 import urllib
 import uuid
+import yaml
 from odoo import api, models, fields, SUPERUSER_ID, registry, release, _
 from odoo.exceptions import ValidationError
 try:
@@ -46,11 +47,12 @@ class Server(models.Model):
     tz = fields.Selection(related='user.tz', readonly=False)
     country_id = fields.Many2one(related='user.country_id', readonly=False)
     password = fields.Char(related='user.password', string="Password", readonly=False)
+    custom_command = fields.Char()
+    custom_command_reply = fields.Text()
 
     _sql_constraints = [
         ('user_unique', 'UNIQUE("user")', 'This user is already used for another server!'),
     ]
-
 
     def open_server_form(self):
         rec = self.env.ref('asterisk_plus.default_server')
@@ -369,3 +371,24 @@ class Server(models.Model):
         if data[0]['Response'] == 'Error':
             self.env.user.asterisk_plus_notify(
                 data[0]['Message'], uid=pass_back['uid'], warning=True)
+
+    @api.onchange('custom_command')
+    def send_custom_command(self):
+        try:
+            cmd_line = self.custom_command.split(' ')
+            cmd, params_list = cmd_line[0], cmd_line[1:]
+            kwarg = {}
+            for param_val in params_list:
+                param, val = param_val.split('=')
+                kwarg[param] = val
+            res = self.local_job(fun=cmd, kwarg=kwarg, sync=True)
+            ret = res['return'][0][self.server_id]
+            if isinstance(ret, str):
+                pass
+            elif isinstance(ret, dict):
+                ret = yaml.dump(ret)
+            else:
+                ret = json.dumps(ret, indent=2)
+            self.custom_command_reply = ret
+        except ValueError:
+            raise ValidationError('Command not understood! Example: network.ping host=google.com')
