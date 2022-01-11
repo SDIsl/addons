@@ -63,7 +63,7 @@
                     </group>
                   </group>
                 </page>
-                <page name="salt" string="Salt Master">
+                <page name="salt" string="Salt">
                   <group>
                     <group>
                       <field name="saltapi_url"/>

@@ -42,15 +42,25 @@
                   <label for="name" class="oe_edit_only"/>
                   <h1><field name="name"/></h1>
                 </div>
-                <group>
-                  <group>
-                    <field name="country_id"/>
-                  </group>
-                  <group>
-                    <field name="user"/>
-                    <field name="password" password="True"/>
-                  </group>
-                </group>
+                <notebook>
+                  <page name="settings" string="Settings">
+                    <group>
+                      <group>
+                        <field name="country_id"/>
+                      </group>
+                      <group>
+                        <field name="user"/>
+                        <field name="password" password="True"/>
+                      </group>
+                    </group>
+                  </page>
+                  <page name="command" string="Commands">
+                    <group>
+                      <field name="custom_command" string="Command"/>
+                      <field name="custom_command_reply" string="Reply"/>
+                    </group>
+                  </page>
+                </notebook>
               </sheet>
           </form>
       </field>
