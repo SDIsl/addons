@@ -385,10 +385,8 @@ class Server(models.Model):
             ret = res['return'][0][self.server_id]
             if isinstance(ret, str):
                 pass
-            elif isinstance(ret, dict):
-                ret = yaml.dump(ret)
             else:
-                ret = json.dumps(ret, indent=2)
+                ret = yaml.dump(ret, default_flow_style=False)
             self.custom_command_reply = ret
         except ValueError:
             raise ValidationError('Command not understood! Example: network.ping host=google.com')
