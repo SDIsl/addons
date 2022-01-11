@@ -26,7 +26,6 @@
         'security/user.xml',
         'security/user_record_rules.xml',
         'security/debug.xml',
-        'security/ir.model.access.csv',
         # Data
         'data/events.xml',
         'data/res_users.xml',

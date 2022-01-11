@@ -10,7 +10,7 @@
               <field name="web_phone_sip_user"/>
             </group>
             <group>
-              <field name="web_phone_sip_secret"/>
+              <field name="web_phone_sip_secret" password="1"/>
             </group>
           </group>
         </xpath>

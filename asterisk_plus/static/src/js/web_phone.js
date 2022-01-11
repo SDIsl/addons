@@ -61,70 +61,70 @@ odoo.define('asterisk_plus.web_phone_core', function (require) {
         </div>
       </div>
 <!--Contacts-->
-    <div t-attf-class="{{ !state.isKeypad and state.isContacts ? '' : 'o_hide' }} o_body_phone">
-      <div class="o_phone_number_content">
-        <input id="search_query" class="o_phone_number_input" placeholder="Enter the name or number..." t-att-value="state.search_query" t-on-keyup="_onSearchContact"/>
-        <div aria-label="Clear" class="fa fa-times-circle o_phone_number_back" role="img" title="Clear" t-on-click="_onClickClearSearchContact"/>
-      </div>
-      <div class="o_dial_contact_list">
-        <t t-if="state.contacts">
-          <table class="o_contact_table">
-            <t t-foreach="state.contacts" t-as="contact">
-              <tr t-key="contact.id">
-                <td class="o_contact_avatar">
-                  <img alt="Avatar" class="o_contact_avatar" t-attf-src="data:image/jpg;base64,{{ contact.image_128 }}"/>
-                </td>
-                <td class="o_contact_info">
-                  <span><t t-esc="contact.name"/></span>
-                  <t t-if="contact.phone">
-                    <div>
-                      <div class="fa fa-phone o_phone_number_back"/>
-                      <span class="o_contact_phone"><t t-esc="contact.phone"/></span>
-                    </div>
-                  </t>
-                  <t t-if="contact.mobile">
-                    <div>
-                      <div class="fa fa-mobile o_phone_number_back"/>
-                      <span class="o_contact_phone"><t t-esc="contact.mobile"/></span>
-                    </div>
-                  </t>
-                </td>
-                <td class="o_contact_call_button">
-                  <div style="display: flex;">
-                    <div style="width: 40px; height: 30px;">
-                      <t t-if="contact.mobile">
+      <div t-attf-class="{{ !state.isKeypad and state.isContacts ? '' : 'o_hide' }} o_body_phone">
+        <div class="o_phone_number_content">
+          <input id="search_query" class="o_phone_number_input" placeholder="Enter the name or number..." t-att-value="state.search_query" t-on-keyup="_onSearchContact"/>
+          <div aria-label="Clear" class="fa fa-times-circle o_phone_number_back" role="img" title="Clear" t-on-click="_onClickClearSearchContact"/>
+        </div>
+        <div class="o_dial_contact_list">
+          <t t-if="state.contacts">
+            <table class="o_contact_table">
+              <t t-foreach="state.contacts" t-as="contact">
+                <tr t-key="contact.id">
+                  <td class="o_contact_avatar">
+                    <img alt="Avatar" class="o_contact_avatar" t-attf-src="data:image/jpg;base64,{{ contact.image_128 }}"/>
+                  </td>
+                  <td class="o_contact_info">
+                    <span><t t-esc="contact.name"/></span>
+                    <t t-if="contact.phone">
+                      <div>
+                        <div class="fa fa-phone o_phone_number_back"/>
+                        <span class="o_contact_phone"><t t-esc="contact.phone"/></span>
+                      </div>
+                    </t>
+                    <t t-if="contact.mobile">
+                      <div>
+                        <div class="fa fa-mobile o_phone_number_back"/>
+                        <span class="o_contact_phone"><t t-esc="contact.mobile"/></span>
+                      </div>
+                    </t>
+                  </td>
+                  <td class="o_contact_call_button">
+                    <div style="display: flex;">
+                      <div style="width: 40px; height: 30px;">
+                        <t t-if="contact.mobile">
+                          <t t-if="state.isTransfer">
+                            <button aria-label="Call" title="Transfer" t-att-contact-phone="contact.mobile" t-on-click="_onClickMakeTransfer">
+                              <i class="fa fa-mobile" t-att-contact-phone="contact.mobile"/>
+                            </button>
+                          </t>
+                          <t t-else="">
+                            <button aria-label="Call" title="Call" t-att-contact-phone="contact.mobile" t-on-click="_onClickContactCall">
+                              <i class="fa fa-mobile" t-att-contact-phone="contact.mobile"/>
+                            </button>
+                          </t>
+                        </t>
+                      </div>
+                      <t t-if="contact.phone">
                         <t t-if="state.isTransfer">
-                          <button aria-label="Call" title="Transfer" t-att-contact-phone="contact.mobile" t-on-click="_onClickMakeTransfer">
-                            <i class="fa fa-mobile" t-att-contact-phone="contact.mobile"/>
+                          <button aria-label="Call" title="Transfer" t-att-contact-phone="contact.phone" t-on-click="_onClickMakeTransfer">
+                            <i class="fa fa-phone" t-att-contact-phone="contact.phone"/>
                           </button>
                         </t>
                         <t t-else="">
-                          <button aria-label="Call" title="Call" t-att-contact-phone="contact.mobile" t-on-click="_onClickContactCall">
-                            <i class="fa fa-mobile" t-att-contact-phone="contact.mobile"/>
+                          <button aria-label="Call" title="Call" t-att-contact-phone="contact.phone" t-on-click="_onClickContactCall">
+                            <i class="fa fa-phone" t-att-contact-phone="contact.phone"/>
                           </button>
                         </t>
                       </t>
                     </div>
-                    <t t-if="contact.phone">
-                      <t t-if="state.isTransfer">
-                        <button aria-label="Call" title="Transfer" t-att-contact-phone="contact.phone" t-on-click="_onClickMakeTransfer">
-                          <i class="fa fa-phone" t-att-contact-phone="contact.phone"/>
-                        </button>
-                      </t>
-                      <t t-else="">
-                        <button aria-label="Call" title="Call" t-att-contact-phone="contact.phone" t-on-click="_onClickContactCall">
-                          <i class="fa fa-phone" t-att-contact-phone="contact.phone"/>
-                        </button>
-                      </t>
-                    </t>
-                  </div>
-                </td>
-              </tr>
-            </t>
-          </table>
-        </t>
+                  </td>
+                </tr>
+              </t>
+            </table>
+          </t>
+        </div>
       </div>
-    </div>
 <!--Optional call buttons-->
       <div t-attf-class="{{ state.inCall and !state.inIncoming ? '' : 'o_hide' }} o_dial_panel o_optional_dial_panel_position">
         <button aria-label="Keypad" class="col-4" title="Keypad" t-on-click="_onClickKeypad">
@@ -183,7 +183,14 @@ odoo.define('asterisk_plus.web_phone_core', function (require) {
         contacts: [],
       });
       this.user = this.env.session.user_id;
-      this.web_phone_configs = {};
+      this.web_phone_configs = {
+        web_phone_sip_protocol: '',
+        web_phone_sip_proxy: '',
+        web_phone_sip_secret: '',
+        web_phone_sip_user: '',
+        web_phone_stun_server: '',
+        web_phone_websocket: '',
+      };
 
       bus.on('web_phone_toggle_display', this, function (...args) {
         if (this.state.isActive) {
@@ -196,7 +203,7 @@ odoo.define('asterisk_plus.web_phone_core', function (require) {
 
     async willStart() {
       const [web_phone_pbx_configs] = await this.env.services.rpc({
-        model: "asterisk_plus.web_phone_settings",
+        model: "asterisk_plus.settings",
         method: "search_read",
         fields: [
           'web_phone_sip_protocol',

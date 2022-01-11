@@ -1,38 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-  <record id="web_phone_settings_action" model="ir.actions.server">
-    <field name="name">Web Phone Settings</field>
-    <field name="state">code</field>
-    <field name="model_id" ref="model_asterisk_plus_web_phone_settings"/>
-    <field name="code">action = model.open_settings_form()</field>
-  </record>
-
-  <menuitem id="web_phone_settings_menu"
-            parent="asterisk_plus.asterisk_settings_menu"
-            action="web_phone_settings_action"
-            name="Web Phone"
-            sequence="400"/>
-
   <record id="web_phone_settings_form" model="ir.ui.view">
-    <field name="name">Web Phone Settings</field>
-    <field name="model">asterisk_plus.web_phone_settings</field>
-    <field name="type">form</field>
+<!--    <field name="name">Web Phone Settings</field>-->
+    <field name="model">asterisk_plus.settings</field>
+    <field name="inherit_id" ref="asterisk_plus.asterisk_settings_form"/>
     <field name="arch" type="xml">
-      <form create="false" delete="false">
-        <sheet>
-          <group>
+      <page name="calls" position="after">
+        <page name="web_phone" string="Web Phone">
+          <sheet>
             <group>
-              <field name="web_phone_sip_proxy"/>
-              <field name="web_phone_sip_protocol"/>
+              <group>
+                <field name="web_phone_sip_proxy"/>
+                <field name="web_phone_sip_protocol"/>
+              </group>
+              <group>
+                <field name="web_phone_websocket"/>
+                <field name="web_phone_stun_server"/>
+              </group>
             </group>
-            <group>
-              <field name="web_phone_websocket"/>
-              <field name="web_phone_stun_server"/>
-            </group>
-          </group>
-        </sheet>
-      </form>
+          </sheet>
+        </page>
+      </page>
     </field>
   </record>
 
