@@ -93,27 +93,33 @@ class Call(models.Model):
             if rec.called_user:
                 ref_block = ''
                 if rec.ref and hasattr(rec.ref, 'name'):
-                    ref_block = f"""
+                    ref_block = """
                      <p class="text-center"><strong>Reference:</strong>
-                        <a href='/web#id={rec.res_id}&model={rec.model}&view_type=form'>
-                            {rec.ref.name}
+                        <a href='/web#id={}&model={}&view_type=form'>
+                            {}
                         </a>
                      </p>
-                    """
-                message = f"""
+                    """.format(
+                            rec.res_id,
+                            rec.model,
+                            rec.ref.name)
+                message = """
                 <div class="d-flex align-items-center justify-content-center">
                     <div>
                         <img style="max-height: 100px; max-width: 100px;"
                              class="rounded-circle"
-                             src={rec.calling_avatar}/>
+                             src={}/>
                     </div>
                     <div>
-                        <p class="text-center">Incoming call from <strong>{rec.calling_name}</strong> at {rec.started.strftime("%H:%M:%S")}</p>
+                        <p class="text-center">Incoming call from <strong>{}</strong> at {}</p>
+                        {}
                     </div>
                 </div>
-                <hr/>
-                    {ref_block}
-                """
+                """.format(
+                        rec.calling_avatar,
+                        rec.calling_name,
+                        rec.started.strftime("%H:%M:%S"),
+                        ref_block)
                 # Check user notify settings.
                 pbx_user = self.env['asterisk_plus.user'].search(
                     [('user', '=', rec.called_user.id),
