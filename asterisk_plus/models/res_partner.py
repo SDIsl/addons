@@ -76,8 +76,8 @@ class Partner(models.Model):
         dtmf_digits = extension.strip('#')
         self.env.user.asterisk_users[0].server.originate_call(
             number, model='model', res_id=res_id,
-            dtmf_variables=[f'__dtmf_digits: {dtmf_digits}',
-                            f'__dtmf_delay: {dtmf_delay}'])
+            dtmf_variables=['__dtmf_digits: {}'.format(dtmf_digits),
+                            '__dtmf_delay: {}'.format(dtmf_delay)])
 
     @api.depends('phone', 'mobile', 'country_id')
     def _get_phone_normalized(self):
