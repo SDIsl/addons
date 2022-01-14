@@ -9,6 +9,9 @@
         <page name="web_phone" string="Web Phone">
           <sheet>
             <group>
+              <field name="is_web_phone_enabled" widget="boolean_toggle"/>
+            </group>
+            <group attrs="{'invisible': [('is_web_phone_enabled', '=', False)]}">
               <group>
                 <field name="web_phone_sip_proxy"/>
                 <field name="web_phone_sip_protocol"/>
