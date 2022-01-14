@@ -2,7 +2,6 @@
 <odoo>
 
   <record id="web_phone_settings_form" model="ir.ui.view">
-<!--    <field name="name">Web Phone Settings</field>-->
     <field name="model">asterisk_plus.settings</field>
     <field name="inherit_id" ref="asterisk_plus.asterisk_settings_form"/>
     <field name="arch" type="xml">

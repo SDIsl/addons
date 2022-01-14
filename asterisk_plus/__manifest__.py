@@ -69,13 +69,4 @@
     'qweb': [
         'static/src/xml/*.xml',
     ],
-    'assets': {
-        'web.assets_backend': [
-            '/web_phone/static/src/js/web_phone_core.js',
-            '/web_phone/static/src/lib/jssip.min.js',
-        ],
-        'web.assets_qweb': [
-            'web_phone/static/src/xml/web_phone_core.xml',
-        ],
-    }
 }
