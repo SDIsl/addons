@@ -9,3 +9,4 @@ class WebPhoneSettings(models.Model):
     web_phone_sip_proxy = fields.Char(string="SIP Proxy")
     web_phone_websocket = fields.Char(string="Websocket")
     web_phone_stun_server = fields.Char(string="Stun Server", default='stun.l.google.com:19302')
+    is_web_phone_enabled = fields.Boolean(string="Enabled", default=True)

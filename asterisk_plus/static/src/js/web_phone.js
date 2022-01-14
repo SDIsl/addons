@@ -1,6 +1,7 @@
 odoo.define('asterisk_plus.web_phone_core', function (require) {
   "use strict";
 
+  var ajax = require('web.ajax');
   const session = require('web.session');
   const SystrayMenu = require('web.SystrayMenu');
   const Widget = require('web.Widget');
@@ -552,11 +553,6 @@ odoo.define('asterisk_plus.web_phone_core', function (require) {
     }
   }
 
-  owl.utils.whenReady().then(() => {
-    const app = new WebPhoneCore(this);
-    app.mount(document.body);
-  });
-
 
   const SystrayButton = Widget.extend({
     name: 'asterisk_plus_web_phone_menu',
@@ -579,6 +575,23 @@ odoo.define('asterisk_plus.web_phone_core', function (require) {
       bus.trigger("web_phone_toggle_display");
     },
   });
-  SystrayMenu.Items.push(SystrayButton);
+
+
+  ajax.rpc('/web/dataset/call_kw/asterisk_plus.settings', {
+        "model": "asterisk_plus.settings",
+        "method": "search_read",
+        "args": [[], ['id', 'is_web_phone_enabled']],
+        "kwargs": {'limit': 1},
+  }).then(function ([res]) {
+      if(res.is_web_phone_enabled) {
+        owl.utils.whenReady().then(() => {
+          const app = new WebPhoneCore(this);
+          app.mount(document.body);
+        });
+
+        SystrayMenu.Items.push(SystrayButton);
+      }
+  });
+
   return SystrayButton
 });
