@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id='asterisk_plus_hr_public_calls_action' model='ir.actions.act_window'>
+        <field name='name'>Calls</field>
+        <field name='res_model'>asterisk_plus.call</field>
+        <field name='view_mode'>tree,form</field>
+        <field name="domain">[('model','=', 'hr.employee'), ('res_id', '=', active_id)]</field>
+    </record>
+
+    <record id="hr_employee_public_view_form" model="ir.ui.view">
+        <field name="name">hr.employee.public.form</field>
+        <field name="model">hr.employee.public</field>
+        <field name="inherit_id" ref="hr.hr_employee_public_view_form"/>
+        <field name="arch" type="xml">
+
+            <field name="mobile_phone" position="attributes">
+                <attribute name="widget">originate_call</attribute>
+            </field>
+            <field name="work_phone" position="attributes">
+                <attribute name="widget">originate_call</attribute>
+            </field>
+
+        </field>
+    </record>
+
+</odoo>
