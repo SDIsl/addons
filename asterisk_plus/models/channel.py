@@ -127,7 +127,7 @@ class Channel(models.Model):
                 if not self.call.partner:
                     # Match the partner by called number
                     data['partner'] = self.env[
-                        'res.partner'].search_by_caller_number(self.exten).id
+                        'res.partner'].search_by_caller_number(self.exten)
                 if data:
                     self.call.write(data)
             else: # Secondary channel that means user is called
