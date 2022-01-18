@@ -1,4 +1,6 @@
 # OdooPBX addons
+Create issues [here](https://github.com/odoopbx/addons/issues).
+
 Current list of free modules:
 * Asterisk Plus
 * Asterisk Plus CRM
