@@ -4,7 +4,7 @@
     'name': 'Asterisk Plus',
     'version': '1.0',
     'author': 'Odooist',
-    'price': 100.0,
+    'price': 0,
     'currency': 'EUR',
     'maintainer': 'Odooist',
     'support': 'odooist@gmail.com',
