@@ -578,11 +578,12 @@ odoo.define('asterisk_plus.web_phone_core', function (require) {
 
 
   ajax.rpc('/web/dataset/call_kw/asterisk_plus.settings', {
-        "model": "asterisk_plus.settings",
-        "method": "search_read",
-        "args": [[], ['id', 'is_web_phone_enabled']],
-        "kwargs": {'limit': 1},
+    "model": "asterisk_plus.settings",
+    "method": "search_read",
+    "args": [[], ['is_web_phone_enabled']],
+    "kwargs": {'limit': 1},
   }).then(function ([res]) {
+    if (res) {
       if(res.is_web_phone_enabled) {
         owl.utils.whenReady().then(() => {
           const app = new WebPhoneCore(this);
@@ -591,6 +592,7 @@ odoo.define('asterisk_plus.web_phone_core', function (require) {
 
         SystrayMenu.Items.push(SystrayButton);
       }
+    }
   });
 
   return SystrayButton
