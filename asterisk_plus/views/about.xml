@@ -1,0 +1,19 @@
+<odoo>
+
+    <record id="asterisk_plus_support_action" model="ir.actions.client">
+        <field name="name">Asterisk Plus Support</field>
+        <field name="tag">asterisk_plus.support</field>
+    </record>
+
+    <record id="asterisk_plus_change_log_action" model="ir.actions.client">
+        <field name="name">Asterisk Plus Change Log</field>
+        <field name="tag">asterisk_plus.change_log</field>
+    </record>
+
+    <menuitem name="Support" parent="asterisk_plus.asterisk_support_menu" sequence="30"
+              action="asterisk_plus_support_action" id="asterisk_plus_support_menu"/>
+
+    <menuitem name="ChangeLog" parent="asterisk_plus.asterisk_support_menu" sequence="40"
+              action="asterisk_plus_change_log_action" id="asterisk_plus_change_log_menu"/>
+
+</odoo>

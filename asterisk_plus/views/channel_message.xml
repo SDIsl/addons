@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="asterisk_plus_channel_message_action" model="ir.actions.act_window">
+      <field name="name">Channel Messages</field>
+      <field name="res_model">asterisk_plus.channel_message</field>
+      <field name="view_mode">tree,form</field>
+      <field name="context">{'active_test': False}</field>
+    </record>
+
+    <menuitem id="asterisk_plus_channel_message_menu"
+              sequence="100"
+              parent="asterisk_debug_menu"
+              name="AMI Messages"
+              action="asterisk_plus_channel_message_action"/>
+
+    <record id="asterisk_plus_channel_message_list" model="ir.ui.view">
+      <field name="name">asterisk.plus.channel.message.list</field>
+      <field name="model">asterisk_plus.channel_message</field>
+      <field name="arch" type="xml">
+          <tree edit="false" create="false" duplicate="false">
+            <field name="uniqueid"/>
+            <field name="linkedid"/>
+            <field name="event"/>
+            <field name="create_date"/>
+            <field name="channel"/>            
+            <field name="exten"/>
+            <field name="context"/>
+            <field name="callerid_num"/>
+            <field name="callerid_name"/>            
+            </tree>
+      </field>
+    </record>
+
+    <record id="asterisk_plus_channel_message_form" model="ir.ui.view">
+      <field name="name">asterisk.plus.channel.message.form</field>
+      <field name="model">asterisk_plus.channel_message</field>
+      <field name="arch" type="xml">
+          <form edit="false" create="false" duplicate="false">\
+            <sheet>
+              <group>
+                <group>
+                  <field name="event"/>
+                  <field name="create_date"/>
+                  <field name="channel_id"/>
+                  <field name="channel"/>                  
+                  <field name="exten"/>
+                  <field name="context"/>
+                  <field name="callerid_num"/>
+                  <field name="callerid_name"/>
+                  <field name="privilege"/>
+                </group>
+                <group>
+                  <field name="message"/>
+                </group>
+              </group>
+            </sheet>
+          </form>
+      </field>
+    </record>
+
+    <record id="asterisk_plus_channel_message_search" model="ir.ui.view">
+    <field name="name">asterisk.plus.channel.message.message.search</field>
+    <field name="model">asterisk_plus.channel_message</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="channel_id"/>
+        <field name="channel"/>
+        <field name="exten"/>
+        <field name="event"/>
+        <field name="callerid_num"/>
+        <field name="callerid_name"/>
+      </search>
+    </field>
+    </record>
+
+</odoo>

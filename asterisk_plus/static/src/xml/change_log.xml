@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="asterisk_plus.change_log">
+        <div class="o_form_view">
+            <div class="o_form_sheet_bg">
+                <div class="o_form_sheet">
+                    <hr/>
+		            <h2>Change Log</h2>
+                    <hr/>
+		            <ul>
+                        <li><p>2021-11-15 Asterisk Plus 1.0 initial release</p></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

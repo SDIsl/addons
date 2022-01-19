@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record model="ir.actions.server" id="asterisk_settings_action">
+      <field name="type">ir.actions.server</field>
+      <field name="name">General Settings</field>
+      <field name="state">code</field>
+      <field name="model_id" ref="model_asterisk_plus_settings"/>
+      <field name="code">action = model.open_settings_form()</field>
+  </record>
+
+  <menuitem id="settings_menu" parent="asterisk_plus.asterisk_settings_menu"
+      groups="asterisk_plus.group_asterisk_admin"
+      action="asterisk_settings_action" name="General" sequence="70"/>
+
+  <record id='asterisk_settings_form' model='ir.ui.view'>
+      <field name='name'>asterisk_plus.settings.form</field>
+      <field name='model'>asterisk_plus.settings</field>
+      <field name='type'>form</field>
+      <field name='arch' type='xml'>
+        <form create="false" delete="false">
+            <sheet>
+              <notebook>
+                <page name="general" string="General">
+                  <group>
+                    <group>
+                      <field name="debug_mode"/>
+                      <field name="trace_ami"/>
+                      <field placeholder="IP addresses by comma..."
+                        name="permit_ip_addresses"/>
+                    </group>
+                    <group name="originate" string="Originate Parameters">
+                      <field name="originate_context"/>
+                      <field name="originate_timeout"/>
+                    </group>
+                  </group>
+                  <group>
+                    <group name="ui" string="User Interface">
+                      <field name="auto_reload_calls"/>
+                      <field name="auto_reload_channels"/>
+                    </group>
+                  </group>
+                </page>
+                <page name="calls" string="Calls">
+                  <group>
+                    <group string="Call Recording">
+                      <field name="record_calls"/>
+                      <field name="recording_storage" attrs="{'invisible': [('record_calls', '=', False)]}"/>
+                      <button type="object" name="sync_recording_storage"
+                              help="Use this button after changing the storage type."
+                              string="Move storage" class="btn btn-info oe_read_only"/>
+                      <field name="use_mp3_encoder" attrs="{'invisible': [('record_calls', '=', False)]}"/>
+                      <field name="mp3_encoder_quality" attrs="{'invisible': [('use_mp3_encoder', '=', False)]}"/>
+                      <field name="mp3_encoder_bitrate" attrs="{'invisible': [('use_mp3_encoder', '=', False)]}"/>
+                      <field name="delete_recordings" attrs="{'invisible': [('record_calls', '=', False)]}"/>
+                      <field name="transcipt_recording" attrs="{'invisible': [('record_calls', '=', False)]}"/>
+                      <field name="google_sr_api_key" attrs="{'invisible': [('transcipt_recording', '=', False)]}"/>
+                      <field name="recognition_lang" attrs="{'invisible': [('transcipt_recording', '=', False)]}"/>
+                    </group>
+                    <group string="Call History Archive">
+                      <field name="calls_keep_days"/>
+                      <field name="recordings_keep_days"/>
+                    </group>
+                  </group>
+                </page>
+                <page name="salt" string="Salt">
+                  <group>
+                    <group>
+                      <field name="saltapi_url"/>
+                    </group>
+                    <group>
+                      <field name="saltapi_user"/>
+                      <field name="saltapi_passwd" password="1"/>
+                    </group>
+                  </group>
+                </page>
+              </notebook>
+            </sheet>
+        </form>
+      </field>
+  </record>
+
+</odoo>

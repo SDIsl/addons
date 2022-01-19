@@ -1,0 +1,52 @@
+<odoo>
+  <data>
+    <record id="fully_booted" model="asterisk_plus.event">
+      <field name="name">FullyBooted</field>
+      <field name="source">AMI</field>
+      <field name="model">asterisk_plus.server</field>
+      <field name="method">on_fully_booted</field>
+    </record>
+
+    <record id="originate_response" model="asterisk_plus.event">
+      <field name="name">OriginateResponse</field>
+      <field name="source">AMI</field>
+      <field name="model">asterisk_plus.channel</field>
+      <field name="method">on_ami_originate_response_failure</field>
+      <field name="condition">event['Response'] == 'Failure'</field>
+    </record>
+
+    <record id="hangup" model="asterisk_plus.event">
+      <field name="name">Hangup</field>
+      <field name="source">AMI</field>
+      <field name="model">asterisk_plus.channel</field>
+      <field name="method">on_ami_hangup</field>
+      <field name="condition">not event['Channel'].startswith('Local/')</field>
+    </record>
+
+    <record id="new_channel" model="asterisk_plus.event">
+      <field name="name">Newchannel</field>
+      <field name="source">AMI</field>
+      <field name="model">asterisk_plus.channel</field>
+      <field name="method">on_ami_new_channel</field>
+      <field name="condition">not event['Channel'].startswith('Local/')</field>
+    </record>
+
+    <record id="new_state" model="asterisk_plus.event">
+      <field name="name">Newstate</field>
+      <field name="source">AMI</field>
+      <field name="model">asterisk_plus.channel</field>
+      <field name="method">on_ami_update_channel_state</field>
+      <field name="delay">0.5</field>
+      <field name="condition">not (event['Channel'].startswith('Local/') or event['ChannelStateDesc'] not in ['Up'])</field>
+    </record>
+
+    <record id="var_set_mixmon" model="asterisk_plus.event">
+      <field name="name">VarSet</field>
+      <field name="source">AMI</field>
+      <field name="model">asterisk_plus.channel</field>
+      <field name="method">update_recording_filename</field>
+      <field name="delay">1.5</field>
+      <field name="condition">event['Variable'] == 'MIXMONITOR_FILENAME'</field>
+    </record>
+  </data>
+</odoo>
