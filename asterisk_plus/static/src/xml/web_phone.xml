@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<div t-name="asterisk_plus.web_phone_menu">
+  <a href="#" title="Toggle Web Phone">
+    <i aria-label="Toggle Web Phone" class="fa fa-fw fa-phone" role="img"/>
+  </a>
+</div>
+
+</templates>

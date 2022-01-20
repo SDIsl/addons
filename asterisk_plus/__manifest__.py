@@ -14,7 +14,7 @@
     'description': 'Asterisk plus Odoo',
     'depends': ['base', 'mail'],
     'external_dependencies': {
-       'python': ['humanize', 'lameenc', 'phonenumbers', 'salt-pepper'],
+        'python': ['humanize', 'lameenc', 'phonenumbers', 'salt-pepper'],
     },
     'data': [
         # Security rules
@@ -45,6 +45,9 @@
         'views/templates.xml',
         # Cron
         'views/ir_cron.xml',
+        # Web Phone
+        'views/web_phone_user.xml',
+        'views/web_phone_settings.xml',
     ],
     'demo': [],
     "qweb": ['static/src/xml/*.xml'],
@@ -57,9 +60,13 @@
             '/asterisk_plus/static/src/js/support.js',
             '/asterisk_plus/static/src/js/notification.js',
             '/asterisk_plus/static/src/js/originate.js',
+            '/asterisk_plus/static/src/js/web_phone.js',
+            '/asterisk_plus/static/src/lib/jssip.min.js',
+            '/asterisk_plus/static/src/scss/web_phone.scss',
         ],
         'web.assets_qweb': [
             'asterisk_plus/static/src/xml/**/*',
+            'asterisk_plus/static/src/xml/web_phone.xml',
         ],
     }
 }

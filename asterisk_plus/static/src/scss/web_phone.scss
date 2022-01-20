@@ -1,0 +1,225 @@
+.o_root_phone {
+  $color-white: #ffffff;
+  $color-odoo: #7C7BADFF;
+  $color-red: #f08080;
+  $color-gray: #90a0af;
+  $color-light-gray: #e9ecef;
+
+  width: 300px;
+  height: 480px;
+  position: fixed;
+  background-color: $color-white;
+  border-radius: 6px 6px 0 0;
+  box-shadow: 4px 0 10px -5px rgba(0, 0, 0, 0.5);
+  display: flex;
+  bottom: 0;
+  font-size: 12px;
+  flex-flow: column nowrap;
+  z-index: 1000;
+
+  .o_header_phone {
+    border-radius: 6px 6px 0 0;
+    position: relative;
+    background-color: $color-odoo;
+    color: $color-white;
+    width: 300px;
+    min-width: 300px;
+    height: 25px;
+
+    .o_header_content {
+      font-size: 12px;
+      display: inline-flex;
+      color: $color-white;
+      margin-left: 5px;
+      margin-top: 5px;
+      width: 97%;
+      cursor: default;
+    }
+
+    .fa {
+      margin-top: 2px;
+    }
+
+    .o_header_title {
+      margin-left: 5px;
+    }
+
+    .o_header_close {
+      margin-left: auto;
+      margin-right: 2px;
+      cursor: pointer;
+    }
+  }
+
+  .o_body_phone {
+    display: flex;
+    flex-flow: column nowrap;
+
+    .o_phone_number_content {
+      padding: 5px 10px;
+      position: relative;
+      margin-top: 5px;
+
+      .o_phone_number_input {
+        color: $color-odoo;
+        font-size: 15px;
+        font-weight: 200;
+        border: none;
+        width: 90%;
+
+        :focus {
+          outline: none;
+          box-shadow: none;
+          border-color: transparent;
+        }
+      }
+
+      .o_phone_number_back {
+        cursor: pointer;
+        font-size: 20px;
+        position: absolute;
+        padding-right: 7px;
+        right: 0;
+        color: $color-odoo;
+      }
+    }
+
+    .o_keypad {
+      margin-bottom: 16px;
+      margin-top: 16px;
+    }
+
+    .o_keypad_button {
+      color: $color-odoo;
+      display: inline-flex;
+      justify-content: center;
+      width: 95px;
+      line-height: 1;
+      padding: 15px;
+      font-size: 45px;
+      border: none;
+      background: transparent;
+    }
+
+    //In call style
+    .o_phone_call_details {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 375px;
+
+      .o_partner_link {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .o_partner_avatar {
+        max-width: 100px;
+        max-height: 100px;
+        border-radius: 50%;
+      }
+
+      .o_partner_name {
+        font-size: 18px;
+        color: $color-odoo;
+      }
+    }
+
+    //Contacts
+    .o_dial_contact_list {
+      margin-top: 5px;
+      border-top: 1px solid $color-gray;
+      height: 370px;
+      overflow: auto;
+
+      .o_contact_table {
+        tr:hover {
+          background-color: $color-light-gray;
+        }
+
+        .o_contact_avatar {
+          margin: 5px 10px 5px 10px;
+          width: 50px;
+          height: 50px;
+
+          img {
+            border-radius: 50%;
+          }
+        }
+
+        .o_contact_info {
+          cursor: default;
+          display: flex;
+          flex-flow: column;
+          font-size: 15px;
+          color: $color-odoo;
+          width: 150px;
+
+          span {
+            margin-top: 5px;
+          }
+
+          .o_contact_phone {
+            margin-left: 5px;
+          }
+        }
+
+        .o_contact_call_button {
+          width: 80px;
+
+          button {
+            color: $color-odoo;
+            border: none;
+            background: transparent;
+
+            .fa {
+              font-size: 25px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .o_dial_panel_position {
+    bottom: 0;
+  }
+
+  .o_dial_panel {
+    justify-content: center;
+    background-color: $color-light-gray;
+    border-top: 1px solid $color-gray;
+    display: flex;
+    position: fixed;
+    height: 40px;
+    width: 300px;
+    flex-flow: row wrap;
+
+    button {
+      color: $color-odoo;
+      border: none;
+      background: transparent;
+
+      .fa {
+        font-size: 30px;
+      }
+
+      .reject-call {
+        color: $color-red;
+      }
+    }
+  }
+
+  .o_optional_dial_panel_position {
+    bottom: 40px;
+  }
+}
+
+.o_hide {
+  display: none !important;
+}
+
+button:focus, input:focus {
+  outline: none;
+}
