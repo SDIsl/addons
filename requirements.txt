@@ -1,0 +1,6 @@
+humanize
+lameenc
+phonenumbers
+pyyaml
+salt-pepper
+SpeechRecognition
