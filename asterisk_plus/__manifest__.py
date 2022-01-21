@@ -63,7 +63,7 @@
     'installable': True,
     'application': True,
     'auto_install': False,
-    'images': ['static/description/icon.png'],
+    'images': ['static/description/logo.png'],
     'js': ['static/src/lib/*.js',
            'static/src/js/*.js'],
     'qweb': [
