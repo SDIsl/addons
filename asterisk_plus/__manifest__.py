@@ -4,7 +4,7 @@
     'name': 'Asterisk Plus',
     'version': '1.0',
     'author': 'Odooist',
-    'price': 0,
+    'price': 0.0,
     'currency': 'EUR',
     'maintainer': 'Odooist',
     'support': 'odooist@gmail.com',
@@ -14,7 +14,7 @@
     'description': 'Asterisk plus Odoo',
     'depends': ['base', 'mail'],
     'external_dependencies': {
-       'python': ['humanize', 'lameenc', 'phonenumbers', 'salt-pepper'],
+       'python': ['humanize', 'lameenc', 'phonenumbers', 'salt-pepper', 'SpeechRecognition', 'pyyaml'],
     },
     'data': [
         # Security rules
@@ -36,6 +36,7 @@
         'views/settings.xml',
         'views/about.xml',
         'views/event.xml',
+        'views/recording.xml'
         'views/res_users.xml',
         'views/user.xml',
         'views/res_partner.xml',
@@ -43,11 +44,23 @@
         'views/channel.xml',
         'views/channel_message.xml',
         'views/templates.xml',
+        'views/tag.xml',
         # Cron
         'views/ir_cron.xml',
+        # Wizards
+        'wizard/add_note.xml',
+        'wizard/call.xml',
+        # Reports
+        'reports/reports.xml',
+        'reports/calls_report.xml',
+        # Web Phone
+        'views/web_phone_user.xml',
+        'views/web_phone_settings.xml',
     ],
     'demo': [],
-    "qweb": ['static/src/xml/*.xml'],
+    "qweb": [
+        'static/src/xml/*.xml'
+    ],
     'installable': True,
     'application': True,
     'auto_install': False,
@@ -55,7 +68,7 @@
     'assets': {
         'web.assets_backend': [
             '/asterisk_plus/static/src/js/support.js',
-            '/asterisk_plus/static/src/js/notification.js',
+            '/asterisk_plus/static/src/js/actions.js',
             '/asterisk_plus/static/src/js/originate.js',
         ],
         'web.assets_qweb': [

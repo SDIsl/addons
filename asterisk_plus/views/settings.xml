@@ -35,15 +35,35 @@
                     </group>
                   </group>
                   <group>
-                    <group string="Call Recording">
-                      <field name="use_mp3_encoder"/>
-                      <field name="mp3_encoder_quality" attrs="{'invisible': [('use_mp3_encoder', '=', False)]}"/>
-                      <field name="mp3_encoder_bitrate" attrs="{'invisible': [('use_mp3_encoder', '=', False)]}"/>
-                      <field name="delete_recordings"/>
+                    <group name="ui" string="User Interface">
+                      <field name="auto_reload_calls"/>
+                      <field name="auto_reload_channels"/>
                     </group>
                   </group>
-                </page>                
-                <page name="salt" string="Salt Master">
+                </page>
+                <page name="calls" string="Calls">
+                  <group>
+                    <group string="Call Recording">
+                      <field name="record_calls"/>
+                      <field name="recording_storage" attrs="{'invisible': [('record_calls', '=', False)]}"/>
+                      <button type="object" name="sync_recording_storage"
+                              help="Use this button after changing the storage type."
+                              string="Move storage" class="btn btn-info oe_read_only"/>
+                      <field name="use_mp3_encoder" attrs="{'invisible': [('record_calls', '=', False)]}"/>
+                      <field name="mp3_encoder_quality" attrs="{'invisible': [('use_mp3_encoder', '=', False)]}"/>
+                      <field name="mp3_encoder_bitrate" attrs="{'invisible': [('use_mp3_encoder', '=', False)]}"/>
+                      <field name="delete_recordings" attrs="{'invisible': [('record_calls', '=', False)]}"/>
+                      <field name="transcipt_recording" attrs="{'invisible': [('record_calls', '=', False)]}"/>
+                      <field name="google_sr_api_key" attrs="{'invisible': [('transcipt_recording', '=', False)]}"/>
+                      <field name="recognition_lang" attrs="{'invisible': [('transcipt_recording', '=', False)]}"/>
+                    </group>
+                    <group string="Call History Archive">
+                      <field name="calls_keep_days"/>
+                      <field name="recordings_keep_days"/>
+                    </group>
+                  </group>
+                </page>
+                <page name="salt" string="Salt">
                   <group>
                     <group>
                       <field name="saltapi_url"/>

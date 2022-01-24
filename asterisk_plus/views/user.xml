@@ -10,7 +10,7 @@
   </record>
 
   <menuitem id="asterisk_plus_user_menu"
-            sequence="400"
+            sequence="2100"
             parent="asterisk_plus.asterisk_apps_menu"
             name="Users"
             action="asterisk_plus_user_action"/>
@@ -38,7 +38,12 @@
         <header>
         </header>
         <sheet>
-          <div class="oe_button_box" name="button_box"/>
+          <div class="oe_button_box" name="button_box">
+            <button class="oe_stat_button" icon="fa-phone"
+                    name="action_view_calls" type="object">
+                <field name="user_call_count" widget="statinfo"/>
+            </button>
+          </div>
           <div name="title" class="oe_title">
             <h1>
               <label class="oe_edit_only" for="exten"/>
@@ -56,9 +61,8 @@
           </div>
           <field invisible="1" name="id"/>
           <notebook>
-            <page name="originate" string="Channels">
+            <page name="channels" string="Channels">
               <group>
-
                   <field name="channels" select="0" mode="tree"
                     domain="[('asterisk_user', '=', active_id)]"
                     context="{'default_asterisk_user': active_id}">
@@ -89,12 +93,25 @@
               <group>
                 <group>
                   <field name="originate_vars"/>
-                  <field name="open_partner_form"/>
+                </group>
+              </group>
+            </page>
+            <page name="settings" string="Settings">
+              <group>
+                <group>
+                  <field name="missed_calls_notify"/>
+                  <field name="open_reference"/>
+                  <field name="call_popup_is_enabled"/>
+                  <field name="call_popup_is_sticky"/>
                 </group>
               </group>
             </page>
           </notebook>
         </sheet>
+        <div class="oe_chatter">
+          <field name="message_follower_ids" widget="mail_followers"/>
+          <field name="message_ids" widget="mail_thread"/>
+        </div>
       </form>
     </field>
   </record>

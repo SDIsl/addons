@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="asterisk_plus_recording_action" model="ir.actions.act_window">
+      <field name="name">Recordings</field>
+      <field name="res_model">asterisk_plus.recording</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="asterisk_plus_recording_menu"
+              sequence="1800"
+              parent="asterisk_apps_menu"
+              name="Recordings"
+              action="asterisk_plus_recording_action"/>
+
+    <record id="asterisk_plus_recording_list" model="ir.ui.view">
+      <field name="name">asterisk.plus.recording.list</field>
+      <field name="model">asterisk_plus.recording</field>
+      <field name="arch" type="xml">
+          <tree edit="false" create="false" duplicate="false">
+            <field name="answered"/>
+            <field name="duration"/>
+            <field name="partner"/>
+            <field name="calling_number"/>
+            <field name="called_number"/>
+            <field name="calling_user"/>
+            <field name="called_user"/>
+            <field name="tags" widget="many2many_tags"/>
+            <field name="icon" widget="html"/>
+          </tree>
+      </field>
+    </record>
+
+    <record id="asterisk_plus_recording_search" model="ir.ui.view">
+    <field name="name">asterisk.plus.recording.search</field>
+    <field name="model">asterisk_plus.recording</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="calling_number"/>
+        <field name="called_number"/>
+        <field name="calling_user"/>
+        <field name="called_user"/>
+        <field name="partner"/>
+        <field name="transcript"/>
+        <field name="answered"/>
+        <field name="file_path"/>
+        <field name="tags"/>
+        <filter name="keep_forever" string="Keep Forever" domain="[('keep_forever','=','yes')]"/>
+        <filter name="by_keep_forever" string="Keep Time" context="{'group_by':'keep_forever'}"/>
+  </search>
+    </field>
+    </record>
+
+    <record id="asterisk_plus_recording_form" model="ir.ui.view">
+        <field name="name">asterisk_plus.recording.form</field>
+        <field name="model">asterisk_plus.recording</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form create='0' edit='1' duplicate='0'>
+                <header>
+                  <field  string ='WTF' name="keep_forever" widget="statusbar" options="{'clickable': '1'}"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="calling_number"/>
+                            <field name="calling_user"/>
+                            <field name="called_number"/>
+                            <field name="called_user"/>
+                            <field name="tags" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                          <field name="partner"/>
+                          <field name="duration"/>
+                          <field name="answered"/>
+                          <field name="file_path"/>                          
+                        </group>
+                    </group>
+                    <group string="Recording">
+                      <group>                        
+                        <field name="recording_widget" widget="html" nolabel="1"/>
+                      </group>
+                      <group>
+                        <field name="recording_data" filename="recording_filename" attrs="{'invisible': [('recording_data', '=', False)]}"/>
+                        <field name="recording_attachment" filename="recording_filename" attrs="{'invisible': [('recording_attachment', '=', False)]}"/>
+                      </group>
+                    </group>
+                    <group name="transcript" string="Transcript"
+                        attrs="{'invisible': [('transcript', '=', '')]}">
+                      <field name="transcript" nolabel="1"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                  <field name="message_follower_ids" widget="mail_followers"/>
+                  <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+</odoo>

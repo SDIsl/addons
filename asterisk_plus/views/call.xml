@@ -16,9 +16,9 @@
   </record>
 
   <record id="asterisk_plus_calls_history_action" model="ir.actions.act_window">
-    <field name="name">Calls History</field>
+    <field name="name">Call History</field>
     <field name="res_model">asterisk_plus.call</field>
-    <field name="view_mode">tree,form</field>
+    <field name="view_mode">tree,form,graph,pivot</field>
     <field name="domain">[('is_active', '=', False)]</field>
   </record>
 
@@ -31,7 +31,7 @@
   <menuitem id="asterisk_plus_calls_history_menu"
             sequence="200"
             parent="asterisk_plus.asterisk_apps_menu"
-            name="Calls History"
+            name="Call History"
             action="asterisk_plus_calls_history_action"/>
 
     <record id="asterisk_plus_call_list" model="ir.ui.view">
@@ -39,14 +39,16 @@
       <field name="model">asterisk_plus.call</field>
       <field name="arch" type="xml">
           <tree edit="false" create="false" duplicate="false">
-            <field name="direction_icon"/>
             <field name="calling_number"/>
             <field name="calling_user"/>
-            <field name="called_number"/>
             <field name="called_user"/>
+            <field name="called_number"/>
+            <field name="direction_icon"/>
+            <field name="partner"/>
             <field name="ref"/>
             <field name="status"/>
             <field name="ended"/>
+            <field name="recording_icon" widget="html"/>
             </tree>
       </field>
     </record>
@@ -56,61 +58,144 @@
     <field name="model">asterisk_plus.call</field>
     <field name="type">form</field>
     <field name="arch" type="xml">
-      <form create='0' edit='0' duplicate='0'>
+      <form create='0' edit='1' duplicate='0'>
         <header>
           <field name="status" widget="statusbar"/>
+          <button string="Notes" name="add_note" type="object"
+                  class="oe_highlight" icon='fa-pencil'/>
         </header>
         <sheet>
           <div class="oe_button_box" name="button_box">
-            <div attrs="{'invisible': [('direction', '=', 'in')]}"
-                    class="btn btn-group oe_stat_button"
-                    style="justify-content: center; align-items: center; color: #7C7BAD;">
-              <span class="fa fa-phone fa-2x" title="Out"/>
-              <span class="fa fa-arrow-right" title="Out"/>
-            </div>
-            <div attrs="{'invisible': [('direction', '=', 'out')]}"
-                    class="btn btn-group oe_stat_button"
-                    style="justify-content: center; align-items: center; color: #7C7BAD;">
-              <span class="fa fa-phone fa-2x" title="In"/>
-              <span class="fa fa-arrow-left" title="In"/>
-            </div>
             <button class="oe_stat_button"
+                    groups="asterisk_plus.group_asterisk_admin"
                     string="Channels"
                     icon="fa-list"
                     name="%(call_channels_action)d"
                     type="action"/>
           </div>
-          <group>
-            <group>
-              <field name="calling_number"/>
-              <field name="calling_user" attrs="{'invisible': [('calling_user', '=', False)]}"/>
-              <field name="partner" attrs="{'invisible': [('partner', '=', False)]}"/>
-              <field name="model" invisible="1"/>
-              <field name="ref" attrs="{'invisible': ['|', ('ref', '=', False),('model','=', 'res.partner')]}"/>
-              <field name="direction"/>
-            </group>
-            <group>
-              <field name="called_number"/>
-              <field name="called_user" attrs="{'invisible': [('called_user', '=', False)]}"/>
-              <field name="started"/>
-              <field name="answered"/>
-              <field name="ended"/>
-            </group>
-          </group>
-          <group>
-            <field name="channels"
-                attrs="{'invisible': [('channels', '=', [])]}">
-              <tree create="0" delete="0">
-                <field name="channel"/>
-                <field name="cause_txt"/>
-                <field name="exten"/>
-                <field name="callerid_num"/>
-                <field name="user"/>
-              </tree>
-            </field>
-          </group>
+            <h1><field name="direction"/> call <field name="started"/></h1>
+            <notebook>
+              <page name="main" string="Main">
+                <group>
+                  <group name="calling">
+                    <div style="display: flex; align-items: center;">
+                      <div style="margin-right: 5px;">
+                        <field name="calling_user_img"
+                              attrs="{'invisible': [('calling_user', '=', False)]}"
+                              widget="image" class="oe_avatar"
+                              style="float: left"/>
+                      </div>
+                      <group>
+                        <field name="calling_user" attrs="{'invisible': [('calling_user', '=', False)]}"/>
+                        <field name="calling_number" widget="originate_call"/>
+                      </group>
+                    </div>
+                  </group>
+                  <group name="called">
+                    <div style="display: flex; align-items: center;">
+                      <div style="margin-right: 5px;">
+                        <field name="called_user_img"
+                              attrs="{'invisible': [('called_user', '=', False)]}"
+                              widget="image" class="oe_avatar"
+                              style="float: left"/>
+                      </div>
+                      <group>
+                        <field name="called_user" attrs="{'invisible': [('called_user', '=', False)]}"/>
+                        <field name="called_number" widget="originate_call"/>
+                      </group>
+                    </div>
+                  </group>
+                </group>
+    
+                <group>
+                  <group>
+                    <div style="display: flex; align-items: center;">
+                      <div style="margin-right: 5px;">
+                        <field name="partner_img"
+                                attrs="{'invisible': [('partner', '=', False)]}"
+                                widget="image" class="oe_avatar"
+                                style="float: left"/>
+                      </div>
+                      <group>
+                        <field name="partner" context="{'call_id': active_id}"/>
+                        <field name="ref" context="{'call_id': active_id}"/>
+                      </group>
+                    </div>
+                  </group>
+                  <group>
+                    <field name="answered" attrs="{'invisible': [('answered', '=', False)]}"/>
+                    <field name="ended"/>
+                    <field name="duration_human" attrs="{'invisible': [('answered', '=', False)]}"/>
+                  </group>
+                </group>
+                <group>
+                  <field name="notes"/>
+                </group>                
+              </page>
+              <page name="channels"
+                    groups="asterisk_plus.group_asterisk_admin"
+                    string="Channels"
+                    attrs="{'invisible': [('channels', '=', [])]}">
+                <field name="channels">
+                  <tree>
+                    <field name="channel"/>
+                    <field name="cause_txt"/>
+                    <field name="exten"/>
+                    <field name="callerid_num"/>
+                    <field name="user"/>
+                  </tree>
+                </field>
+              </page>
+              <page name="recordings"
+                    string="Recordings"
+                    attrs="{'invisible': [('recordings', '=', [])]}">
+                <field name="recordings">
+                  <tree>
+                    <field name="recording_widget" widget="html" nolabel="1"/>
+                  </tree>
+                </field>
+              </page>
+              <page name="events" string="Events">
+                <group>
+                  <field name="events" nolabel="1" options="{'no_open': True}">
+                    <tree>
+                      <field name="event"/>
+                      <field name="create_date"/>
+                    </tree>
+                  </field>
+                </group>
+              </page>
+          </notebook>
         </sheet>
+        <div class="oe_chatter">
+          <field name="message_follower_ids" widget="mail_followers"/>
+          <field name="message_ids" widget="mail_thread"/>
+        </div>
       </form>
+    </field>
+  </record>
+
+  <record id="asterisk_plus_call_graph" model="ir.ui.view">
+    <field name="name">asterisk_plus_call_graph</field>
+    <field name="model">asterisk_plus.call</field>
+    <field name="arch" type="xml">
+      <graph type="bar" string="Call by day">
+        <field name='started' type='row'  interval="day"/>
+        <field name='status' type='row'/>
+        <field name="duration" type="measure"/>
+      </graph>
+    </field>
+  </record>
+
+  <record id="asterisk_plus_call_pivot" model="ir.ui.view">
+    <field name="name">asterisk_plus_call_pivot</field>
+    <field name="model">asterisk_plus.call</field>
+    <field name="arch" type="xml">
+      <pivot display_quantity="true" string="Calls">
+        <field name='started' type='row'/>
+        <field name='status' type='row'/>
+        <field name="duration" type="measure"/>
+      </pivot>
     </field>
   </record>
 
@@ -126,16 +211,54 @@
         <field name="called_user"/>
         <field name="status"/>
         <field name="ended"/>
-        <filter name="in" string="Incoming"
-          domain="[('direction', '=', 'in')]"/>
-        <filter name="out" string="Outgoing"
-          domain="[('direction', '=', 'out')]"/>
-          <filter name="by_status" string="Ended" context="{'group_by':'status'}"/>
+        <field name="model"/>
+        <filter name="my" string="My Calls"
+            domain="['|', ('calling_user','=', uid), ('called_user','=', uid)]"/>
+        <filter name="answered" string="My Answered"
+            domain="[('status', '=', 'answered'), '|',
+                ('calling_user','=', uid), ('called_user','=', uid)]"/>
+        <filter name="missed" string="My Missed"
+            domain="[('status', '!=', 'answered'), '|',
+                ('calling_user','=', uid), ('called_user','=', uid)]"/>
+        <filter name="incoming" string="My Incoming"
+            domain="[('called_user','=', uid)]"/>
+        <filter name="outgoing" string="My Outgoing"
+            domain="[('calling_user','=', uid)]"/>
+        <separator/>
+          <filter name="in" string="Incoming" domain="[('direction', '=', 'in')]"/>
+          <filter name="out" string="Outgoing" domain="[('direction', '=', 'out')]"/>
+        <separator/>
+        <filter name="today" string="Today" domain="[
+            ('started','&gt;', context_today().strftime('%Y-%m-%d 00:00:00'))]"/>
+        <filter name="week" string="This Week" domain="[
+            ('started', '&gt;', (context_today() + relativedelta(weeks=-1, weekday=0)).strftime('%Y-%m-%d 00:00:00'))]"/>
+        <filter string="This month" name="this_month" domain="[
+            ('started','&gt;=', (context_today() + relativedelta(day=1)).strftime('%Y-%m-%d 00:00:00'))]"/>
+        <filter string="Previous month" name="prev_month" domain="[
+            ('started','&gt;=',(context_today()+relativedelta(months=-1, day=1)).strftime('%Y-%m-%d 00:00:00')),
+            ('started','&lt;=',(context_today()+relativedelta(months=-1, day=31)).strftime('%Y-%m-%d 23:59:59'))]"/>
+        <filter string="This year" name="this_year" domain="[
+            ('started','&gt;=',(context_today()+relativedelta(month=1, day=1)).strftime('%Y-%m-%d 00:00:00'))]"/>
+        <separator/>
+        <filter name="recordings" string="Recordings" domain="[('recordings','!=',False)]"/>
+        <filter name="partners" string="Partners"
+            domain="[('partner','!=',False)]"/>
+        <filter name="without_partner" string="No Partner"
+            domain="[('partner','=',False)]"/>
+        <filter string="Missed" name="missed" domain="[('status','!=','answered')]"/>
+        <filter string="Answered" name="answered" domain="[('status','=','answered')]"/>
+        <filter string="Busy" name="busy" domain="[('status','=','busy')]"/>
+        <filter string="No answer" name="no_answer" domain="[('status','=','noanswer')]"/>
+        <filter string="Failed" name="failed" domain="[('status','=','failed')]"/>
+        <filter name="by_status" string="Status" context="{'group_by':'status'}"/>
+        <filter name="by_status" string="Status" context="{'group_by':'status'}"/>
+        <filter name="by_started" string="Started" context="{'group_by':'started'}"/>
         <filter name="by_ended" string="Ended" context="{'group_by':'ended'}"/>
-        <filter name="by_direction" string="Ended" context="{'group_by':'direction'}"/>
+        <filter name="by_direction" string="Direction" context="{'group_by':'direction'}"/>
         <filter name="by_partner" string="Partner" context="{'group_by':'partner'}"/>
         <filter name="by_calling_user" string="Calling User" context="{'group_by':'calling_user'}"/>
         <filter name="by_called_user" string="Called User" context="{'group_by':'called_user'}"/>
+        <filter name="by_model" string="Model" context="{'group_by':'model'}"/>
       </search>
     </field>
   </record>

@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 class SaltJob(models.Model):
     _name = 'asterisk_plus.salt_job'
+    _description = 'Salt job'
 
     fun = fields.Char()
     jid = fields.Char(required=True)

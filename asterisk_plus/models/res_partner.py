@@ -28,9 +28,20 @@ class Partner(models.Model):
         'Prefix with # to add 1 second pause before entering. '
         'Every # adds 1 second pause. Example: ###1001'))
     call_count = fields.Integer(compute='_get_call_count', string='Calls')
+    recorded_calls = fields.One2many('asterisk_plus.recording', 'partner')
 
     @api.model
     def create(self, vals):
+        try:
+            if self.env.context.get('call_id'):
+                call = self.env['asterisk_plus.call'].browse(
+                    self.env.context['call_id'])
+                if call.direction == 'in':
+                    vals['phone'] = call.calling_number
+                else:
+                    vals['phone'] = call.called_number
+        except Exception as e:
+            logger.exception(e)
         res = super(Partner, self).create(vals)
         if res and not self.env.context.get('no_clear_cache'):
             self.clear_caches()
@@ -65,8 +76,8 @@ class Partner(models.Model):
         dtmf_digits = extension.strip('#')
         self.env.user.asterisk_users[0].server.originate_call(
             number, model='model', res_id=res_id,
-            dtmf_variables=[f'__dtmf_digits: {dtmf_digits}',
-                            f'__dtmf_delay: {dtmf_delay}'])
+            dtmf_variables=['__dtmf_digits: {}'.format(dtmf_digits),
+                            '__dtmf_delay: {}'.format(dtmf_delay)])
 
     @api.depends('phone', 'mobile', 'country_id')
     def _get_phone_normalized(self):
@@ -92,7 +103,7 @@ class Partner(models.Model):
         except Exception as e:
             logger.warning('Normalize phone error: %s', e)
         # Strip the number if parse error.
-        return strip_number(number)
+        return number
 
     def search_by_number(self, number):
         """Search partner by number.
@@ -110,7 +121,7 @@ class Partner(models.Model):
         parents = found.mapped('parent_id')
         # 1-st case: just one partner, perfect!
         if len(found) == 1:
-            debug(self, 'FOUND PARTNER BY NUMBER {}'.format(number))
+            debug(self, 'FOUND PARTNER {} BY NUMBER {}'.format(found.name, number))
             return found[0]
         # 2-nd case: Many partners, no parent company / many companies
         elif len(parents) == 0 and len(found) > 1:
@@ -136,6 +147,27 @@ class Partner(models.Model):
         # 6-rd case: Nothing found
         else:
             debug(self, 'NO PARTNERS FOUND FOR NUMBER {}'.format(number))
+
+    def search_by_caller_number(self, number):
+        # Called from AMI events.fields.
+        # Get country code of Asterisk server account.
+        country_code = self.env.user.country_id.code
+        try:
+            phone_nbr = phonenumbers.parse(number, country_code)
+            if not phonenumbers.is_possible_number(phone_nbr):
+                debug(self, 'PHONE NUMBER {} NOT POSSIBLE'.format(number))
+            elif not phonenumbers.is_valid_number(phone_nbr):
+                debug(self, 'PHONE NUMBER {} NOT VALID'.format(number))
+            # We have a parsed number, let check what format to return.
+            number = phonenumbers.format_number(
+                phone_nbr, phonenumbers.PhoneNumberFormat.E164)
+            debug(self, 'E164 FORMATTED NUMBER: {}'.format(number))
+        except phonenumberutil.NumberParseException:
+            debug(self, 'PHONE NUMBER {} PARSE ERROR'.format(number))
+        except Exception:
+            logger.exception('FORMAT NUMBER ERROR:')
+        finally:            
+            return self.search_by_number(number)
 
     def _get_country_code(self):
         partner = self

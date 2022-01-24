@@ -26,6 +26,23 @@
                 <field name="phone_extension" widget="originate_extension"
                     attrs="{'invisible': [('phone', '=', False)]}"/>
             </field>
+            <page name="internal_notes" position="after">
+                <page string="Recorded Calls" name="recordings"
+                        groups="asterisk_plus.group_asterisk_user,asterisk_plus.group_asterisk_admin">
+                    <group>
+                        <field name="recorded_calls"
+                            class="oe_read_only" nolabel="1">
+                            <tree limit="5">
+                                <field name="recording_widget" widget="html"/>
+                                <field name="duration_human"/>
+                                <field name="answered"/>
+                                <field name="calling_user"/>
+                                <field name="called_user"/>
+                            </tree>
+                        </field>
+                    </group>
+                </page>
+            </page>
         </field>
     </record>
 
@@ -51,7 +68,8 @@
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_res_partner_filter"/>
         <field name="arch" type="xml">
-            <field name="email" position="after">
+            <field name="phone" position="after">
+                <field name="mobile"/>
                 <field name="phone_normalized"/>
                 <field name="mobile_normalized"/>
             </field>
