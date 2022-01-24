@@ -36,7 +36,7 @@
         'views/settings.xml',
         'views/about.xml',
         'views/event.xml',
-        'views/recording.xml'
+        'views/recording.xml',
         'views/res_users.xml',
         'views/user.xml',
         'views/res_partner.xml',
@@ -70,9 +70,13 @@
             '/asterisk_plus/static/src/js/support.js',
             '/asterisk_plus/static/src/js/actions.js',
             '/asterisk_plus/static/src/js/originate.js',
+            '/asterisk_plus/static/src/js/web_phone.js',
+            '/asterisk_plus/static/src/lib/jssip.min.js',
+            '/asterisk_plus/static/src/scss/web_phone.scss',
         ],
         'web.assets_qweb': [
             'asterisk_plus/static/src/xml/**/*',
+            'asterisk_plus/static/src/xml/web_phone.xml',
         ],
     }
 }
