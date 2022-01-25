@@ -108,7 +108,7 @@ class Channel(models.Model):
             'action': 'reload_view',
             'model': 'asterisk_plus.channel'
         }
-        self.env['bus.bus'].sendone('asterisk_plus_actions', json.dumps(msg))
+        self.env['bus.bus']._sendone('asterisk_plus_actions', 'reload_channels', json.dumps(msg))
 
     def update_call_data(self):
         self.ensure_one()

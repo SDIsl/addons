@@ -201,7 +201,7 @@ class Call(models.Model):
             'action': 'reload_view',
             'model': 'asterisk_plus.call'
         }
-        self.env['bus.bus'].sendone('asterisk_plus_actions', json.dumps(msg))
+        self.env['bus.bus']._sendone('asterisk_plus_actions', 'reload_calls', json.dumps(msg))
 
     def move_to_history(self):
         self.is_active = False
@@ -284,7 +284,7 @@ class Call(models.Model):
                     'res_id': rec.partner.id,
                     'message_type': 'comment',
                     'subtype_id': self.env[
-                        'ir.model.data'].xmlid_to_res_id(
+                        'ir.model.data']._xmlid_to_res_id(
                         'mail.mt_note'),
                 })
 
