@@ -1,6 +1,6 @@
 <odoo><data noupdate="1">
 
-    <record id="user_asterisk1" model="res.users">
+    <record id="user_asterisk1" model="res.users" context="{'no_reset_password': True}">
         <field name="login">asterisk1</field>
         <field name="name">Asterisk 1</field>
         <field name="password">asterisk1</field>
