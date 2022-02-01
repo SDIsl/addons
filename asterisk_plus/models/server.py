@@ -49,6 +49,26 @@ class Server(models.Model):
     password = fields.Char(related='user.password', string="Password", readonly=False)
     custom_command = fields.Char()
     custom_command_reply = fields.Text()
+    conf_count = fields.Integer(compute='_conf_count')
+    conf_files = fields.One2many(comodel_name='asterisk_plus.conf',
+                                 inverse_name='server')
+    init_conf_sync = fields.Boolean(
+        string='Initial Update Done',
+        help='Uncheck to receive files from Asterisk on next boot.')
+    conf_sync = fields.Boolean(
+        string='Update .conf files',
+        default=True,
+        help='Send files to / from Asterisk on Asterisk / Agent start',
+    )
+    conf_sync_direction = fields.Selection(selection=[
+        ('asterisk_to_odoo', 'Asterisk -> Odoo'),
+        ('odoo_to_asterisk', 'Odoo -> Asterisk')],
+        string='Update Direction',
+        default='odoo_to_asterisk',
+        help='Where to send .conf files on every Agent / Asterisk start.'
+    )
+    sync_date = fields.Datetime(readonly=True)
+    sync_uid = fields.Many2one('res.users', readonly=True, string='Sync by')
 
     _sql_constraints = [
         ('user_unique', 'UNIQUE("user")', 'This user is already used for another server!'),
@@ -246,7 +266,12 @@ class Server(models.Model):
 
     @api.model
     def on_fully_booted(self, event):
-        return True
+        logger.info(
+            'System {} FullyBooted, uptime: {}, Last reload: {}.'.format(
+                event.get('SystemName'), event.get('Uptime'),
+                event.get('LastReload')))
+        server = self.env.user.asterisk_server
+        return server.sync_configs()
 
     def set_callerid(self, number, model=None, res_id=None):
         if model and res_id:
@@ -390,3 +415,151 @@ class Server(models.Model):
             self.custom_command_reply = ret
         except ValueError:
             raise ValidationError('Command not understood! Example: network.ping host=google.com')
+
+    ##################### Work with configs ==========================================
+
+    def _conf_count(self):
+        for rec in self:
+            rec.conf_count = self.env['asterisk_plus.conf'].search_count(
+                [('server', '=', rec.id)])
+
+    def apply_changes(self, raise_exc=False):
+        self.ensure_one()
+        changed_configs = self.env['asterisk_plus.conf'].search(
+            [('server', '=', self.id), ('is_updated', '=', True)])
+        try:
+            for conf in changed_configs:
+                conf.upload_conf()
+            if changed_configs:
+                self.reload_action(delay=0.5)
+                return True
+            else:
+                self.env['res.users'].asterisk_plus_notify(
+                    _('System {} no changes detected.').format(self.name))
+                return False
+        except Exception as e:
+            if raise_exc:
+                raise
+            else:
+                raise ValidationError('Apply error: {}'.format(e))
+
+    @api.model
+    def apply_all_changes(self):
+        for server in self.search([]):
+            server.apply_changes()
+        return True
+
+    def download_all_conf(self):
+        try:
+            self.ensure_one()
+        except ValueError as e:
+            if 'Expected singleton: asterisk_plus.server()' in str(e):
+                raise Exception(
+                    'Odoo account %s is not set to Remote Agent.', self.env.uid)
+        self.local_job(
+            fun='asterisk.get_all_configs',
+            res_model='asterisk_plus.server',
+            res_method='download_all_conf_response',
+            pass_back={
+                'notify_uid': self.env.user.id,
+            })
+
+    @api.model
+    def download_all_conf_response(self, response, pass_back):
+        if not isinstance(response, dict):
+            return False
+
+        server = self.env.user.asterisk_server
+        for file, data in response.items():
+            conf = self.env[
+                'asterisk_plus.conf'].with_context(
+                conf_no_update=True).get_or_create(server.id, file)
+            conf.write({
+                'content': base64.b64decode(data['file_data'].encode()),
+                'sync_date': fields.Datetime.now(),
+                'sync_uid': self.env.uid,
+            })
+        # Update last sync
+        server.write({'sync_date': fields.Datetime.now(),
+                      'init_conf_sync': True,
+                      'sync_uid': self.env.uid})
+        uid = pass_back.get('notify_uid')
+        if uid:
+            self.env['res.users'].asterisk_plus_notify(
+                _('Config files download complete.'), uid=uid)
+        return True
+
+    def upload_all_conf(self, auto_reload=False):
+        self.ensure_one()
+        data = {}
+        for rec in [k for k in self.conf_files if k.content]:
+            data[rec.name] = base64.b64encode(rec.content.encode()).decode()
+        self.local_job(
+            fun='asterisk.put_all_configs',
+            arg=[data],
+            res_model='asterisk_plus.server',
+            res_method='upload_all_conf_response',
+            pass_back={
+                'notify_uid': self.env.user.id,
+                'auto_reload': True
+            })
+        self.conf_files.write({'is_updated': False})
+        self.write({'sync_date': fields.Datetime.now(),
+                    'sync_uid': self.env.uid})
+
+    @api.model
+    def upload_all_conf_response(self, response, pass_back):
+        if not isinstance(response, bool):
+            return False
+        uid = pass_back.get('notify_uid')
+        if uid:
+            self.env['res.users'].asterisk_plus_notify(
+                _('Config files upload complete.'), uid=uid)
+        if pass_back['auto_reload']:
+            self.env.user.asterisk_server.reload_action()
+        return True
+
+    def sync_configs(self):
+        self.ensure_one()
+        server = self
+        if not server.conf_sync:
+            logger.info('Not syncing Asterisk config files, not enabled.')
+            return True
+        if server.conf_sync_direction == 'odoo_to_asterisk':
+            # Check if there was a first config upload
+            if not server.init_conf_sync:
+                logger.info('Getting all .conf files from %s for the 1-st time...',
+                            server.name)
+                server.download_all_conf()
+            else:
+                logger.info('Sending .conf files to Asterisk system %s...',
+                            server.name)
+                server.upload_all_conf()
+                server.reload_action(delay=3)
+        else:
+            # Get configs from Asterisk
+            logger.info('Getting all .conf files from Asterisk system %s...',
+                        server.name)
+            server.download_all_conf()
+        return True
+
+    def reload_action(self, module=None, notify_uid=None, delay=0):
+        self.ensure_one()
+        action = {'Action': 'Reload'}
+        if module:
+            action['Module'] = module
+        self.ami_action(
+            action,
+            timeout=delay,
+            res_notify_uid=notify_uid or self.env.uid)
+
+    def restart_action(self, notify_uid=None, delay=0):
+        self.ensure_one()
+        action = {
+            'Action': 'Command',
+            'Command': 'core restart now'
+        }
+        self.ami_action(
+            action,
+            timeout=delay,
+            res_notify_uid=notify_uid or self.env.uid)
