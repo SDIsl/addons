@@ -46,6 +46,7 @@
         'views/channel_message.xml',
         'views/templates.xml',
         'views/tag.xml',
+        'views/conf.xml',
         # Cron
         'views/ir_cron.xml',
         # Wizards

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+  <t t-name="AsteriskConf">
+    <textarea rows="4" id="asterisk_conf" class="asterisk_conf"></textarea>
+  </t>
+
+  <t t-name="ConfTemplate">
+    <textarea rows="4" id="conf_template" class="conf_template"></textarea>
+  </t>
+
+  <t t-name="DiffTemplate">
+    <textarea rows="4" id="diff_template" class="diff_template"></textarea>
+  </t>
+
+  <t t-extend="ListView.buttons">
+      <t t-jquery="div.o_list_buttons" t-operation="append">        
+          <button t-if="widget.modelName.split('.')[0] == 'asterisk_plus' || widget.modelName.split('.')[0].includes('asterisk_plus')"
+            class="btn btn-info o_apply_changes"
+            type="button">Apply Changes</button>
+          <button t-if="widget.modelName == 'asterisk_plus.access_ban'" 
+            class="btn btn-info o_reload_access_bans"
+            type="button">Refresh</button>
+      </t>
+  </t>  
+
+  <t t-extend="FormView.buttons">
+      <t t-jquery="div.o_form_buttons_view" t-operation="append">        
+          <button t-if="widget.modelName.split('.')[0] == 'asterisk_plus' ||  widget.modelName.split('.')[0].includes('asterisk_plus')"
+            class="btn btn-info o_apply_changes"
+            type="button">Apply Changes</button>
+      </t>
+  </t>  
+
+</templates>

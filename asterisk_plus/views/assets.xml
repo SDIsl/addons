@@ -6,6 +6,8 @@
       <script type="text/javascript" src="/asterisk_plus/static/src/js/support.js"/>
       <script type="text/javascript" src="/asterisk_plus/static/src/js/actions.js"/>
       <script type="text/javascript" src="/asterisk_plus/static/src/js/originate.js"/>
+      <script type="text/javascript" src="/asterisk_plus/static/src/js/asterisk_conf.js"/>
+      <script type="text/javascript" src="/asterisk_plus/static/src/js/buttons.js"/>
     </xpath>
   </template>
 
