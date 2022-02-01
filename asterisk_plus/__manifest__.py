@@ -45,6 +45,7 @@
         'views/channel_message.xml',
         'views/templates.xml',
         'views/tag.xml',
+        'views/conf.xml',
         # Cron
         'views/ir_cron.xml',
         # Wizards
@@ -71,6 +72,8 @@
             '/asterisk_plus/static/src/js/actions.js',
             '/asterisk_plus/static/src/js/originate.js',
             '/asterisk_plus/static/src/js/web_phone.js',
+            '/asterisk_plus/static/src/js/asterisk_conf.js',
+            '/asterisk_plus/static/src/js/buttons.js',
             '/asterisk_plus/static/src/lib/jssip.min.js',
             '/asterisk_plus/static/src/scss/web_phone.scss',
         ],
