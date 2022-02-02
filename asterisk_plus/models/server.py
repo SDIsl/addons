@@ -478,6 +478,7 @@ class Server(models.Model):
                 'content': base64.b64decode(data['file_data'].encode()),
                 'sync_date': fields.Datetime.now(),
                 'sync_uid': self.env.uid,
+                'is_updated': False,
             })
         # Update last sync
         server.write({'sync_date': fields.Datetime.now(),

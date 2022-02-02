@@ -176,7 +176,9 @@ class AsteriskConf(models.Model):
             'content': base64.b64decode(
                 response['file_data'].encode()).decode('latin-1'),
             'sync_date': fields.Datetime.now(),
-            'sync_uid': self.env.user.id})
+            'sync_uid': self.env.user.id,
+            'is_updated': False,
+        })
         self.env.user.asterisk_plus_notify(
             'File {} downloaded.'.format(
                 pass_back['name']),
