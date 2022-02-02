@@ -94,12 +94,6 @@
                       <field name="custom_command_reply" string="Reply"/>
                     </group>
                   </page>
-                  <page string="Configuration files" attrs="{'invisible': [('write_date', '=', False)]}">
-                    <group>
-                      <field name="conf_files" nolabel="1"
-                          context="{'default_server': active_id}"/>
-                    </group>
-                  </page>
                 </notebook>
               </sheet>
           </form>

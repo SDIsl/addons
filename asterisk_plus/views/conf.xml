@@ -45,7 +45,6 @@
                     <label for="name" class="oe_edit_only"/>
                     <h1><field name="name"/></h1>
                 </div>
-                <widget name="web_ribbon" title="Deleted" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>                
                 <notebook>
                   <page string="Content">
                       <field name="content" widget="asterisk_conf" nolabel="1"/>
