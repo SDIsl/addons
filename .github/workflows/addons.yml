@@ -24,3 +24,4 @@ jobs:
           POSTGRES_USER: odoo
      steps:
       odoo --stop-after-init --no-http -i asterisk_plus
+
