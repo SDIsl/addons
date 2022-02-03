@@ -1,0 +1,26 @@
+name: Addons
+on:
+  push:
+    branches:
+      - "14.0"
+env:
+  version: 14
+
+jobs:
+  Install:
+    runs-on: ubuntu-20.04
+    container:
+      image: odoo:14
+      env:
+        HOST: db
+        USER: odoo
+        PASSWORD: odoo
+        DATABASE: ephemeral
+    services:
+      db:
+        image: postgres:12
+        env:
+          POSTGRES_PASSWORD: odoo
+          POSTGRES_USER: odoo
+     steps:
+      odoo --stop-after-init --no-http -i asterisk_plus
