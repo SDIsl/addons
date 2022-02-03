@@ -4,7 +4,7 @@ on:
     branches:
       - "14.0"
 env:
-  version: 14
+  version: "14"
 
 jobs:
   Install:
@@ -23,5 +23,6 @@ jobs:
           POSTGRES_PASSWORD: odoo
           POSTGRES_USER: odoo
      steps:
-      odoo --stop-after-init --no-http -i asterisk_plus
+      - name: Install asterisk_addons module
+        run: odoo --stop-after-init --no-http -i asterisk_plus
 
