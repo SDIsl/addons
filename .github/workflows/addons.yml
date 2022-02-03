@@ -1,28 +1,27 @@
-name: Addons
+name: CI
 on:
-  push:
-    branches:
-      - "14.0"
-env:
-  version: "14"
+  - push
 
 jobs:
   Install:
     runs-on: ubuntu-20.04
     container:
-      image: odoo:14
-      env:
-        HOST: db
-        USER: odoo
-        PASSWORD: odoo
-        DATABASE: ephemeral
+      image: odoo:${{ github.ref_name }}
+      options: --user=root
     services:
       db:
         image: postgres:12
         env:
           POSTGRES_PASSWORD: odoo
           POSTGRES_USER: odoo
-     steps:
-      - name: Install asterisk_addons module
-        run: odoo --stop-after-init --no-http -i asterisk_plus
-
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@master
+      - name: Install module requirements
+        run: pip3 install -r requirements.txt
+      - name: Install odoo modules
+        run: >
+          odoo --addons-path=$GITHUB_WORKSPACE --database=ephemeral
+          --db_host=db --db_user=odoo --db_password=odoo
+          --stop-after-init --no-http
+          -i asterisk_plus_crm,asterisk_plus_hr,asterisk_plus_project,asterisk_plus_sale
