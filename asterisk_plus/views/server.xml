@@ -43,6 +43,10 @@
                           icon="fa-bomb" name="ping"/>
                   <button type="object" class="oe_read_only" string="Asterisk Ping"
                           icon="fa-bomb" name="asterisk_ping"/>
+                  <button name="upload_all_conf" type="object" icon="fa-upload"
+                      string="Upload Conf Files" class="oe_read_only"/>
+                  <button name="download_all_conf" type="object" icon="fa-download"
+                      class="oe_read_only" string="Download Conf Files"/>
                   <button type="object" class="oe_read_only" string="Reload"
                           icon="fa-refresh" name="reload_action"/>
                   <button type="object" class="oe_read_only" string="Restart"
