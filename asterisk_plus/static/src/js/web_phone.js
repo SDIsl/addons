@@ -8,6 +8,8 @@ odoo.define('asterisk_plus.web_phone_core', function (require) {
 
   const bus = new owl.core.EventBus();
 
+  const {useService} = require("@web/core/utils/hooks");
+
   const {Component, useState} = owl;
   const {xml} = owl.tags;
 
@@ -193,14 +195,24 @@ odoo.define('asterisk_plus.web_phone_core', function (require) {
         web_phone_websocket: '',
       };
 
-      this.notify = new Notification(this);
-      this.notify.mount(document.body);
+      this.notification = useService("notification");
+
+      this.notify = (message, title = 'Web Phone', sticky = false, type = 'warning') => {
+        this.notification.notify(
+          {
+            title: 'Web Phone',
+            message: 'Missing configs! Check "User / Preferences"!',
+            sticky: false,
+            type: 'warning'
+          }
+        );
+      }
 
       bus.on('web_phone_toggle_display', this, function (...args) {
         if (this.state.isActive) {
           this.toggleDisplay();
         } else {
-          this.notify.add('Missing configs! Check "User / Preferences"!')
+          this.notify('Missing configs! Check "User / Preferences"!')
         }
       });
     }
@@ -348,12 +360,12 @@ odoo.define('asterisk_plus.web_phone_core', function (require) {
           });
           self.session.on("ended", function (data) {
             // console.log('incoming -> ended: ', data);
-            self.notify.add(data.cause);
+            self.notify(data.cause);
             self.endCall();
           });
           self.session.on("failed", function (data) {
             // console.log('incoming -> failed: ', data);
-            self.notify.add(data.cause);
+            self.notify(data.cause);
             self.endCall();
             self.incomingPlayer.pause();
             self.incomingPlayer.currentTime = 0;
@@ -406,7 +418,7 @@ odoo.define('asterisk_plus.web_phone_core', function (require) {
         this.startCall();
         this.makeCall(this.state.phone_number);
       } else {
-        this.notify.add("The phonecall has no number");
+        this.notify("The phonecall has no number");
       }
     }
 
@@ -464,41 +476,41 @@ odoo.define('asterisk_plus.web_phone_core', function (require) {
       const self = this;
       self.get_partner(phone_number);
 
-        self.eventHandlers = {
-          'connecting': function (data) {
-            // console.log('connecting: ', data)
-            self.dialPlayer.play();
-            self.dialPlayer.loop = true;
-          },
-          'confirmed': function (data) {
-            // console.log('confirmed: ', data);
-          },
-          'accepted': function (data) {
-            // console.log('accepted: ', data)
-            self.dialPlayer.pause();
-            self.dialPlayer.currentTime = 0;
-          },
-          'ended': function (data) {
-            // console.log('ended: ', data);
-            self.notify.add(data.cause);
-            self.endCall();
-            self.dialPlayer.pause();
-            self.dialPlayer.currentTime = 0;
-          },
-          'failed': function (data) {
-            // console.log('failed: ', data);
-            self.notify.add(data.cause);
-            self.endCall();
-            self.dialPlayer.pause();
-            self.dialPlayer.currentTime = 0;
-          }
-        };
+      self.eventHandlers = {
+        'connecting': function (data) {
+          // console.log('connecting: ', data)
+          self.dialPlayer.play();
+          self.dialPlayer.loop = true;
+        },
+        'confirmed': function (data) {
+          // console.log('confirmed: ', data);
+        },
+        'accepted': function (data) {
+          // console.log('accepted: ', data)
+          self.dialPlayer.pause();
+          self.dialPlayer.currentTime = 0;
+        },
+        'ended': function (data) {
+          // console.log('ended: ', data);
+          self.notify(data.cause);
+          self.endCall();
+          self.dialPlayer.pause();
+          self.dialPlayer.currentTime = 0;
+        },
+        'failed': function (data) {
+          // console.log('failed: ', data);
+          self.notify(data.cause);
+          self.endCall();
+          self.dialPlayer.pause();
+          self.dialPlayer.currentTime = 0;
+        }
+      };
 
-        var options = {
-          'eventHandlers': self.eventHandlers,
-          'mediaConstraints': {'audio': true, 'video': false}
-        };
-        self.session = self._userAgent.call(`sip:${phone_number}`, options);
+      var options = {
+        'eventHandlers': self.eventHandlers,
+        'mediaConstraints': {'audio': true, 'video': false}
+      };
+      self.session = self._userAgent.call(`sip:${phone_number}`, options);
     }
 
     startCall() {
@@ -549,7 +561,7 @@ odoo.define('asterisk_plus.web_phone_core', function (require) {
         domain: [
           '|', ['phone', '!=', ''], ['mobile', '!=', ''],
         ],
-        fields:  ['id', 'name', 'email', 'phone', 'mobile', 'image_128'],
+        fields: ['id', 'name', 'email', 'phone', 'mobile', 'image_128'],
       });
       this.state.contacts = contacts;
       this.state.raw_contacts = contacts;
@@ -579,35 +591,6 @@ odoo.define('asterisk_plus.web_phone_core', function (require) {
     },
   });
 
-  class Notification extends Component {
-    static template = xml`
-    <div id="alert" style="position: absolute; top: 60px; right: 20px; z-index: 1000; overflow: unset">
-      <t t-foreach="state.messages" t-as="message">
-        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="opacity: 1; background-color: #ffecb5; width: 350px; min-width: 350px">
-          <div class="toast-header">
-            <i aria-label="Toggle Web Phone" class="fa fa-fw fa-phone" role="img"></i>
-            <strong class="mr-auto">Web Phone</strong>
-          </div>
-          <div class="toast-body">
-            <t t-esc="message"/>
-          </div>
-        </div>
-      </t>
-    </div>
-    `
-    constructor() {
-      super(...arguments);
-      this.state = useState({
-        messages: [],
-      });
-    }
-
-    add(message) {
-      this.state.messages.push(message)
-      setTimeout(()=>this.state.messages.shift(), 1000)
-    }
-  }
-
   ajax.rpc('/web/dataset/call_kw/asterisk_plus.settings', {
     "model": "asterisk_plus.settings",
     "method": "search_read",
@@ -615,7 +598,7 @@ odoo.define('asterisk_plus.web_phone_core', function (require) {
     "kwargs": {'limit': 1},
   }).then(function ([res]) {
     if (res) {
-      if(res.is_web_phone_enabled) {
+      if (res.is_web_phone_enabled) {
         owl.utils.whenReady().then(() => {
           const app = new WebPhoneCore(this);
           app.mount(document.body);
