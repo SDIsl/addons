@@ -198,14 +198,7 @@ odoo.define('asterisk_plus.web_phone_core', function (require) {
       this.notification = useService("notification");
 
       this.notify = (message, title = 'Web Phone', sticky = false, type = 'warning') => {
-        this.notification.notify(
-          {
-            title: 'Web Phone',
-            message: 'Missing configs! Check "User / Preferences"!',
-            sticky: false,
-            type: 'warning'
-          }
-        );
+        this.notification.notify({title, message, sticky, type});
       }
 
       bus.on('web_phone_toggle_display', this, function (...args) {
