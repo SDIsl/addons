@@ -70,8 +70,7 @@ class Server(models.Model):
     sync_date = fields.Datetime(readonly=True)
     sync_uid = fields.Many2one('res.users', readonly=True, string='Sync by')
     cli_area = fields.Char(string="Console", compute='_get_cli_area')
-    console_url = fields.Char(
-        default=lambda x: x.get_default_console_url(), string='Console URL')
+    console_url = fields.Char(default='wss://agent:30000/')
     console_auth_token = fields.Char()
 
     _sql_constraints = [
@@ -574,20 +573,6 @@ class Server(models.Model):
     def _get_cli_area(self):
         for rec in self:
             rec.cli_area = '/asterisk_plus/console/{}'.format(rec.id)
-
-    def get_default_console_url(self):
-        try:
-            if release.version_info > (10,):
-                from urllib.parse import urlparse
-            else:
-                from urlparse import urlparse
-            url = urlparse(
-                self.env['ir.config_parameter'].get_param('web.base.url'))
-            return '{}s://{}:30000/'.format(url.scheme.replace('http', 'ws'),
-                                            url.netloc.split(':')[0])
-        except Exception:
-            logger.exception('Get default console URL error:')
-            return 'ws://127.0.0.1:30000/'
 
     def open_console_button(self):
         self.ensure_one()
