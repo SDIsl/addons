@@ -72,7 +72,6 @@
                       <group>
                         <field name="country_id"/>
                         <field name="console_url"/>
-                        <field name="console_auth_token"/>
                       </group>
                       <group>
                         <field name="user"/>
