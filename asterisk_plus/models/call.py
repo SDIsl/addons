@@ -256,7 +256,7 @@ class Call(models.Model):
                         rec.called_user.name, rec.calling_name),
                     partner_ids=[rec.called_user.partner_id.id],
                 )
-            if rec.partner:
+            if rec.partner and rec.model != 'res.partner':
                 # Missed call
                 direction = 'outgoing' if rec.direction == 'out' else 'incoming'
                 if rec.called_user:
