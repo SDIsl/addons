@@ -50,7 +50,8 @@ class ResUser(models.Model):
         return True
 
     def get_pbx_user_settings(self):
-        # Used from actions.js
+        """Used from actions.js to get user settings.
+        """
         self.ensure_one()
         res = {}
         for ast_user in self.asterisk_users:

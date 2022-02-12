@@ -70,6 +70,8 @@ class AsteriskConf(models.Model):
         return True
 
     def unlink_on_asterisk(self):
+        """Delete conf file on server.
+        """
         names = self.mapped('name')
         servers = self.mapped('server')
         for server in servers:
@@ -90,11 +92,11 @@ class AsteriskConf(models.Model):
 
     @api.model
     def get_or_create(self, server_id, name, content=''):
-        # First try to get existing conf
+        """Get existing conf or create a new one.
+        """
         conf = self.env['asterisk_plus.conf'].search(
             [('server', '=', server_id), ('name', '=', name)])
         if not conf:
-            # Create a new one
             data = {'server': server_id, 'name': name, 'content': content}
             conf = self.env['asterisk_plus.conf'].create(data)
         return conf
@@ -114,7 +116,8 @@ class AsteriskConf(models.Model):
             from_conf.content += '\n{}\n'.format(include_string)
 
     def upload_conf(self):
-        # Upload conf to server
+        """Upload conf on server.
+        """
         self.ensure_one()
         self.server.local_job(
             fun='asterisk.put_config',
@@ -149,6 +152,8 @@ class AsteriskConf(models.Model):
         return True
 
     def download_conf(self, notify_uid=None):
+        """Download conf from server.
+        """
         self.ensure_one()
         self.server.local_job(
             fun='asterisk.get_config',
