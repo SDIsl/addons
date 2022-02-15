@@ -121,7 +121,7 @@ class AsteriskConf(models.Model):
         self.ensure_one()
         self.server.local_job(
             fun='asterisk.put_config',
-            arg=[self.name, base64.b64encode(self.content.encode()).decode()],
+            arg=[self.name, "'{}'".format(base64.b64encode(self.content.encode()).decode())],
             res_model='asterisk_plus.conf',
             res_method='upload_conf_response',
             pass_back={
