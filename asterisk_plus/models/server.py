@@ -610,3 +610,12 @@ class Server(models.Model):
             "url": "/asterisk_plus/console/{}".format(self.id),
             "target": "new",
         }
+
+    @api.model
+    def reload_view(self, model=None):
+        """Reloads view. Sends 'reload_view' action to actions.js
+        """
+        self.env['bus.bus'].sendone(
+            'asterisk_plus_actions',
+            {'action': 'reload_view', 'model': model})
+        return True
